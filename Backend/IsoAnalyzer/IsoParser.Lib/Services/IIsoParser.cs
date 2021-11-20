@@ -4,7 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using IsoParser.Lib.Models;
+
 namespace IsoParser.Lib.Services {
-	interface IIsoParser {
+	public interface IIsoParser {
+		Task<List<Atom>> GetTree(string path);
 	}
 }

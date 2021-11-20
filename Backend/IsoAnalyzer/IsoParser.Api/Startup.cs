@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IsoParser {
+namespace IsoParser.Api {
 	public class Startup {
 		public Startup(IConfiguration configuration) {
 			Configuration = configuration;
@@ -25,7 +25,7 @@ namespace IsoParser {
 
 			services.AddControllers();
 			services.AddSwaggerGen(c => {
-				c.SwaggerDoc("v1", new OpenApiInfo { Title = "IsoParser", Version = "v1" });
+				c.SwaggerDoc("v1", new OpenApiInfo { Title = "IsoParser.Api", Version = "v1" });
 			});
 		}
 
@@ -34,7 +34,7 @@ namespace IsoParser {
 			if (env.IsDevelopment()) {
 				app.UseDeveloperExceptionPage();
 				app.UseSwagger();
-				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "IsoParser v1"));
+				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "IsoParser.Api v1"));
 			}
 
 			app.UseHttpsRedirection();

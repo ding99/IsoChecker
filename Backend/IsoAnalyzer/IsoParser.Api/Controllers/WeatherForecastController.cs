@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IsoParser.Controllers {
+namespace IsoParser.Api.Controllers {
 	[ApiController]
 	[Route("[controller]")]
 	public class WeatherForecastController : ControllerBase {

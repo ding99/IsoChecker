@@ -1,6 +1,6 @@
 using System;
 
-namespace IsoParser {
+namespace IsoParser.Api {
 	public class WeatherForecast {
 		public DateTime Date { get; set; }
 

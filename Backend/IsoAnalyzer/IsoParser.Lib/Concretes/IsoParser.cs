@@ -11,6 +11,7 @@ namespace IsoParser.Lib.Concretes {
 	class IsoParser : IIsoParser {
 		public async Task<List<Atom>> GetTree(string path) {
 			List<Atom> atoms = new List<Atom>();
+			atoms.Add(new Atom { Id = "star", Size = 16 });
 			return atoms;
 		}
 	}

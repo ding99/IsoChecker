@@ -9,5 +9,9 @@ using IsoParser.Lib.Models;
 
 namespace IsoParser.Lib.Concretes {
 	class IsoParser : IIsoParser {
+		public async Task<List<Atom>> GetTree(string path) {
+			List<Atom> atoms = new List<Atom>();
+			return atoms;
+		}
 	}
 }

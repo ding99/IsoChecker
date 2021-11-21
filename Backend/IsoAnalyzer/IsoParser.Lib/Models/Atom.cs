@@ -22,12 +22,12 @@ namespace IsoParser.Lib.Models {
 
 	public enum ItemType {
 		None = 0,
+		Bool,
 		Byte,
 		Short,
 		Int,
 		Long,
 		Double,
-		Bool,
 		String
 	}
 }

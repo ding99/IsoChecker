@@ -8,7 +8,7 @@ using IsoParser.Lib.Services;
 using IsoParser.Lib.Models;
 
 namespace IsoParser.Lib.Concretes {
-	class IsoParser : IIsoParser {
+	public class Parser : IParser {
 		public async Task<List<Atom>> GetTree(string path) {
 			return await Task.Run(() => new Atom[] {
 					new Atom {

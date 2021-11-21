@@ -27,7 +27,7 @@ namespace CheckIso {
 				b.Append($"[{a.Id?? "none"}] {a.Offset:X}h (size {a.Size} / {a.Size:X}h)").Append(Environment.NewLine);
 
 				foreach (var item in a.Items)
-					b.Append($"{Spaces(layer + 1)}{item.Name}  {ShowValue(item.Value, item.Type)}")
+					b.Append($"{Spaces(layer + 1)}{item.Name}: {ShowValue(item.Value, item.Type)}")
 						.Append(Environment.NewLine);
 
 				if (a.Atoms != null && a.Atoms.Count > 0)

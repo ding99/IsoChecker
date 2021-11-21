@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using IsoParser.Lib.Models;
 
 namespace IsoParser.Lib.Services {
-	public interface IIsoParser {
+	public interface IParser {
 		Task<List<Atom>> GetTree(string path);
 	}
 }

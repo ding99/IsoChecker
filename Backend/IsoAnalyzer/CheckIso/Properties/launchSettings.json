@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CheckIso": {
+      "commandName": "Project",
+      "commandLineArgs": "E:\\05-Video\\math82_3_x264.mp4"
+    }
+  }
+}

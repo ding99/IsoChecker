@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IsoParser.Lib.Models {
 	public class Atom {
-		public String Id { get; set; }
+		public string Id { get; set; }
 		public long Size { get; set; }
 
 		public List<Atom> Atoms { get; set; }

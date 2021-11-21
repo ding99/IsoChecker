@@ -2,23 +2,23 @@
 using System.IO;
 
 namespace IsoParser.Lib.Tools {
-	public class FInfo {
-		public long fsize { get; set; }
-		public int psize { get; set; }
-		public int npack { get; set; }
-		public int phead { get; set; }
+	public class FileInfo {
+		public long FileSize { get; set; }
+		public int PackSize { get; set; }
+		public int PackCount { get; set; }
+		public int Head { get; set; }
 	}
 
 	public class BinFile {
 		private readonly BinaryReader reader;
-		private bool use;
+		private readonly FileInfo info;
 
-		private FInfo info;
+		private bool use;
 
 		public BinFile(string tsid) {
 			this.use = true;
 
-			this.info = new FInfo();
+			this.info = new FileInfo();
 
 			if (!File.Exists(tsid)) {
 				this.use = false;
@@ -33,7 +33,7 @@ namespace IsoParser.Lib.Tools {
 			}
 
 			this.reader.BaseStream.Seek(0, SeekOrigin.End);
-			this.info.fsize = this.reader.BaseStream.Position;
+			this.info.FileSize = this.reader.BaseStream.Position;
 			this.reader.BaseStream.Seek(0, SeekOrigin.Begin);
 		}
 
@@ -47,12 +47,12 @@ namespace IsoParser.Lib.Tools {
 		}
 
 		public long FileSize() {
-			return this.info.fsize;
+			return this.info.FileSize;
 		}
 
 		public bool NextPack(ref byte[] buffer) {
 			try {
-				buffer = this.reader.ReadBytes(this.info.psize);
+				buffer = this.reader.ReadBytes(this.info.PackSize);
 				return true;
 			}
 			catch (Exception) {
@@ -61,12 +61,12 @@ namespace IsoParser.Lib.Tools {
 		}
 
 		public bool SomePack(ref byte[] buffer, int packn) {
-			if (packn > this.info.npack)
+			if (packn > this.info.PackCount)
 				return this.use = false;
 
 			try {
-				this.reader.BaseStream.Seek(packn * this.info.psize, SeekOrigin.Begin);
-				buffer = this.reader.ReadBytes(this.info.psize);
+				this.reader.BaseStream.Seek(packn * this.info.PackSize, SeekOrigin.Begin);
+				buffer = this.reader.ReadBytes(this.info.PackSize);
 				return true;
 			}
 			catch (Exception) {
@@ -75,11 +75,11 @@ namespace IsoParser.Lib.Tools {
 		}
 
 		public bool GotoPack(int packn) {
-			if (packn > this.info.npack)
+			if (packn > this.info.PackCount)
 				return this.use = false;
 
 			try {
-				this.reader.BaseStream.Seek((long)packn * this.info.psize, SeekOrigin.Begin);
+				this.reader.BaseStream.Seek((long)packn * this.info.PackSize, SeekOrigin.Begin);
 				return true;
 			}
 			catch (Exception) {
@@ -89,7 +89,7 @@ namespace IsoParser.Lib.Tools {
 
 		public bool BackPack(int packn) {
 			try {
-				this.reader.BaseStream.Seek(-(long)packn * this.info.psize, SeekOrigin.Current);
+				this.reader.BaseStream.Seek(-(long)packn * this.info.PackSize, SeekOrigin.Current);
 				return true;
 			}
 			catch (Exception) {
@@ -98,7 +98,7 @@ namespace IsoParser.Lib.Tools {
 		}
 
 		public bool GotoByte(long offset) {
-			if (offset > this.info.fsize)
+			if (offset > this.info.FileSize)
 				return this.use = false;
 
 			try {
@@ -121,9 +121,9 @@ namespace IsoParser.Lib.Tools {
 		}
 
 		public bool SetPack(int size) {
-			this.info.psize = size;
-			if (size > 0) this.info.npack = (int)(this.info.fsize / size);
-			return this.info.fsize % size != 0 ? this.use = false : true;
+			this.info.PackSize = size;
+			if (size > 0) this.info.PackCount = (int)(this.info.FileSize / size);
+			return this.info.FileSize % size != 0 ? this.use = false : true;
 		}
 	}
 }

@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-using IsoParser.Lib;
-using IsoParser.Lib.Models;
 using IsoParser.Lib.Concretes;
+using IsoParser.Lib.Models;
 
 namespace CheckIso {
 	public class Worker {
@@ -28,7 +25,9 @@ namespace CheckIso {
 				if (layer > 0)
 					for (int i = 0; i < layer; i++)
 						b.Append("  ");
+
 				b.Append($"[{a.Id?? "none"}] (size {a.Size})").Append(Environment.NewLine);
+
 				if (a.Atoms != null && a.Atoms.Count > 0)
 					Layer(b, a.Atoms, layer + 1);
 			}

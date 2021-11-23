@@ -43,5 +43,9 @@ namespace IsoParser.Lib.Concretes {
 				}.ToList()
 			);
 		}
+
+		public int GetInt(string type) {
+			return type.Select(c => (int)c).Aggregate(0, (x, y) => (x << 8) + y);
+		}
 	}
 }

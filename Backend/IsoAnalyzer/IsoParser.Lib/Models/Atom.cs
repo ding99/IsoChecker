@@ -12,22 +12,12 @@ namespace IsoParser.Lib.Models {
 
 		public List<Item> Items { get; set; }
 		public List<Atom> Atoms { get; set; }
+
+		public int GetInt(string type) {
+			return type.Select(c => (int)c).Aggregate(0, (x, y) => (x << 8) + y);
+		}
 	}
 
-	public class Item {
-		public string Name { get; set; }
-		public ItemType Type { get; set; }
-		public object Value { get; set; }
-	}
-
-	public enum ItemType {
-		None = 0,
-		Bool,
-		Byte,
-		Short,
-		Int,
-		Long,
-		Double,
-		String
+	public enum AtomType {
 	}
 }

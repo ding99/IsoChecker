@@ -1,14 +1,29 @@
-﻿using System;
+﻿/***
+ * Referance
+ * QuickTime File Format Spectification, 2012-08-14
+ ***/
+
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace IsoParser.Lib.Models {
+
+	public class FullAtom : Atom {
+		public string Version { get; set; }
+		public int Flags { get; set; }
+	}
+
+	//Box: in ISO specifications for MPEG-4, JPEG-2000
 	public class Atom {
-		public string Id { get; set; }
-		public long Size { get; set; }
+		public int Id { get; set; }
+		public AtomType? Type { get; set; }
 		public long Offset { get; set; }
+		public long Size { get; set; }
+		public int? Head { get; set; }
 
 		public List<Item> Items { get; set; }
 		public List<Atom> Atoms { get; set; }

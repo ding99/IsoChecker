@@ -24,7 +24,7 @@ namespace CheckIso {
 			foreach (var a in atoms) {
 				b.Append(Spaces(layer));
 
-				b.Append($"{a.Offset:X10} [{a.Id?? "NONE"}] size {a.Size:X}").Append(Environment.NewLine);
+				b.Append($"{a.Offset:X10} [{(a.Type.HasValue ? a.Type.ToString() : "NONE")}] size {a.Size:X}").Append(Environment.NewLine);
 
 				foreach (var item in a.Items)
 					b.Append($"{Spaces(layer + 1)}{item.Name}: {ShowValue(item.Value, item.Type)}")

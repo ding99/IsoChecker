@@ -13,117 +13,123 @@ namespace IsoParser.Lib.Tools {
 		private readonly BinaryReader reader;
 		private readonly FileInfo info;
 
-		private bool use;
+		private bool valid;
 
-		public BinFile(string tsid) {
-			this.use = true;
+		public BinFile (string path) {
+			this.valid = true;
 
-			this.info = new FileInfo();
+			this.info = new FileInfo ();
 
-			if (!File.Exists(tsid)) {
-				this.use = false;
+			if (!File.Exists (path)) {
+				this.valid = false;
 				return;
 			}
 
 			try {
-				this.reader = new BinaryReader(File.Open(tsid, FileMode.Open, FileAccess.Read, FileShare.Read));
+				this.reader = new BinaryReader (File.Open (path, FileMode.Open, FileAccess.Read, FileShare.Read));
+
+				this.reader.BaseStream.Seek (0, SeekOrigin.End);
+				this.info.FileSize = this.reader.BaseStream.Position;
+				this.reader.BaseStream.Seek (0, SeekOrigin.Begin);
 			}
 			catch (Exception) {
-				this.use = false;
+				if (this.reader != null) {
+					this.reader.Close ();
+					this.reader.Dispose ();
+				}
+				this.valid = false;
 			}
-
-			this.reader.BaseStream.Seek(0, SeekOrigin.End);
-			this.info.FileSize = this.reader.BaseStream.Position;
-			this.reader.BaseStream.Seek(0, SeekOrigin.Begin);
 		}
 
-		public void End() {
-			if (this.use)
-				this.reader.Close();
+		public void End () {
+			if (this.valid) {
+				this.reader.Close ();
+				this.reader.Dispose ();
+			}
 		}
 
-		public bool IsValid() {
-			return this.use;
+		public bool IsValid () {
+			return this.valid;
 		}
 
-		public long FileSize() {
+		public long FileSize () {
 			return this.info.FileSize;
 		}
 
-		public bool NextPack(ref byte[] buffer) {
+		public byte [] NextPack () {
 			try {
-				buffer = this.reader.ReadBytes(this.info.PackSize);
-				return true;
+				return this.reader.ReadBytes (this.info.PackSize);
 			}
 			catch (Exception) {
-				return this.use = false;
+				this.valid = false;
+				return Array.Empty<byte>();
 			}
 		}
 
-		public bool SomePack(ref byte[] buffer, int packn) {
+		public byte [] SomePack (int packNumber) {
+			if (packNumber > this.info.PackCount)
+				return Array.Empty<byte> ();
+
+			try {
+				this.reader.BaseStream.Seek (packNumber * this.info.PackSize, SeekOrigin.Begin);
+				return this.reader.ReadBytes (this.info.PackSize);
+			}
+			catch (Exception) {
+				this.valid = false;
+				return Array.Empty<byte> ();
+			}
+		}
+
+		public bool GotoPack (int packn) {
 			if (packn > this.info.PackCount)
-				return this.use = false;
+				return this.valid = false;
 
 			try {
-				this.reader.BaseStream.Seek(packn * this.info.PackSize, SeekOrigin.Begin);
-				buffer = this.reader.ReadBytes(this.info.PackSize);
+				this.reader.BaseStream.Seek ( (long) packn * this.info.PackSize, SeekOrigin.Begin);
 				return true;
 			}
 			catch (Exception) {
-				return this.use = false;
+				return this.valid = false;
 			}
 		}
 
-		public bool GotoPack(int packn) {
-			if (packn > this.info.PackCount)
-				return this.use = false;
-
+		public bool BackPack (int packn) {
 			try {
-				this.reader.BaseStream.Seek((long)packn * this.info.PackSize, SeekOrigin.Begin);
+				this.reader.BaseStream.Seek (-(long)packn * this.info.PackSize, SeekOrigin.Current);
 				return true;
 			}
 			catch (Exception) {
-				return this.use = false;
+				return this.valid = false;
 			}
 		}
 
-		public bool BackPack(int packn) {
-			try {
-				this.reader.BaseStream.Seek(-(long)packn * this.info.PackSize, SeekOrigin.Current);
-				return true;
-			}
-			catch (Exception) {
-				return this.use = false;
-			}
-		}
-
-		public bool GotoByte(long offset) {
+		public bool GotoByte (long offset) {
 			if (offset > this.info.FileSize)
-				return this.use = false;
+				return this.valid = false;
 
 			try {
-				this.reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+				this.reader.BaseStream.Seek (offset, SeekOrigin.Begin);
 				return true;
 			}
 			catch (Exception) {
-				return this.use = false;
+				return this.valid = false;
 			}
 		}
 
-		public bool ReadData(ref byte[] buffer, int size) {
+		public byte [] ReadData (int size) {
 			try {
-				buffer = this.reader.ReadBytes(size);
-				return true;
+				return this.reader.ReadBytes (size);
 			}
 			catch (Exception) {
-				return this.use = false;
+				this.valid = false;
+				return Array.Empty<byte> ();
 			}
 		}
 
-		public bool SetPack(int size) {
+		public bool SetPack (int size) {
 			this.info.PackSize = size;
-			if (size > 0) this.info.PackCount = (int)(this.info.FileSize / size);
-			return this.info.FileSize % size != 0 ? this.use = false : true;
+			if (size > 0) this.info.PackCount = (int) (this.info.FileSize / size);
+			return this.info.FileSize % size != 0 ? this.valid = false : true;
 		}
 	}
 }

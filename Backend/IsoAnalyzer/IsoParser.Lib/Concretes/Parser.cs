@@ -12,7 +12,8 @@ namespace IsoParser.Lib.Concretes {
 		public async Task<List<Atom>> GetTree(string path) {
 			return await Task.Run(() => new Atom[] {
 					new Atom {
-						Id = "head",
+						Id = (int) AtomType.FTYP,
+						Type = AtomType.FTYP,
 						Size = 16,
 						Offset = 0,
 						Items = new Item[] {
@@ -21,7 +22,8 @@ namespace IsoParser.Lib.Concretes {
 						}.ToList(),
 						Atoms = new Atom[] {
 							new Atom {
-								Id = "vide",
+								Id = (int) AtomType.VMHD,
+								Type = AtomType.VMHD,
 								Size = 100,
 								Offset = 32,
 								Items = new Item[] {
@@ -30,7 +32,8 @@ namespace IsoParser.Lib.Concretes {
 								}.ToList()
 							},
 							new Atom {
-								Id = "audo",
+								Id = (int) AtomType.SMHD,
+								Type = AtomType.SMHD,
 								Size = 200,
 								Offset = 9120,
 								Items = new Item[] {

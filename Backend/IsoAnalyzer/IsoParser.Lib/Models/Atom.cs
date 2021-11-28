@@ -27,6 +27,14 @@ namespace IsoParser.Lib.Models {
 
 		public List<Item> Items { get; set; }
 		public List<Atom> Atoms { get; set; }
+
+		public Atom () { }
+
+		public Atom (int id, long size, long offset) {
+			this.Id = id;
+			this.Size = size;
+			this.Offset = offset;
+        }
 	}
 
 	public enum AtomType {

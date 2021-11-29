@@ -116,7 +116,7 @@ namespace IsoParser.Lib.Tools {
 			}
 		}
 
-		public byte [] ReadData (int size) {
+		public byte [] Read (int size) {
 			try {
 				return this.reader.ReadBytes (size);
 			}
@@ -124,6 +124,10 @@ namespace IsoParser.Lib.Tools {
 				this.valid = false;
 				return Array.Empty<byte> ();
 			}
+		}
+
+		public byte [] Read (int size, long offset) {
+			return  this.GotoByte (offset) ? this.Read(size) : Array.Empty<byte> ();
 		}
 
 		public bool SetPack (int size) {

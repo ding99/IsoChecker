@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 using IsoParser.Lib.Concretes;
 using IsoParser.Lib.Models;
@@ -8,31 +9,34 @@ using IsoParser.Lib.Models;
 namespace CheckIso {
 	public class Worker {
 		public string GetAtoms (string file) {
-			return Display (new Parser ().GetTree (file).Result);
+			Parser parser = new ();
+			string message = Display (parser.GetTree (file).Result);
+			parser.End ();
+			return message;
 		}
 
-		private string Display (List<Atom> atoms) {
+		private string Display (Atom atom) {
 			StringBuilder b = new ();
-
-			if (atoms != null)
-				this.Layer (b, atoms, 0);
-
+			this.Layer (b, atom, 0);
 			return b.ToString ();
 		}
 
-		private void Layer (StringBuilder b, List<Atom> atoms, int layer) {
-			foreach (var a in atoms) {
-				b.Append (Spaces (layer));
+		private void Layer (StringBuilder b, Atom atom, int layer) {
+			try {
+				b.Append ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "NONE")}] size {atom.Size:X} id {atom.Id:x}").Append (Environment.NewLine);
 
-				b.Append ($"{a.Offset:X10} [{(a.Type.HasValue ? a.Type.ToString () : "NONE")}] size {a.Size:X}").Append (Environment.NewLine);
-
-				foreach (var item in a.Items)
+				if(atom.Items != null)
+				foreach (var item in atom.Items)
 					b.Append ($"{Spaces (layer + 1)}{item.Name}: {ShowValue (item.Value, item.Type)}")
 						.Append (Environment.NewLine);
-
-				if (a.Atoms != null && a.Atoms.Count > 0)
-					Layer (b, a.Atoms, layer + 1);
 			}
+			catch(Exception e) {
+                Console.WriteLine (e.Message);
+            }
+
+			if(atom.Atoms != null)
+			foreach (var a in atom.Atoms)
+				Layer (b, a, layer + 1);
 		}
 
 		// TODO

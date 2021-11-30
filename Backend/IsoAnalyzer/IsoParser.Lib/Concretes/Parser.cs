@@ -23,6 +23,8 @@ namespace IsoParser.Lib.Concretes {
 				AtomType.DINF,
 				AtomType.EDTS,
 				AtomType.GMHD,
+				AtomType.IMAP,
+				AtomType.IN,
 				AtomType.MATT,
 				AtomType.META,
 				AtomType.MDIA,

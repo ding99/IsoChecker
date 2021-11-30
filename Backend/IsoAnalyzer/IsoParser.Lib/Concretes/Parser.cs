@@ -11,12 +11,10 @@ using IsoParser.Lib.Tools;
 namespace IsoParser.Lib.Concretes {
 	public class Parser : IParser {
 		private BinFile file;
-		private bool valid;
 		private long fileSize;
 
         #region public
 		public Parser () {
-			this.valid = true;
 			this.file = null;
         }
 

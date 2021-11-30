@@ -106,7 +106,7 @@ namespace IsoParser.Lib.Models {
 		NAME = 0x6e616d65,  //name, sprite name, image name
 
 		OBID = 0x6f626964,  //obid
-		PNOT = 0x706e6f74,  //pnot
+		PNOT = 0x706e6f74,  //pnot, preview atom
 		PRFL = 0x7072666c,  //prfl
 		PROF = 0x70726f66,  //prof
 		RMDA = 0x726d6461,  //rmda

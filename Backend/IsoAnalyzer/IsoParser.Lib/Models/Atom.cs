@@ -20,6 +20,7 @@ namespace IsoParser.Lib.Models {
 	//Box: in ISO specifications for MPEG-4, JPEG-2000
 	public class Atom {
 		public int Id { get; set; }
+		public int Index { get; set; }
 		public AtomType? Type { get; set; }
 		public long Offset { get; set; }
 		public long Size { get; set; }
@@ -50,19 +51,25 @@ namespace IsoParser.Lib.Models {
 		CTTS = 0x63747473,  //ctts
 		DINF = 0x64696e66,  //dinf
 		DREF = 0x64726566,  //dref
+		DRPO = 0x64727066,  //drpo, text sample
+		DRPT = 0x64727074,  //drpt, text sample
 		EDTS = 0x65647473,  //edts
 		ELNG = 0x656c6e67,  //elng
 		ELST = 0x656c7374,  //elst
 		ENOF = 0x656e6f66,  //enof
 		FREE = 0x66726565,  //free
+		FTAB = 0x67746162,  //ftab, text sample
 		FTYP = 0x66747970,  //ftyp
 		GMHD = 0x676d6864,  //gmhd
 		GMIN = 0x676d696e,  //gmin
 
+		HCLR = 0x68636c72,  //hclr, text sample
 		HDLR = 0x68646c72,  //hdlr
+		HLIT = 0x686c6974,  //hlit, text sample
 		IDAT = 0x69646174,  //idat
 		IDSC = 0x69647363,  //idsc
 		ILST = 0x696c7374,  //ilst
+		IMAG = 0x696d6167,  //imag, text sample
 		IMAP = 0x696d6170,  //imap
 		KEYS = 0x6b657973,  //keys
 		KMAT = 0x6b6d6174,  //kmat
@@ -73,6 +80,7 @@ namespace IsoParser.Lib.Models {
 		MDIA = 0x6d646961,  //mdia
 		MDHD = 0x6d646864,  //mdhd
 		META = 0x6d657461,  //meta
+		METR = 0x6d657472,  //metr, text sample
 		MHDR = 0x6d686472,  //mhdr
 		MINF = 0x6d696e66,  //minf
 		MOOV = 0x6d6f6f76,  //moov
@@ -97,6 +105,7 @@ namespace IsoParser.Lib.Models {
 		STSS = 0x73747373,  //stss
 		STSZ = 0x7374737a,  //stsz
 		STTS = 0x73747473,  //stts
+		STYL = 0x7374796c,  //styl, text sample
 		TAPT = 0x74617074,  //tapt
 		TKHD = 0x746b6864,  //tkhd
 		TRAK = 0x7472616b,  //trak

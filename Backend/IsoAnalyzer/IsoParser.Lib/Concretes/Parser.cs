@@ -13,9 +13,24 @@ namespace IsoParser.Lib.Concretes {
 		private BinFile file;
 		private long fileSize;
 
+		private readonly HashSet<AtomType> containers;
+
         #region public
 		public Parser () {
 			this.file = null;
+			this.containers = new HashSet<AtomType> {
+				AtomType.CLIP,
+				AtomType.DINF,
+				AtomType.EDTS,
+				AtomType.MATT,
+				AtomType.META,
+				AtomType.MDIA,
+				AtomType.MINF,
+				AtomType.MOOV,
+				AtomType.STBL,
+				AtomType.TRAK,
+				AtomType.UDTA
+			};
         }
 
         public void End () {

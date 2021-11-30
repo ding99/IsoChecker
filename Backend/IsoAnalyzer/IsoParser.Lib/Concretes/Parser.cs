@@ -13,9 +13,25 @@ namespace IsoParser.Lib.Concretes {
 		private BinFile file;
 		private long fileSize;
 
+		private readonly HashSet<AtomType> containers;
+
         #region public
 		public Parser () {
 			this.file = null;
+			this.containers = new HashSet<AtomType> {
+				AtomType.CLIP,
+				AtomType.DINF,
+				AtomType.EDTS,
+				AtomType.GMHD,
+				AtomType.MATT,
+				AtomType.META,
+				AtomType.MDIA,
+				AtomType.MINF,
+				AtomType.MOOV,
+				AtomType.STBL,
+				AtomType.TRAK,
+				AtomType.UDTA
+			};
         }
 
         public void End () {
@@ -29,8 +45,8 @@ namespace IsoParser.Lib.Concretes {
 
 			Atom atom = new ();
 			await Task.Run (() => {
-				
-				atom = this.GetAtom (0x31303230, this.file.FileSize (), 0L, 0);
+				// Root atom id is always 1
+				atom = this.GetAtom (1, this.file.FileSize (), 0L, 0);
 
 				#region test data
 				//atom = new Atom (0x31303230, 0x800, 0) {

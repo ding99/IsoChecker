@@ -46,6 +46,7 @@ namespace IsoParser.Lib.Models {
 		CRGN = 0x6372676e,  //crgn
 		CSLG = 0x63736c67,  //cslg
 		CTAB = 0x63746162,  //ctab
+		CTRY = 0x63747279,  //ctry
 		CTTS = 0x63747473,  //ctts
 		DINF = 0x64696e66,  //dinf
 		DREF = 0x64726566,  //dref
@@ -61,14 +62,18 @@ namespace IsoParser.Lib.Models {
 		HDLR = 0x68646c72,  //hdlr
 		IDAT = 0x69646174,  //idat
 		IDSC = 0x69647363,  //idsc
+		ILST = 0x696c7374,  //ilst
 		IMAP = 0x696d6170,  //imap
+		KEYS = 0x6b657973,  //keys
 		KMAT = 0x6b6d6174,  //kmat
-		LOAD = 0x6c6f6166,  //load
+		LANG = 0x6c616e67,  //lang
+		LOAD = 0x6c6f6164,  //load
 		MATT = 0x6d617474,  //matt
 		MDAT = 0x6d646174,  //mdat
 		MDIA = 0x6d646961,  //mdia
 		MDHD = 0x6d646864,  //mdhd
 		META = 0x6d657461,  //meta
+		MHDR = 0x6d686472,  //mhdr
 		MINF = 0x6d696e66,  //minf
 		MOOV = 0x6d6f6f76,  //moov
 		MVHD = 0x6d766864,  //mvhd

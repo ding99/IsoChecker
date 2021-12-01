@@ -14,8 +14,9 @@ namespace IsoParser.Lib.Concretes {
 		private long fileSize;
 
 		private readonly HashSet<AtomType> containers;
+		private readonly HashSet<AtomType> leaves;
 
-        #region public
+		#region public
 		public Parser () {
 			this.file = null;
 			this.containers = new HashSet<AtomType> {
@@ -34,9 +35,12 @@ namespace IsoParser.Lib.Concretes {
 				AtomType.TRAK,
 				AtomType.UDTA
 			};
-        }
+			this.containers = new HashSet<AtomType> {
+				AtomType.CLIP
+			};
+		}
 
-        public void End () {
+		public void End () {
 			if (this.file != null)
 				this.file.End ();
         }

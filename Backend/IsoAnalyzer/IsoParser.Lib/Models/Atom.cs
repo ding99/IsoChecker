@@ -26,6 +26,9 @@ namespace IsoParser.Lib.Models {
 		public long Size { get; set; }
 		public int Head { get; set; }
 
+		public int QTId { get; set; }  //QT atom
+		public int Children { get; set; }  //QT atom
+
 		public List<Item> Items { get; set; }
 		public List<Atom> Atoms { get; set; }
 
@@ -60,7 +63,7 @@ namespace IsoParser.Lib.Models {
 		DRPO = 0x6472706f,  //drpo, text sample
 		DRPT = 0x64727074,  //drpt, text sample
 		EDTS = 0x65647473,  //edts
-		ELNG = 0x656c6e67,  //elng
+		ELNG = 0x656c6e67,  //elng, extended language tag
 		ELST = 0x656c7374,  //elst
 		ENOF = 0x656e6f66,  //enof
 		FALL = 0x66616c6c,  //fall, identical content audio trck
@@ -74,7 +77,7 @@ namespace IsoParser.Lib.Models {
 		GMIN = 0x676d696e,  //gmin
 
 		HCLR = 0x68636c72,  //hclr, text sample
-		HDLR = 0x68646c72,  //hdlr
+		HDLR = 0x68646c72,  //hdlr, handler ref
 		HINT = 0x68696e74,  //hint, ref original media
 		HLIT = 0x686c6974,  //hlit, text sample
 		HTXT = 0x68747874,  //htxt, hypertext
@@ -100,7 +103,7 @@ namespace IsoParser.Lib.Models {
 		META = 0x6d657461,  //meta
 		METR = 0x6d657472,  //metr, text sample
 		MHDR = 0x6d686472,  //mhdr
-		MINF = 0x6d696e66,  //minf
+		MINF = 0x6d696e66,  //minf, media info
 		MOOV = 0x6d6f6f76,  //moov
 		MVHD = 0x6d766864,  //mvhd
 		NAME = 0x6e616d65,  //name, sprite name, image name
@@ -142,7 +145,7 @@ namespace IsoParser.Lib.Models {
 		USES = 0x75736573,  //uses, spite uses image id
 		VARS = 0x76617273,  //vars, sprite variable container
 		VMHD = 0x766d6864,  //vmhd
-		WIDE = 0x77696465,  //wide
+		WIDE = 0x77696465,  //wide, placeholder
 		WTXT = 0x77747874,  //wtxt, wired text
 
 		URL = 0x75726c20,  //'url ', sprite url link

@@ -173,6 +173,8 @@ namespace IsoParser.Lib.Concretes {
 				return ParseMvhd (atom);
 			case AtomType.ELST:
 				return ParseElst (atom);
+			case AtomType.HDLR:
+				return ParseHdlr (atom);
 			}
 
 			return Array.Empty <Item> ().ToList ();
@@ -220,6 +222,19 @@ namespace IsoParser.Lib.Concretes {
 			}
 			return Array.Empty <Item> ().ToList ();
         }
+
+		private List<Item> ParseHdlr (Atom atom) {
+			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
+			if (buffer.Length >= (int)atom.Size) {
+				List<Item> items = new ();
+
+				items.Add (new Item { Name = "ComponentType", Type = ItemType.String, Value = this.IntString(buffer, 12) });
+				items.Add (new Item { Name = "ComponentSubType", Type = ItemType.String, Value = this.IntString (buffer, 16) });
+
+				return items;
+			}
+			return Array.Empty<Item> ().ToList ();
+		}
 		#endregion atom utilities
 
 		#region common utilities
@@ -236,6 +251,10 @@ namespace IsoParser.Lib.Concretes {
 
 		private long ByteLong (byte [] data, int offset) {
 			return (long)ByteInt (data, offset) << 32 + ByteInt (data, offset + 4);
+        }
+
+		private string IntString(byte [] data, int offset) {
+			return data.Skip (offset).Take (4).ToArray ().Aggregate ("", (x, y) => x + Convert.ToChar (y));
         }
 
 		private bool ValidId (int id) {

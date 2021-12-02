@@ -175,10 +175,21 @@ namespace IsoParser.Lib.Concretes {
 				return ParseElst (atom);
 			case AtomType.HDLR:
 				return ParseHdlr (atom);
+			case AtomType.GMIN:
+				return ParseGmin (atom);
 			}
 
 			return Array.Empty <Item> ().ToList ();
         }
+
+		private List<Item> ParseAtom (Func<byte [], List<Item>> add, Atom atom) {
+			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
+			if (buffer.Length >= (int)atom.Size) {
+
+				return add(buffer);
+			}
+			return Array.Empty<Item> ().ToList ();
+		}
 
 		private List<Item> ParseMvhd(Atom atom) {
 			if (atom.Size < 108)
@@ -199,6 +210,11 @@ namespace IsoParser.Lib.Concretes {
         }
 
 		private List<Item> ParseElst(Atom atom) {
+			//return this.ParseAtom (buffer => new [] {
+			//	new Item { Name = "ComponentType", Type = ItemType.String, Value = this.IntString (buffer, 12) },
+			//	new Item { Name = "ComponentSubType", Type = ItemType.String, Value = this.IntString (buffer, 16) }
+			//}, atom);
+
 			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
 			if(buffer.Length >= (int)atom.Size) {
 				List<Item> items = new ();
@@ -224,12 +240,24 @@ namespace IsoParser.Lib.Concretes {
         }
 
 		private List<Item> ParseHdlr (Atom atom) {
+			return this.ParseAtom (buffer => new [] {
+				new Item { Name = "ComponentType", Type = ItemType.String, Value = this.IntString (buffer, 12) },
+				new Item { Name = "ComponentSubType", Type = ItemType.String, Value = this.IntString (buffer, 16) }
+			}.ToList(), atom);
+		}
+
+		private List<Item> ParseGmin (Atom atom) {
+			return this.ParseAtom (buffer => new [] {
+				new Item { Name = "GraphicsMode", Type = ItemType.Short, Value = this.ByteShort (buffer, 12) }
+			}.ToList(), atom);
+		}
+
+		private List<Item> ParseStsd (Atom atom) {
 			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
 			if (buffer.Length >= (int)atom.Size) {
 				List<Item> items = new ();
 
-				items.Add (new Item { Name = "ComponentType", Type = ItemType.String, Value = this.IntString(buffer, 12) });
-				items.Add (new Item { Name = "ComponentSubType", Type = ItemType.String, Value = this.IntString (buffer, 16) });
+				items.Add (new Item { Name = "GraphicsMode", Type = ItemType.Short, Value = this.ByteShort (buffer, 12) });
 
 				return items;
 			}
@@ -247,6 +275,10 @@ namespace IsoParser.Lib.Concretes {
 		}
 		public int ByteInt (byte [] data, int offset) {
 			return data.Skip (offset).Take (4).ToArray ().Aggregate (0, (x, y) => (x << 8) + y);
+		}
+
+		public short ByteShort (byte [] data, int offset) {
+			return (short) (data [offset] << 8 | data [offset + 1]);
 		}
 
 		private long ByteLong (byte [] data, int offset) {

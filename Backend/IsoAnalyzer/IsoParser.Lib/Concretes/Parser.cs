@@ -14,7 +14,6 @@ namespace IsoParser.Lib.Concretes {
 		private long fileSize;
 
 		private readonly HashSet<AtomType> containers;
-		private readonly HashSet<AtomType> leaves;
 
 		#region movie variable
 		private int? timeScale;
@@ -110,67 +109,60 @@ namespace IsoParser.Lib.Concretes {
 			if (atom.Type.HasValue && !this.isContainer ((AtomType)atom.Type))
 				atom.Items = this.Parse (atom);
 
-			//if (atom.Type.HasValue || id == 1) {
-			//	if (this.isContainer ((AtomType)atom.Type)) {
+			List<Atom> atoms = new ();
+			bool valid = true;
 
-					List<Atom> atoms = new ();
-					bool valid = true;
+			long si;
+			for (long ip = offset + head; ip < offset + size - head; ip += si) {
+				byte [] buffer = this.file.Read (8, ip);
+				if (buffer.Length < 1) {
+					valid = false;
+					break;
+				}
 
-					long si;
-					for (long ip = offset + head; ip < offset + size - head; ip += si) {
-						byte [] buffer = this.file.Read (8, ip);
+				int atomId = ByteInt (buffer, 4);
+				int atomHead = 8;
+
+				if (this.ValidId (atomId)) {
+					//				if (this.valid) {
+					//					if (this.valid && this.ValidId (atomId)) {
+					switch (si = this.ByteInt (buffer, 0)) {
+					case 0:
+						si = this.fileSize - ip;
+						break;
+					case 1:
+						buffer = this.file.Read (8);
 						if (buffer.Length < 1) {
 							valid = false;
 							break;
-						}
-
-						int atomId = ByteInt (buffer, 4);
-						int atomHead = 8;
-
-						if (this.ValidId (atomId)) {
-							//				if (this.valid) {
-							//					if (this.valid && this.ValidId (atomId)) {
-							switch (si = this.ByteInt (buffer, 0)) {
-							case 0:
-								si = this.fileSize - ip;
-								break;
-							case 1:
-								buffer = this.file.Read (8);
-								if (buffer.Length < 1) {
-									valid = false;
-									break;
-								} else {
-									si = this.ByteLong (buffer, 0);
-									atomHead += 8;
-								}
-								break;
-							}
-
 						} else {
-							atomId = 0;
-							atomHead = 0;
-							si = size - ip;
-							valid = false;
+							si = this.ByteLong (buffer, 0);
+							atomHead += 8;
 						}
-
-						Console.WriteLine ($"  atomId {atomId:x}, si {si:x}, ip {ip:x}, atomHead {atomHead:x}");
-
-						if (Enum.IsDefined (typeof (AtomType), atomId)) {
-							Console.WriteLine ($"-- Found Atom [{(AtomType)atomId}]");
-							Atom newAtom = GetAtom (atomId, si, ip, atomHead);
-							atoms.Add (newAtom);
-						}
-
-						if (!valid)
-							break;
+						break;
 					}
 
-					if (atoms.Count > 0)
-						atom.Atoms = atoms;
-			//	} else {
-			//		//atom.Items = this.Parse (atom);
-			//	}
-			//}
+				} else {
+					atomId = 0;
+					atomHead = 0;
+					si = size - ip;
+					valid = false;
+				}
+
+				Console.WriteLine ($"  atomId {atomId:x}, si {si:x}, ip {ip:x}, atomHead {atomHead:x}");
+
+				if (Enum.IsDefined (typeof (AtomType), atomId)) {
+					Console.WriteLine ($"-- Found Atom [{(AtomType)atomId}]");
+					Atom newAtom = GetAtom (atomId, si, ip, atomHead);
+					atoms.Add (newAtom);
+				}
+
+				if (!valid)
+					break;
+			}
+
+			if (atoms.Count > 0)
+				atom.Atoms = atoms;
 
 			return atom;
 		}
@@ -181,6 +173,8 @@ namespace IsoParser.Lib.Concretes {
 				return ParseMvhd (atom);
 			case AtomType.ELST:
 				return ParseElst (atom);
+			case AtomType.HDLR:
+				return ParseHdlr (atom);
 			}
 
 			return Array.Empty <Item> ().ToList ();
@@ -208,17 +202,39 @@ namespace IsoParser.Lib.Concretes {
 			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
 			if(buffer.Length >= (int)atom.Size) {
 				List<Item> items = new ();
+
 				int count = ByteInt (buffer, 12);
 				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
+
 				for(int i = 0; i < count; i++) {
 					items.Add (new Item { Name = "TrackDuration", Type = ItemType.Int, Value = ByteInt (buffer, 16 + 12 * i) });
 					items.Add (new Item { Name = "MediaTime", Type = ItemType.Int, Value = ByteInt (buffer, 20 + 12 * i) });
 					items.Add (new Item { Name = "MediaRate", Type = ItemType.Int, Value = ByteInt (buffer, 24 + 12 * i) });
+					if (this.timeScale.HasValue && this.timeScale != 0)
+						items.Add (new Item {
+							Name = "DurationSec",
+							Type = ItemType.Double,
+							Value = (double)ByteInt (buffer, 16 + 12 * i) / (double)this.timeScale
+						});
 				}
+
 				return items;
 			}
 			return Array.Empty <Item> ().ToList ();
         }
+
+		private List<Item> ParseHdlr (Atom atom) {
+			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
+			if (buffer.Length >= (int)atom.Size) {
+				List<Item> items = new ();
+
+				items.Add (new Item { Name = "ComponentType", Type = ItemType.String, Value = this.IntString(buffer, 12) });
+				items.Add (new Item { Name = "ComponentSubType", Type = ItemType.String, Value = this.IntString (buffer, 16) });
+
+				return items;
+			}
+			return Array.Empty<Item> ().ToList ();
+		}
 		#endregion atom utilities
 
 		#region common utilities
@@ -235,6 +251,10 @@ namespace IsoParser.Lib.Concretes {
 
 		private long ByteLong (byte [] data, int offset) {
 			return (long)ByteInt (data, offset) << 32 + ByteInt (data, offset + 4);
+        }
+
+		private string IntString(byte [] data, int offset) {
+			return data.Skip (offset).Take (4).ToArray ().Aggregate ("", (x, y) => x + Convert.ToChar (y));
         }
 
 		private bool ValidId (int id) {

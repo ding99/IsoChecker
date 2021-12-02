@@ -40,8 +40,6 @@ namespace IsoParser.Lib.Models {
 			this.Offset = offset;
 			this.Head = head;
 
-            //Console.WriteLine ($"id {id}");
-
 			if (Enum.IsDefined (typeof (AtomType), id))
 				this.Type = (AtomType) id;
         }
@@ -57,10 +55,10 @@ namespace IsoParser.Lib.Models {
 		COLR = 0x636f6c72,  //colr
 		CRGN = 0x6372676e,  //crgn
 		CRSR = 0x63727372,  //crsr, sprite cursor behavior
-		CSLG = 0x63736c67,  //cslg
+		CSLG = 0x63736c67,  //cslg, composition shift least greatest
 		CTAB = 0x63746162,  //ctab, color table
 		CTRY = 0x63747279,  //ctry
-		CTTS = 0x63747473,  //ctts
+		CTTS = 0x63747473,  //ctts, composition offset
 		DEFI = 0x64656669,  //defi, sprite image defualt image index
 		DFLT = 0x64666c74,  //dflt, sprite shared data
 		DINF = 0x64696e66,  //dinf
@@ -119,24 +117,25 @@ namespace IsoParser.Lib.Models {
 		PROF = 0x70726f66,  //prof
 		RMDA = 0x726d6461,  //rmda
 		RMRA = 0x726d7261,  //rmra, ref movie
-		SBGP = 0x73626770,  //sbgp
+		SBGP = 0x73626770,  //sbgp, sample-to-group
 		SCPT = 0x73637074,  //scpt, transcript (ref a text track)
-		SDTP = 0x73647470,  //sdtp
-		SGPD = 0x73677064,  //sgpd
+		SDTP = 0x73647470,  //sdtp, sample dependency flags
+		SGPD = 0x73677064,  //sgpd, sample group description
 		SKIP = 0x736b6970,  //skip
 		SMHD = 0x736d6864,  //smhd
 		SPRT = 0x73707274,  //sprt, sprite
 		SSRC = 0x73737263,  //ssrc, none primary source
 		SSTR = 0x73737472,  //sstr, sprite status string behavior
 		STBL = 0x7374626c,  //stbl
-		STCO = 0x7374636f,  //stco
-		STPS = 0x73747073,  //stps
+		STCO = 0x7374636f,  //stco, chunk offset
+		STPS = 0x73747073,  //stps, partial sync sample
 		STRV = 0x73747276,  //strv, sprite string variable
-		STSC = 0x73747363,  //stsc
-		STSD = 0x73747364,  //stsd
-		STSS = 0x73747373,  //stss
-		STSZ = 0x7374737a,  //stsz
-		STTS = 0x73747473,  //stts
+		STSC = 0x73747363,  //stsc, sample-to-chunk
+		STSD = 0x73747364,  //stsd, sample description
+		STSH = 0x73747368,  //stsh, shadow sync
+		STSS = 0x73747373,  //stss, sync sample
+		STSZ = 0x7374737a,  //stsz, sampe size
+		STTS = 0x73747473,  //stts, time-to-sample
 		STYL = 0x7374796c,  //styl, text sample
 		SYNC = 0x73796e63,  //sync, synchronization
 		TAPT = 0x74617074,  //tapt
@@ -157,5 +156,18 @@ namespace IsoParser.Lib.Models {
 
 		IN = 0x2020696e,  // '  in'
 		TY = 0x20207479,  // '  ty'
+	}
+
+	public enum ComponentType {
+		Media = 0x6d6e6972,  //mhlr, media handler
+		Data = 0x646e6972,   //dhlr, data handler
+	}
+
+	public enum ComponentSubType {
+		Video = 0x76696465,  //vide, video data
+		Sound = 0x736f756e,  //soun, sound data
+		Subtitle = 0x73756274,  //subt, subtitles
+		File = 0x616c6973,  //alis, data, file alias
+		Meta = 0x6d647461,  //mdta, meta data, 
 	}
 }

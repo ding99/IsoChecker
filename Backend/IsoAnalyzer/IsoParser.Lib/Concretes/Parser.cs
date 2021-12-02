@@ -170,13 +170,15 @@ namespace IsoParser.Lib.Concretes {
 		private List<Item> Parse(Atom atom) {
             switch (atom.Type) {
 			case AtomType.MVHD:
-				return ParseMvhd (atom);
+				return this.ParseMvhd (atom);
 			case AtomType.ELST:
-				return ParseElst (atom);
+				return this.ParseElst (atom);
 			case AtomType.HDLR:
-				return ParseHdlr (atom);
+				return this.ParseHdlr (atom);
 			case AtomType.GMIN:
-				return ParseGmin (atom);
+				return this.ParseGmin (atom);
+			case AtomType.STSD:
+				return this.ParseStsd (atom);
 			}
 
 			return Array.Empty <Item> ().ToList ();
@@ -184,59 +186,37 @@ namespace IsoParser.Lib.Concretes {
 
 		private List<Item> ParseAtom (Func<byte [], List<Item>> add, Atom atom) {
 			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
-			if (buffer.Length >= (int)atom.Size) {
-
-				return add(buffer);
-			}
-			return Array.Empty<Item> ().ToList ();
+			return buffer.Length >= (int)atom.Size ? add(buffer) : Array.Empty<Item> ().ToList ();
 		}
 
 		private List<Item> ParseMvhd(Atom atom) {
-			if (atom.Size < 108)
-				return Array.Empty <Item> ().ToList ();
-
-			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
-			if (buffer.Length < 24)
-				return Array.Empty <Item> ().ToList ();
-
-			this.timeScale = ByteInt (buffer, 20);
-			List<Item> items = new ();
-			items.Add (new Item {
-				Name = "TimeScale",
-				Type = ItemType.Int,
-				Value = this.timeScale
-			});
-			return items;
+			return this.ParseAtom (buffer => {
+				this.timeScale = this.ByteInt (buffer, 20);
+				return new [] { new Item { Name = "TimeScale", Type = ItemType.Int, Value = this.timeScale } }.ToList ();
+			}, atom);
         }
 
 		private List<Item> ParseElst(Atom atom) {
-			//return this.ParseAtom (buffer => new [] {
-			//	new Item { Name = "ComponentType", Type = ItemType.String, Value = this.IntString (buffer, 12) },
-			//	new Item { Name = "ComponentSubType", Type = ItemType.String, Value = this.IntString (buffer, 16) }
-			//}, atom);
-
-			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
-			if(buffer.Length >= (int)atom.Size) {
+            return this.ParseAtom (buffer => {
 				List<Item> items = new ();
 
-				int count = ByteInt (buffer, 12);
+				int count = this.ByteInt (buffer, 12);
 				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
 
-				for(int i = 0; i < count; i++) {
-					items.Add (new Item { Name = "TrackDuration", Type = ItemType.Int, Value = ByteInt (buffer, 16 + 12 * i) });
-					items.Add (new Item { Name = "MediaTime", Type = ItemType.Int, Value = ByteInt (buffer, 20 + 12 * i) });
-					items.Add (new Item { Name = "MediaRate", Type = ItemType.Int, Value = ByteInt (buffer, 24 + 12 * i) });
+				for (int i = 0; i < count; i++) {
+					items.Add (new Item { Name = "TrackDuration", Type = ItemType.Int, Value = this.ByteInt (buffer, 16 + 12 * i) });
+					items.Add (new Item { Name = "MediaTime", Type = ItemType.Int, Value = this.ByteInt (buffer, 20 + 12 * i) });
+					items.Add (new Item { Name = "MediaRate", Type = ItemType.Int, Value = this.ByteInt (buffer, 24 + 12 * i) });
 					if (this.timeScale.HasValue && this.timeScale != 0)
 						items.Add (new Item {
 							Name = "DurationSec",
 							Type = ItemType.Double,
-							Value = (double)ByteInt (buffer, 16 + 12 * i) / (double)this.timeScale
+							Value = (double) this.ByteInt (buffer, 16 + 12 * i) / (double)this.timeScale
 						});
 				}
 
 				return items;
-			}
-			return Array.Empty <Item> ().ToList ();
+			}, atom);
         }
 
 		private List<Item> ParseHdlr (Atom atom) {
@@ -253,15 +233,24 @@ namespace IsoParser.Lib.Concretes {
 		}
 
 		private List<Item> ParseStsd (Atom atom) {
-			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
-			if (buffer.Length >= (int)atom.Size) {
-				List<Item> items = new ();
+			return this.ParseAtom (buffer => {
+				int size = (int)atom.Size;
 
-				items.Add (new Item { Name = "GraphicsMode", Type = ItemType.Short, Value = this.ByteShort (buffer, 12) });
+				List<Item> items = new ();
+				int count = this.ByteInt (buffer, 12);
+				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
+
+				int pos = 16;
+				for (int i = 0; i < count && pos < size; i++) {
+					int descriptionSize = this.ByteInt (buffer, pos);
+					items.Add (new Item { Name = "DescriptionSize", Type = ItemType.Int, Value = descriptionSize });
+					items.Add (new Item { Name = "DataFormat", Type = ItemType.String, Value = this.IntString (buffer, pos + 4) });
+					items.Add (new Item { Name = "Index", Type = ItemType.Short, Value = this.ByteShort (buffer, pos + 14) });
+					pos += descriptionSize;
+				}
 
 				return items;
-			}
-			return Array.Empty<Item> ().ToList ();
+			}, atom);
 		}
 		#endregion atom utilities
 

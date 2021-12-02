@@ -77,7 +77,7 @@ namespace IsoParser.Lib.Models {
 		FTAB = 0x67746162,  //ftab, text sample
 		FTYP = 0x66747970,  //ftyp
 		GMHD = 0x676d6864,  //gmhd
-		GMIN = 0x676d696e,  //gmin
+		GMIN = 0x676d696e,  //gmin, base media info
 
 		HCLR = 0x68636c72,  //hclr, text sample
 		HDLR = 0x68646c72,  //hdlr, handler ref
@@ -139,6 +139,7 @@ namespace IsoParser.Lib.Models {
 		STYL = 0x7374796c,  //styl, text sample
 		SYNC = 0x73796e63,  //sync, synchronization
 		TAPT = 0x74617074,  //tapt
+		TCMI = 0x74636d69,  //tcmi, timecode media info
 		TKHD = 0x746b6864,  //tkhd
 		TMCD = 0x746d6364,  //tmcd, time code
 		TRAK = 0x7472616b,  //trak

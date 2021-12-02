@@ -62,7 +62,7 @@ namespace IsoParser.Lib.Tools {
 			}
 			catch (Exception) {
 				this.valid = false;
-				return Array.Empty<byte>();
+				return Array.Empty<byte> ();
 			}
 		}
 

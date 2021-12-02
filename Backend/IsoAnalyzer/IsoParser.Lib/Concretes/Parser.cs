@@ -115,27 +115,22 @@ namespace IsoParser.Lib.Concretes {
 			long si;
 			for (long ip = offset + head; ip < offset + size - head; ip += si) {
 				byte [] buffer = this.file.Read (8, ip);
-				if (buffer.Length < 1) {
-					valid = false;
+				if (buffer.Length < 1)
 					break;
-				}
 
-				int atomId = ByteInt (buffer, 4);
+				int atomId = this.ByteInt (buffer, 4);
 				int atomHead = 8;
 
 				if (this.ValidId (atomId)) {
-					//				if (this.valid) {
-					//					if (this.valid && this.ValidId (atomId)) {
 					switch (si = this.ByteInt (buffer, 0)) {
 					case 0:
 						si = this.fileSize - ip;
 						break;
 					case 1:
 						buffer = this.file.Read (8);
-						if (buffer.Length < 1) {
+						if (buffer.Length < 1)
 							valid = false;
-							break;
-						} else {
+						else {
 							si = this.ByteLong (buffer, 0);
 							atomHead += 8;
 						}
@@ -167,7 +162,7 @@ namespace IsoParser.Lib.Concretes {
 			return atom;
 		}
 
-		private List<Item> Parse(Atom atom) {
+		private List<Item> Parse (Atom atom) {
             switch (atom.Type) {
 			case AtomType.MVHD:
 				return this.ParseMvhd (atom);
@@ -186,7 +181,7 @@ namespace IsoParser.Lib.Concretes {
 
 		private List<Item> ParseAtom (Func<byte [], List<Item>> add, Atom atom) {
 			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
-			return buffer.Length >= (int)atom.Size ? add(buffer) : Array.Empty<Item> ().ToList ();
+			return buffer.Length >= (int)atom.Size ? add (buffer) : Array.Empty<Item> ().ToList ();
 		}
 
 		private List<Item> ParseMvhd(Atom atom) {

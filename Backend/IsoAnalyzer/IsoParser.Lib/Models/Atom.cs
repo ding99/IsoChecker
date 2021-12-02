@@ -39,6 +39,11 @@ namespace IsoParser.Lib.Models {
 			this.Size = size;
 			this.Offset = offset;
 			this.Head = head;
+
+            //Console.WriteLine ($"id {id}");
+
+			if (Enum.IsDefined (typeof (AtomType), id))
+				this.Type = (AtomType) id;
         }
 	}
 

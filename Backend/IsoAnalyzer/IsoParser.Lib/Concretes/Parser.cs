@@ -15,7 +15,11 @@ namespace IsoParser.Lib.Concretes {
 
 		private readonly HashSet<AtomType> containers;
 
-        #region public
+		#region movie variable
+		private int? timeScale;
+		#endregion
+
+		#region public
 		public Parser () {
 			this.file = null;
 			this.containers = new HashSet<AtomType> {
@@ -34,9 +38,12 @@ namespace IsoParser.Lib.Concretes {
 				AtomType.TRAK,
 				AtomType.UDTA
 			};
-        }
+			this.containers = new HashSet<AtomType> {
+				AtomType.CLIP
+			};
+		}
 
-        public void End () {
+		public void End () {
 			if (this.file != null)
 				this.file.End ();
         }
@@ -99,6 +106,9 @@ namespace IsoParser.Lib.Concretes {
 			Console.WriteLine ($"id {id:x}, size {size:x}, offset {offset:x}, head {head:x}");
 			Atom atom = new (id, size, offset, head);
 
+			if (atom.Type.HasValue && !this.isContainer ((AtomType)atom.Type))
+				atom.Items = this.Parse (atom);
+
 			List<Atom> atoms = new ();
 			bool valid = true;
 
@@ -142,9 +152,8 @@ namespace IsoParser.Lib.Concretes {
 				Console.WriteLine ($"  atomId {atomId:x}, si {si:x}, ip {ip:x}, atomHead {atomHead:x}");
 
 				if (Enum.IsDefined (typeof (AtomType), atomId)) {
-                    Console.WriteLine ($"-- Found Atom [{(AtomType)atomId}]");
+					Console.WriteLine ($"-- Found Atom [{(AtomType)atomId}]");
 					Atom newAtom = GetAtom (atomId, si, ip, atomHead);
-					newAtom.Type = (AtomType)atomId;
 					atoms.Add (newAtom);
 				}
 
@@ -155,13 +164,84 @@ namespace IsoParser.Lib.Concretes {
 			if (atoms.Count > 0)
 				atom.Atoms = atoms;
 
-			List<Item> items = new ();
-
 			return atom;
+		}
+
+		private List<Item> Parse(Atom atom) {
+            switch (atom.Type) {
+			case AtomType.MVHD:
+				return ParseMvhd (atom);
+			case AtomType.ELST:
+				return ParseElst (atom);
+			case AtomType.HDLR:
+				return ParseHdlr (atom);
+			}
+
+			return Array.Empty <Item> ().ToList ();
+        }
+
+		private List<Item> ParseMvhd(Atom atom) {
+			if (atom.Size < 108)
+				return Array.Empty <Item> ().ToList ();
+
+			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
+			if (buffer.Length < 24)
+				return Array.Empty <Item> ().ToList ();
+
+			this.timeScale = ByteInt (buffer, 20);
+			List<Item> items = new ();
+			items.Add (new Item {
+				Name = "TimeScale",
+				Type = ItemType.Int,
+				Value = this.timeScale
+			});
+			return items;
+        }
+
+		private List<Item> ParseElst(Atom atom) {
+			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
+			if(buffer.Length >= (int)atom.Size) {
+				List<Item> items = new ();
+
+				int count = ByteInt (buffer, 12);
+				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
+
+				for(int i = 0; i < count; i++) {
+					items.Add (new Item { Name = "TrackDuration", Type = ItemType.Int, Value = ByteInt (buffer, 16 + 12 * i) });
+					items.Add (new Item { Name = "MediaTime", Type = ItemType.Int, Value = ByteInt (buffer, 20 + 12 * i) });
+					items.Add (new Item { Name = "MediaRate", Type = ItemType.Int, Value = ByteInt (buffer, 24 + 12 * i) });
+					if (this.timeScale.HasValue && this.timeScale != 0)
+						items.Add (new Item {
+							Name = "DurationSec",
+							Type = ItemType.Double,
+							Value = (double)ByteInt (buffer, 16 + 12 * i) / (double)this.timeScale
+						});
+				}
+
+				return items;
+			}
+			return Array.Empty <Item> ().ToList ();
+        }
+
+		private List<Item> ParseHdlr (Atom atom) {
+			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
+			if (buffer.Length >= (int)atom.Size) {
+				List<Item> items = new ();
+
+				items.Add (new Item { Name = "ComponentType", Type = ItemType.String, Value = this.IntString(buffer, 12) });
+				items.Add (new Item { Name = "ComponentSubType", Type = ItemType.String, Value = this.IntString (buffer, 16) });
+
+				return items;
+			}
+			return Array.Empty<Item> ().ToList ();
 		}
 		#endregion atom utilities
 
 		#region common utilities
+		private bool isContainer(AtomType type) {
+			return this.containers.Contains (type);
+        }
+
 		public int StringInt (string type) {
 			return type.Select (c => (int)c).Aggregate (0, (x, y) => (x << 8) + y);
 		}
@@ -171,6 +251,10 @@ namespace IsoParser.Lib.Concretes {
 
 		private long ByteLong (byte [] data, int offset) {
 			return (long)ByteInt (data, offset) << 32 + ByteInt (data, offset + 4);
+        }
+
+		private string IntString(byte [] data, int offset) {
+			return data.Skip (offset).Take (4).ToArray ().Aggregate ("", (x, y) => x + Convert.ToChar (y));
         }
 
 		private bool ValidId (int id) {

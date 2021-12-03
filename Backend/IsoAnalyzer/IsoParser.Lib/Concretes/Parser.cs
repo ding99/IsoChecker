@@ -174,6 +174,16 @@ namespace IsoParser.Lib.Concretes {
 				return this.ParseGmin (atom);
 			case AtomType.STSD:
 				return this.ParseStsd (atom);
+			case AtomType.STSS:
+				return this.ParseStss (atom);
+			case AtomType.STTS:
+				return this.ParseStts (atom);
+			case AtomType.STSZ:
+				return this.ParseStsz (atom);
+			case AtomType.STSC:
+				return this.ParseStsc (atom);
+			case AtomType.STCO:
+				return this.ParseStco (atom);
 			}
 
 			return Array.Empty <Item> ().ToList ();
@@ -246,6 +256,33 @@ namespace IsoParser.Lib.Concretes {
 
 				return items;
 			}, atom);
+		}
+
+		private List<Item> ParseStts (Atom atom) {
+			return this.ParseAtom (buffer => new [] {
+				new Item { Name = "Entries", Type = ItemType.Int, Value = this.ByteInt (buffer, 12) }
+			}.ToList (), atom);
+		}
+		private List<Item> ParseStss (Atom atom) {
+			return this.ParseAtom (buffer => new [] {
+				new Item { Name = "Entries", Type = ItemType.Int, Value = this.ByteInt (buffer, 12) }
+			}.ToList (), atom);
+		}
+		private List<Item> ParseStsz (Atom atom) {
+			return this.ParseAtom (buffer => new [] {
+				new Item { Name = "SampleSize", Type = ItemType.Int, Value = this.ByteInt (buffer, 12) },
+				new Item { Name = "Entries", Type = ItemType.Int, Value = this.ByteInt (buffer, 16) }
+			}.ToList (), atom);
+		}
+		private List<Item> ParseStsc (Atom atom) {
+			return this.ParseAtom (buffer => new [] {
+				new Item { Name = "Entries", Type = ItemType.Int, Value = this.ByteInt (buffer, 12) }
+			}.ToList (), atom);
+		}
+		private List<Item> ParseStco (Atom atom) {
+			return this.ParseAtom (buffer => new [] {
+				new Item { Name = "Entries", Type = ItemType.Int, Value = this.ByteInt (buffer, 12) }
+			}.ToList (), atom);
 		}
 		#endregion atom utilities
 

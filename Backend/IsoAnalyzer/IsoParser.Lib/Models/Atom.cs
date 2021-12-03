@@ -126,7 +126,7 @@ namespace IsoParser.Lib.Models {
 		SPRT = 0x73707274,  //sprt, sprite
 		SSRC = 0x73737263,  //ssrc, none primary source
 		SSTR = 0x73737472,  //sstr, sprite status string behavior
-		STBL = 0x7374626c,  //stbl
+		STBL = 0x7374626c,  //stbl, sample table
 		STCO = 0x7374636f,  //stco, chunk offset
 		STPS = 0x73747073,  //stps, partial sync sample
 		STRV = 0x73747276,  //strv, sprite string variable
@@ -134,7 +134,7 @@ namespace IsoParser.Lib.Models {
 		STSD = 0x73747364,  //stsd, sample description
 		STSH = 0x73747368,  //stsh, shadow sync
 		STSS = 0x73747373,  //stss, sync sample
-		STSZ = 0x7374737a,  //stsz, sampe size
+		STSZ = 0x7374737a,  //stsz, sample size
 		STTS = 0x73747473,  //stts, time-to-sample
 		STYL = 0x7374796c,  //styl, text sample
 		SYNC = 0x73796e63,  //sync, synchronization
@@ -157,18 +157,5 @@ namespace IsoParser.Lib.Models {
 
 		IN = 0x2020696e,  // '  in'
 		TY = 0x20207479,  // '  ty'
-	}
-
-	public enum ComponentType {
-		Media = 0x6d6e6972,  //mhlr, media handler
-		Data = 0x646e6972,   //dhlr, data handler
-	}
-
-	public enum ComponentSubType {
-		Video = 0x76696465,  //vide, video data
-		Sound = 0x736f756e,  //soun, sound data
-		Subtitle = 0x73756274,  //subt, subtitles
-		File = 0x616c6973,  //alis, data, file alias
-		Meta = 0x6d647461,  //mdta, meta data, 
 	}
 }

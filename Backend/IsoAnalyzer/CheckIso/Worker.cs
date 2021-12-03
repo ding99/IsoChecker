@@ -17,13 +17,17 @@ namespace CheckIso {
 
 		private string Display (Atom atom) {
 			StringBuilder b = new ();
+			b.Append ("== Details ==").Append(Environment.NewLine);
 			this.Layer (b, atom, 0);
+
+			b.Append (Environment.NewLine).Append ("== Content ==").Append (Environment.NewLine);
+			this.Content (b, atom, 0);
 			return b.ToString ();
 		}
 
 		private void Layer (StringBuilder b, Atom atom, int layer) {
 			try {
-				b.Append ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "NONE")}] size {atom.Size:X} id {atom.Id:x}").Append (Environment.NewLine);
+				b.Append ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "ROOT")}] size {atom.Size:X} id {atom.Id:x}").Append (Environment.NewLine);
 
 				if(atom.Items != null)
 				foreach (var item in atom.Items)
@@ -37,6 +41,19 @@ namespace CheckIso {
 			if(atom.Atoms != null)
 			foreach (var a in atom.Atoms)
 				Layer (b, a, layer + 1);
+		}
+
+		private void Content (StringBuilder b, Atom atom, int layer) {
+			try {
+				b.Append ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "ROOT")}] size {atom.Size:X} id {atom.Id:x}").Append (Environment.NewLine);
+			}
+			catch (Exception e) {
+				Console.WriteLine (e.Message);
+			}
+
+			if (atom.Atoms != null)
+				foreach (var a in atom.Atoms)
+					Content (b, a, layer + 1);
 		}
 
 		// TODO

@@ -55,7 +55,7 @@ namespace IsoParser.Lib.Concretes {
 			Atom atom = new ();
 			await Task.Run (() => {
 				// Root atom id is always 1
-				atom = this.GetAtom (1, this.file.FileSize (), 0L, 0);
+				atom = this.GetAtom (1, this.file.FileSize (), 0L, 0, new Track());
 
 				#region test data
 				//atom = new Atom (0x31303230, 0x800, 0) {
@@ -102,12 +102,12 @@ namespace IsoParser.Lib.Concretes {
 		#endregion public
 
 		#region atom utilities
-		private Atom GetAtom (int id, long size, long offset, int head) {
+		private Atom GetAtom (int id, long size, long offset, int head, Track track) {
 			Console.WriteLine ($"id {id:x}, size {size:x}, offset {offset:x}, head {head:x}");
 			Atom atom = new (id, size, offset, head);
 
 			if (atom.Type.HasValue && !this.isContainer ((AtomType)atom.Type))
-				atom.Items = this.Parse (atom);
+				atom.Items = this.Parse (atom, track);
 
 			List<Atom> atoms = new ();
 			bool valid = true;
@@ -115,27 +115,22 @@ namespace IsoParser.Lib.Concretes {
 			long si;
 			for (long ip = offset + head; ip < offset + size - head; ip += si) {
 				byte [] buffer = this.file.Read (8, ip);
-				if (buffer.Length < 1) {
-					valid = false;
+				if (buffer.Length < 1)
 					break;
-				}
 
-				int atomId = ByteInt (buffer, 4);
+				int atomId = this.ByteInt (buffer, 4);
 				int atomHead = 8;
 
 				if (this.ValidId (atomId)) {
-					//				if (this.valid) {
-					//					if (this.valid && this.ValidId (atomId)) {
 					switch (si = this.ByteInt (buffer, 0)) {
 					case 0:
 						si = this.fileSize - ip;
 						break;
 					case 1:
 						buffer = this.file.Read (8);
-						if (buffer.Length < 1) {
+						if (buffer.Length < 1)
 							valid = false;
-							break;
-						} else {
+						else {
 							si = this.ByteLong (buffer, 0);
 							atomHead += 8;
 						}
@@ -152,8 +147,8 @@ namespace IsoParser.Lib.Concretes {
 				Console.WriteLine ($"  atomId {atomId:x}, si {si:x}, ip {ip:x}, atomHead {atomHead:x}");
 
 				if (Enum.IsDefined (typeof (AtomType), atomId)) {
-					Console.WriteLine ($"-- Found Atom [{(AtomType)atomId}]");
-					Atom newAtom = GetAtom (atomId, si, ip, atomHead);
+					Console.WriteLine ($"-- Found Atom [{(AtomType)atomId}], subtype [{track.SubType}]");
+					Atom newAtom = GetAtom (atomId, si, ip, atomHead, track);
 					atoms.Add (newAtom);
 				}
 
@@ -167,73 +162,149 @@ namespace IsoParser.Lib.Concretes {
 			return atom;
 		}
 
-		private List<Item> Parse(Atom atom) {
+		private List<Item> Parse (Atom atom, Track track) {
             switch (atom.Type) {
 			case AtomType.MVHD:
-				return ParseMvhd (atom);
+				return this.ParseMvhd (atom);
 			case AtomType.ELST:
-				return ParseElst (atom);
+				return this.ParseElst (atom);
 			case AtomType.HDLR:
-				return ParseHdlr (atom);
+				return this.ParseHdlr (atom, track);
+			case AtomType.GMIN:
+				return this.ParseGmin (atom);
+			case AtomType.STSD:
+				return this.ParseStsd (atom);
+			case AtomType.STSS:
+				return this.ParseStss (atom);
+			case AtomType.STTS:
+				return this.ParseStts (atom);
+			case AtomType.STSZ:
+				return this.ParseStsz (atom);
+			case AtomType.STSC:
+				return this.ParseStsc (atom);
+			case AtomType.STCO:
+				return this.ParseStco (atom, track);
 			}
 
 			return Array.Empty <Item> ().ToList ();
         }
 
-		private List<Item> ParseMvhd(Atom atom) {
-			if (atom.Size < 108)
-				return Array.Empty <Item> ().ToList ();
-
+		private List<Item> ParseAtom (Func<byte [], List<Item>> add, Atom atom) {
 			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
-			if (buffer.Length < 24)
-				return Array.Empty <Item> ().ToList ();
+			return buffer.Length >= (int)atom.Size ? add (buffer) : Array.Empty<Item> ().ToList ();
+		}
 
-			this.timeScale = ByteInt (buffer, 20);
-			List<Item> items = new ();
-			items.Add (new Item {
-				Name = "TimeScale",
-				Type = ItemType.Int,
-				Value = this.timeScale
-			});
-			return items;
+		private List<Item> ParseMvhd(Atom atom) {
+			return this.ParseAtom (buffer => {
+				this.timeScale = this.ByteInt (buffer, 20);
+				return new [] { new Item { Name = "TimeScale", Type = ItemType.Int, Value = this.timeScale } }.ToList ();
+			}, atom);
         }
 
 		private List<Item> ParseElst(Atom atom) {
-			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
-			if(buffer.Length >= (int)atom.Size) {
+            return this.ParseAtom (buffer => {
 				List<Item> items = new ();
 
-				int count = ByteInt (buffer, 12);
+				int count = this.ByteInt (buffer, 12);
 				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
 
-				for(int i = 0; i < count; i++) {
-					items.Add (new Item { Name = "TrackDuration", Type = ItemType.Int, Value = ByteInt (buffer, 16 + 12 * i) });
-					items.Add (new Item { Name = "MediaTime", Type = ItemType.Int, Value = ByteInt (buffer, 20 + 12 * i) });
-					items.Add (new Item { Name = "MediaRate", Type = ItemType.Int, Value = ByteInt (buffer, 24 + 12 * i) });
+				for (int i = 0; i < count; i++) {
+					items.Add (new Item { Name = "TrackDuration", Type = ItemType.Int, Value = this.ByteInt (buffer, 16 + 12 * i) });
+					items.Add (new Item { Name = "MediaTime", Type = ItemType.Int, Value = this.ByteInt (buffer, 20 + 12 * i) });
+					items.Add (new Item { Name = "MediaRate", Type = ItemType.Int, Value = this.ByteInt (buffer, 24 + 12 * i) });
 					if (this.timeScale.HasValue && this.timeScale != 0)
 						items.Add (new Item {
 							Name = "DurationSec",
 							Type = ItemType.Double,
-							Value = (double)ByteInt (buffer, 16 + 12 * i) / (double)this.timeScale
+							Value = (double) this.ByteInt (buffer, 16 + 12 * i) / (double)this.timeScale
 						});
 				}
 
 				return items;
-			}
-			return Array.Empty <Item> ().ToList ();
+			}, atom);
         }
 
-		private List<Item> ParseHdlr (Atom atom) {
-			byte [] buffer = this.file.Read ((int)atom.Size, atom.Offset);
-			if (buffer.Length >= (int)atom.Size) {
-				List<Item> items = new ();
+		private List<Item> ParseHdlr (Atom atom, Track track) {
+			return this.ParseAtom (buffer => {
+				int value = this.ByteInt(buffer, 12);
+				if (Enum.IsDefined (typeof (ComponentType), value))
+					track.Type = (ComponentType)value;
 
-				items.Add (new Item { Name = "ComponentType", Type = ItemType.String, Value = this.IntString(buffer, 12) });
-				items.Add (new Item { Name = "ComponentSubType", Type = ItemType.String, Value = this.IntString (buffer, 16) });
+				Console.WriteLine ($"************ type {value:x}");
+				value = this.ByteInt (buffer, 16);
+                Console.WriteLine ($"************ type {track.Type} subtype {value:x}");
+				if (Enum.IsDefined (typeof (ComponentSubType), value))
+					track.SubType = (ComponentSubType)value;
+
+				return new [] {
+					new Item { Name = "ComponentType", Type = ItemType.String, Value = this.IntString (buffer, 12) },
+					new Item { Name = "ComponentSubType", Type = ItemType.String, Value = this.IntString (buffer, 16) }
+				}.ToList ();
+			}, atom);
+		}
+
+		private List<Item> ParseGmin (Atom atom) {
+			return this.ParseAtom (buffer => new [] {
+				new Item { Name = "GraphicsMode", Type = ItemType.Short, Value = this.ByteShort (buffer, 12) }
+			}.ToList(), atom);
+		}
+
+		private List<Item> ParseStsd (Atom atom) {
+			return this.ParseAtom (buffer => {
+				int size = (int)atom.Size;
+
+				List<Item> items = new ();
+				int count = this.ByteInt (buffer, 12);
+				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
+
+				int pos = 16;
+				for (int i = 0; i < count && pos < size; i++) {
+					int descriptionSize = this.ByteInt (buffer, pos);
+					items.Add (new Item { Name = "DescriptionSize", Type = ItemType.Int, Value = descriptionSize });
+					items.Add (new Item { Name = "DataFormat", Type = ItemType.String, Value = this.IntString (buffer, pos + 4) });
+					items.Add (new Item { Name = "Index", Type = ItemType.Short, Value = this.ByteShort (buffer, pos + 14) });
+					pos += descriptionSize;
+				}
 
 				return items;
-			}
-			return Array.Empty<Item> ().ToList ();
+			}, atom);
+		}
+
+		private List<Item> ParseStts (Atom atom) {
+			return this.ParseAtom (buffer => new [] {
+				new Item { Name = "Entries", Type = ItemType.Int, Value = this.ByteInt (buffer, 12) }
+			}.ToList (), atom);
+		}
+		private List<Item> ParseStss (Atom atom) {
+			return this.ParseAtom (buffer => new [] {
+				new Item { Name = "Entries", Type = ItemType.Int, Value = this.ByteInt (buffer, 12) }
+			}.ToList (), atom);
+		}
+		private List<Item> ParseStsz (Atom atom) {
+			return this.ParseAtom (buffer => new [] {
+				new Item { Name = "SampleSize", Type = ItemType.Int, Value = this.ByteInt (buffer, 12) },
+				new Item { Name = "Entries", Type = ItemType.Int, Value = this.ByteInt (buffer, 16) }
+			}.ToList (), atom);
+		}
+		private List<Item> ParseStsc (Atom atom) {
+			return this.ParseAtom (buffer => new [] {
+				new Item { Name = "Entries", Type = ItemType.Int, Value = this.ByteInt (buffer, 12) }
+			}.ToList (), atom);
+		}
+		private List<Item> ParseStco (Atom atom, Track track) {
+            Console.WriteLine ($"STCO type {track.Type}, subtype {track.SubType}");
+			return this.ParseAtom (buffer => {
+				List<Item> items = new ();
+				int count = this.ByteInt (buffer, 12);
+				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
+
+				if(track.SubType == ComponentSubType.Caption) {
+					for (int i = 0; i < count; i++)
+						items.Add (new Item { Name = "Offset", Type = ItemType.Int, Value = this.ByteInt (buffer, 16 + 4 * i) });
+                }
+
+				return items;
+			}, atom);
 		}
 		#endregion atom utilities
 
@@ -247,6 +318,10 @@ namespace IsoParser.Lib.Concretes {
 		}
 		public int ByteInt (byte [] data, int offset) {
 			return data.Skip (offset).Take (4).ToArray ().Aggregate (0, (x, y) => (x << 8) + y);
+		}
+
+		public short ByteShort (byte [] data, int offset) {
+			return (short) (data [offset] << 8 | data [offset + 1]);
 		}
 
 		private long ByteLong (byte [] data, int offset) {

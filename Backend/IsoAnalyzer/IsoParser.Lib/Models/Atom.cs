@@ -77,7 +77,7 @@ namespace IsoParser.Lib.Models {
 		FTAB = 0x67746162,  //ftab, text sample
 		FTYP = 0x66747970,  //ftyp
 		GMHD = 0x676d6864,  //gmhd
-		GMIN = 0x676d696e,  //gmin
+		GMIN = 0x676d696e,  //gmin, base media info
 
 		HCLR = 0x68636c72,  //hclr, text sample
 		HDLR = 0x68646c72,  //hdlr, handler ref
@@ -126,7 +126,7 @@ namespace IsoParser.Lib.Models {
 		SPRT = 0x73707274,  //sprt, sprite
 		SSRC = 0x73737263,  //ssrc, none primary source
 		SSTR = 0x73737472,  //sstr, sprite status string behavior
-		STBL = 0x7374626c,  //stbl
+		STBL = 0x7374626c,  //stbl, sample table
 		STCO = 0x7374636f,  //stco, chunk offset
 		STPS = 0x73747073,  //stps, partial sync sample
 		STRV = 0x73747276,  //strv, sprite string variable
@@ -134,11 +134,12 @@ namespace IsoParser.Lib.Models {
 		STSD = 0x73747364,  //stsd, sample description
 		STSH = 0x73747368,  //stsh, shadow sync
 		STSS = 0x73747373,  //stss, sync sample
-		STSZ = 0x7374737a,  //stsz, sampe size
+		STSZ = 0x7374737a,  //stsz, sample size
 		STTS = 0x73747473,  //stts, time-to-sample
 		STYL = 0x7374796c,  //styl, text sample
 		SYNC = 0x73796e63,  //sync, synchronization
 		TAPT = 0x74617074,  //tapt
+		TCMI = 0x74636d69,  //tcmi, timecode media info
 		TKHD = 0x746b6864,  //tkhd
 		TMCD = 0x746d6364,  //tmcd, time code
 		TRAK = 0x7472616b,  //trak
@@ -156,18 +157,5 @@ namespace IsoParser.Lib.Models {
 
 		IN = 0x2020696e,  // '  in'
 		TY = 0x20207479,  // '  ty'
-	}
-
-	public enum ComponentType {
-		Media = 0x6d6e6972,  //mhlr, media handler
-		Data = 0x646e6972,   //dhlr, data handler
-	}
-
-	public enum ComponentSubType {
-		Video = 0x76696465,  //vide, video data
-		Sound = 0x736f756e,  //soun, sound data
-		Subtitle = 0x73756274,  //subt, subtitles
-		File = 0x616c6973,  //alis, data, file alias
-		Meta = 0x6d647461,  //mdta, meta data, 
 	}
 }

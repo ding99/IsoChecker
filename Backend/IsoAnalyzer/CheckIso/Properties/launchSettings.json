@@ -2,7 +2,7 @@
   "profiles": {
     "CheckIso": {
       "commandName": "Project",
-      "commandLineArgs": "E:\\05-Video\\c608_act3.mov"
+      "commandLineArgs": "E:\\05-Video\\c608_3.mov"
     }
   }
 }

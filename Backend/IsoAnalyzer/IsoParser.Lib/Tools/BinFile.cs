@@ -56,7 +56,7 @@ namespace IsoParser.Lib.Tools {
 			return this.info.FileSize;
 		}
 
-		public byte [] NextPack () {
+		public byte[] NextPack () {
 			try {
 				return this.reader.ReadBytes (this.info.PackSize);
 			}
@@ -66,7 +66,7 @@ namespace IsoParser.Lib.Tools {
 			}
 		}
 
-		public byte [] SomePack (int packNumber) {
+		public byte[] SomePack (int packNumber) {
 			if (packNumber > this.info.PackCount)
 				return Array.Empty<byte> ();
 
@@ -116,7 +116,7 @@ namespace IsoParser.Lib.Tools {
 			}
 		}
 
-		public byte [] Read (int size) {
+		public byte[] Read (int size) {
 			try {
 				return this.reader.ReadBytes (size);
 			}
@@ -126,7 +126,7 @@ namespace IsoParser.Lib.Tools {
 			}
 		}
 
-		public byte [] Read (int size, long offset) {
+		public byte[] Read (int size, long offset) {
 			return  this.GotoByte (offset) ? this.Read(size) : Array.Empty<byte> ();
 		}
 

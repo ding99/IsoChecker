@@ -166,7 +166,11 @@ namespace IsoParser.Lib.Concretes {
             switch (atom.Type) {
 			case AtomType.MVHD:
 				return this.ParseMvhd (atom);
-			case AtomType.ELST:
+			case AtomType.TKHD:
+				return this.ParseTkhd (atom);
+				case AtomType.MDHD:
+					return this.ParseMdhd (atom);
+				case AtomType.ELST:
 				return this.ParseElst (atom);
 			case AtomType.HDLR:
 				return this.ParseHdlr (atom, track);
@@ -210,6 +214,75 @@ namespace IsoParser.Lib.Concretes {
 				}.ToList ();
 			}, atom);
         }
+
+		// TODO
+		private List<Item> ParseTkhd (Atom atom)
+		{
+			return this.ParseAtom (buffer => {
+				return new[] {
+					new Item { Name = "Verison", Type = ItemType.Int, Value = buffer[8] },
+					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xfff },
+					new Item { Name = "FlagDetails", Type = ItemType.String, Value = this.ParseFlags ((uint)this.ByteInt (buffer, 8) & 0xfff) },
+					new Item { Name = "CreationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 12, atom.Offset) },
+					new Item { Name = "ModificationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 16, atom.Offset) },
+					new Item { Name = "TrackID", Type = ItemType.Int, Value = this.ByteInt (buffer, 20) },
+					new Item { Name = "Duration", Type = ItemType.String, Value = this.ParseDuration (buffer, 28, this.timeScale) },
+					new Item { Name = "Layer", Type = ItemType.Short, Value = this.ByteShort (buffer, 40) },
+					new Item { Name = "AlternateGroup", Type = ItemType.Short, Value = this.ByteShort (buffer, 42) },
+					new Item { Name = "Volume", Type = ItemType.Short, Value = this.ByteShort (buffer, 44) },
+					new Item { Name = "TrackWidth", Type = ItemType.Int, Value = this.ByteInt (buffer, 84) },
+					new Item { Name = "TrackHeight", Type = ItemType.Int, Value = this.ByteInt (buffer, 88) }
+				}.ToList ();
+			}, atom);
+		}
+		private string ParseFlags(uint flags)
+        {
+			StringBuilder b = new ();
+			bool start = true;
+
+			if ( (flags & 8) > 0)
+            {
+				b.Append ("track is enabled");
+				start = false;
+            }
+			if ((flags & 4) > 0)
+			{
+				if (start)
+					start = false;
+				else
+					b.Append (", ");
+				b.Append ("movie");
+			}
+			if ((flags & 2) > 0)
+			{
+				if (start)
+					start = false;
+				else
+					b.Append (", ");
+				b.Append ("movie's preview");
+			}
+			if ((flags & 1) > 0)
+				b.Append ($"{(start ? "" : ", ")}movie's poster");
+
+			return b.ToString ();
+        }
+
+		private List<Item> ParseMdhd (Atom atom)
+		{
+			return this.ParseAtom (buffer => {
+				int timeScale = this.ByteInt (buffer, 20);
+				return new[] {
+					new Item { Name = "Verison", Type = ItemType.Int, Value = buffer[8] },
+					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xfff },
+					new Item { Name = "CreationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 12, atom.Offset) },
+					new Item { Name = "ModificationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 16, atom.Offset) },
+					new Item { Name = "TimeScale", Type = ItemType.Int, Value = timeScale },
+					new Item { Name = "Duration", Type = ItemType.String, Value = this.ParseDuration (buffer, 24, timeScale) },
+					new Item { Name = "Language", Type = ItemType.Short, Value = this.ByteShort (buffer, 28) },
+					new Item { Name = "Quality", Type = ItemType.Short, Value = this.ByteShort (buffer, 30) }
+				}.ToList ();
+			}, atom);
+		}
 
 		private List<Item> ParseElst(Atom atom) {
             return this.ParseAtom (buffer => {

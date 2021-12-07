@@ -168,7 +168,9 @@ namespace IsoParser.Lib.Concretes {
 				return this.ParseMvhd (atom);
 			case AtomType.TKHD:
 				return this.ParseTkhd (atom);
-			case AtomType.ELST:
+				case AtomType.MDHD:
+					return this.ParseMdhd (atom);
+				case AtomType.ELST:
 				return this.ParseElst (atom);
 			case AtomType.HDLR:
 				return this.ParseHdlr (atom, track);
@@ -264,6 +266,23 @@ namespace IsoParser.Lib.Concretes {
 
 			return b.ToString ();
         }
+
+		private List<Item> ParseMdhd (Atom atom)
+		{
+			return this.ParseAtom (buffer => {
+				int timeScale = this.ByteInt (buffer, 20);
+				return new[] {
+					new Item { Name = "Verison", Type = ItemType.Int, Value = buffer[8] },
+					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xfff },
+					new Item { Name = "CreationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 12, atom.Offset) },
+					new Item { Name = "ModificationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 16, atom.Offset) },
+					new Item { Name = "TimeScale", Type = ItemType.Int, Value = timeScale },
+					new Item { Name = "Duration", Type = ItemType.String, Value = this.ParseDuration (buffer, 24, timeScale) },
+					new Item { Name = "Language", Type = ItemType.Short, Value = this.ByteShort (buffer, 28) },
+					new Item { Name = "Quality", Type = ItemType.Short, Value = this.ByteShort (buffer, 30) }
+				}.ToList ();
+			}, atom);
+		}
 
 		private List<Item> ParseElst(Atom atom) {
             return this.ParseAtom (buffer => {

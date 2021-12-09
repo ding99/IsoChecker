@@ -12,6 +12,7 @@
 		Int,
 		Long,
 		Double,
-		String
+		String,
+		Matrix
 	}
 }

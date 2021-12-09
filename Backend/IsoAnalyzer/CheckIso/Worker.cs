@@ -62,9 +62,23 @@ namespace CheckIso {
 			case ItemType.Int:
 			case ItemType.Long:
 			case ItemType.Short: return $"{value} ({value:x}h)";
+			case ItemType.Matrix: return this.ShowMatrix (value);
 			}
 			return value.ToString ();
 		}
+
+		private string ShowMatrix(object value)
+        {
+			double[] values = value as double [];
+			StringBuilder b = new ();
+			for (int i = 0; i < values.Length; i++)
+			{
+				if (i != 0)
+					b.Append (", ");
+				b.Append (values[i]);
+			}
+			return b.ToString ();
+        }
 
 		private string Spaces (int layer) {
 			StringBuilder b = new ();

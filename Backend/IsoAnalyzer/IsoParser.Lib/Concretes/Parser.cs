@@ -210,7 +210,8 @@ namespace IsoParser.Lib.Concretes {
 					new Item { Name = "TimeScale", Type = ItemType.Int, Value = this.timeScale },
 					new Item { Name = "Duration", Type = ItemType.String, Value = this.ParseDuration (buffer, 24, this.timeScale) },
 					new Item { Name = "PerferredRate", Type = ItemType.Int, Value = this.ByteInt (buffer, 28) },
-					new Item { Name = "PreferredVolume", Type = ItemType.Short, Value = this.ByteShort (buffer, 32) }
+					new Item { Name = "PreferredVolume", Type = ItemType.Short, Value = this.ByteShort (buffer, 32) },
+					new Item { Name = "MatrixStructure", Type = ItemType.Matrix, Value = this.ParseMatrix (buffer, 44) }
 				}.ToList ();
 			}, atom);
         }
@@ -230,6 +231,7 @@ namespace IsoParser.Lib.Concretes {
 					new Item { Name = "Layer", Type = ItemType.Short, Value = this.ByteShort (buffer, 40) },
 					new Item { Name = "AlternateGroup", Type = ItemType.Short, Value = this.ByteShort (buffer, 42) },
 					new Item { Name = "Volume", Type = ItemType.Short, Value = this.ByteShort (buffer, 44) },
+					new Item { Name = "MatrixStructure", Type = ItemType.Matrix, Value = this.ParseMatrix (buffer, 48) },
 					new Item { Name = "TrackWidth", Type = ItemType.Int, Value = this.ByteInt (buffer, 84) },
 					new Item { Name = "TrackHeight", Type = ItemType.Int, Value = this.ByteInt (buffer, 88) }
 				}.ToList ();
@@ -447,6 +449,34 @@ namespace IsoParser.Lib.Concretes {
 				b.Append ($" ({s} seconds, {(int)s / 3600:D2}:{(int)s / 60 % 60:D2}:{(int)s % 60:D2}.{((int)(s * 1000)) % 1000:D3})");
             }
 			return b.ToString ();
+        }
+
+		private double[] ParseMatrix (byte[] data, int offset)
+        {
+			double[] values = new double[9];
+			double fraction;
+			int integerPortion;
+
+			for(int i = 0; i < 9; i++) 
+
+			{
+				if (i == 2 || i == 5 || i == 8)
+                {
+					integerPortion = (int) (data[offset + i * 4] >> 6);
+					fraction = ((uint)this.ByteInt (data, offset + i * 4) & 0x3fffffff) * 1.0 / 1_073_741_824;
+				}
+				else
+                {
+					integerPortion = this.ByteShort (data, offset + i * 4);
+					fraction = ((ushort)this.ByteShort (data, offset + i * 4 + 2)) * 1.0 / 65536;
+                }
+				if (integerPortion >= 0)
+					values[i] = (double)integerPortion + fraction;
+				else
+					values[i] = (double)integerPortion - fraction;
+			}
+
+			return values;
         }
 		#endregion common utilities
 	}

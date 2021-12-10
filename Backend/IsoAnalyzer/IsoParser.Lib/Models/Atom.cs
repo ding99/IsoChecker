@@ -6,13 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace IsoParser.Lib.Models {
+namespace IsoParser.Lib.Models
+{
 
-	public class FullAtom : Atom {
+    public class FullAtom : Atom {
 		public string Version { get; set; }
 		public int Flags { get; set; }
 	}
@@ -46,6 +44,7 @@ namespace IsoParser.Lib.Models {
 	}
 
 	public enum AtomType {
+		ALIS = 0x616c6973,  //alis, Macintosh alias
 		BEHA = 0x62656861,  //beha, sprite behavior
 		CHAP = 0x63686170,  //chap, chapter or scene list
 		CLCP = 0x636c6370,  //clcp, closed caption
@@ -81,8 +80,10 @@ namespace IsoParser.Lib.Models {
 
 		HCLR = 0x68636c72,  //hclr, text sample
 		HDLR = 0x68646c72,  //hdlr, handler ref
+		HINF = 0x68696e66,  //hinf, hint track info
 		HINT = 0x68696e74,  //hint, ref original media
 		HLIT = 0x686c6974,  //hlit, text sample
+		HNTI = 0x686e7469,  //hnti, movie user data
 		HTXT = 0x68747874,  //htxt, hypertext
 		IDAT = 0x69646174,  //idat
 		IDSC = 0x69647363,  //idsc
@@ -117,6 +118,7 @@ namespace IsoParser.Lib.Models {
 		PROF = 0x70726f66,  //prof
 		RMDA = 0x726d6461,  //rmda
 		RMRA = 0x726d7261,  //rmra, ref movie
+		RSRC = 0x72737363,  //rsrc, Macintosh alias
 		SBGP = 0x73626770,  //sbgp, sample-to-group
 		SCPT = 0x73637074,  //scpt, transcript (ref a text track)
 		SDTP = 0x73647470,  //sdtp, sample dependency flags
@@ -153,9 +155,22 @@ namespace IsoParser.Lib.Models {
 		WIDE = 0x77696465,  //wide, placeholder
 		WTXT = 0x77747874,  //wtxt, wired text
 
+		RTP = 0x72747020,  //'rtp ', real time protocal, hint sample data format
 		URL = 0x75726c20,  //'url ', sprite url link
 
 		IN = 0x2020696e,  // '  in'
 		TY = 0x20207479,  // '  ty'
+	}
+	public enum GraphicsMode
+    {
+		Copy = 0,
+		Blend = 0x20,  // Use Opcolor
+		Transparent = 0x24,  // Use Opcolor
+		DitherCopy = 0x40,
+		StraightAlpha = 0x100,
+		PremulWhiteAlpha = 0x101,
+		PremulBlackAlpha = 0x102,
+		Commposition = 0x103,
+		StraightAlphaBlend = 0x104  // Use Opcolor
 	}
 }

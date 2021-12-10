@@ -164,6 +164,8 @@ namespace IsoParser.Lib.Concretes {
 
 		private List<Item> Parse (Atom atom, Track track) {
             switch (atom.Type) {
+			case AtomType.FTYP:
+				return this.ParseFtyp (atom);
 			case AtomType.MVHD:
 				return this.ParseMvhd (atom);
 			case AtomType.TKHD:
@@ -202,13 +204,25 @@ namespace IsoParser.Lib.Concretes {
 			return buffer.Length >= (int)atom.Size ? add (buffer) : Array.Empty<Item> ().ToList ();
 		}
 
+		private List<Item> ParseFtyp (Atom atom)
+		{
+			return this.ParseAtom (buffer => {
+				return new[] {
+					new Item { Name = "MajorBrand", Type = ItemType.String, Value = this.ByteString (buffer, 8) },
+					new Item { Name = "MinorBrand", Type = ItemType.String, Value = this.ByteString (buffer, 12) },
+					new Item { Name = "CompatibleBrands", Type = ItemType.String, Value = this.ByteString(buffer, 16, (int) atom.Size - 16) }
+				}.ToList ();
+			}, atom);
+		}
+
+
 		// TODO
 		private List<Item> ParseMvhd(Atom atom) {
 			return this.ParseAtom (buffer => {
 				this.timeScale = this.ByteInt (buffer, 20);
 				return new[] {
 					new Item { Name = "Verison", Type = ItemType.Int, Value = buffer[8] },
-					new Item { Name = "Flags", Type = ItemType.Int, Value = ByteInt (buffer, 8) & 0xffffff },
+					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "CreationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 12, atom.Offset) },
 					new Item { Name = "ModificationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 16, atom.Offset) },
 					new Item { Name = "TimeScale", Type = ItemType.Int, Value = this.timeScale },

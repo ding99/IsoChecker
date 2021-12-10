@@ -20,8 +20,8 @@ namespace CheckIso {
 			b.Append ("== Details ==").Append(Environment.NewLine);
 			this.Layer (b, atom, 0);
 
-			b.Append (Environment.NewLine).Append ("== Content ==").Append (Environment.NewLine);
-			this.Content (b, atom, 0);
+			//b.Append (Environment.NewLine).Append ("== Content ==").Append (Environment.NewLine);
+			//this.Content (b, atom, 0);
 			return b.ToString ();
 		}
 

@@ -63,6 +63,7 @@ namespace CheckIso {
 			case ItemType.Long:
 			case ItemType.Short: return $"{value} ({value:x}h)";
 			case ItemType.Matrix: return this.ShowMatrix (value);
+			case ItemType.String: return $"({value})";
 			}
 			return value.ToString ();
 		}

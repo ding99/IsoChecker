@@ -59,6 +59,7 @@ namespace CheckIso {
 		// TODO
 		private string ShowValue (object value, ItemType type) {
 			switch (type) {
+			case ItemType.Byte:
 			case ItemType.Int:
 			case ItemType.Long:
 			case ItemType.Short: return $"{value} ({value:x}h)";

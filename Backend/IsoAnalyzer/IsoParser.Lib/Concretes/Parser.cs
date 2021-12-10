@@ -103,7 +103,7 @@ namespace IsoParser.Lib.Concretes {
 
 		#region atom utilities
 		private Atom GetAtom (int id, long size, long offset, int head, Track track) {
-			Console.WriteLine ($"id {id:x}, size {size:x}, offset {offset:x}, head {head:x}");
+			//Console.WriteLine ($"id {id:x}, size {size:x}, offset {offset:x}, head {head:x}");
 			Atom atom = new (id, size, offset, head);
 
 			if (atom.Type.HasValue && !this.isContainer ((AtomType)atom.Type))
@@ -144,10 +144,10 @@ namespace IsoParser.Lib.Concretes {
 					valid = false;
 				}
 
-				Console.WriteLine ($"  atomId {atomId:x}, si {si:x}, ip {ip:x}, atomHead {atomHead:x}");
+				//Console.WriteLine ($"  atomId {atomId:x}, si {si:x}, ip {ip:x}, atomHead {atomHead:x}");
 
 				if (Enum.IsDefined (typeof (AtomType), atomId)) {
-					Console.WriteLine ($"-- Found Atom [{(AtomType)atomId}], subtype [{track.SubType}]");
+					//Console.WriteLine ($"-- Found Atom [{(AtomType)atomId}], subtype [{track.SubType}]");
 					Atom newAtom = GetAtom (atomId, si, ip, atomHead, track);
 					atoms.Add (newAtom);
 				}
@@ -430,7 +430,7 @@ namespace IsoParser.Lib.Concretes {
 			}.ToList (), atom);
 		}
 		private List<Item> ParseStco (Atom atom, Track track) {
-            Console.WriteLine ($"STCO type {track.Type}, subtype {track.SubType}");
+            //Console.WriteLine ($"STCO type {track.Type}, subtype {track.SubType}");
 			return this.ParseAtom (buffer => {
 				List<Item> items = new ();
 				int count = this.ByteInt (buffer, 12);

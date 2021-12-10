@@ -209,7 +209,7 @@ namespace IsoParser.Lib.Concretes {
 			return this.ParseAtom (buffer => {
 				return new[] {
 					new Item { Name = "MajorBrand", Type = ItemType.String, Value = this.ByteString (buffer, 8) },
-					new Item { Name = "MinorBrand", Type = ItemType.String, Value = this.ByteString (buffer, 12) },
+					new Item { Name = "MinorBrand", Type = ItemType.Int, Value = this.ByteInt (buffer, 12) },
 					new Item { Name = "CompatibleBrands", Type = ItemType.String, Value = this.ByteString(buffer, 16, (int) atom.Size - 16) }
 				}.ToList ();
 			}, atom);

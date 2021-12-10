@@ -158,4 +158,16 @@ namespace IsoParser.Lib.Models {
 		IN = 0x2020696e,  // '  in'
 		TY = 0x20207479,  // '  ty'
 	}
+	public enum GraphicsMode
+    {
+		Copy = 0,
+		Blend = 0x20,  // Use Opcolor
+		Transparent = 0x24,  // Use Opcolor
+		DitherCopy = 0x40,
+		StraightAlpha = 0x100,
+		PremulWhiteAlpha = 0x101,
+		PremulBlackAlpha = 0x102,
+		Commposition = 0x103,
+		StraightAlphaBlend = 0x104  // Use Opcolor
+	}
 }

@@ -20,8 +20,8 @@ namespace CheckIso {
 			b.Append ("== Details ==").Append(Environment.NewLine);
 			this.Layer (b, atom, 0);
 
-			b.Append (Environment.NewLine).Append ("== Content ==").Append (Environment.NewLine);
-			this.Content (b, atom, 0);
+			//b.Append (Environment.NewLine).Append ("== Content ==").Append (Environment.NewLine);
+			//this.Content (b, atom, 0);
 			return b.ToString ();
 		}
 
@@ -59,10 +59,12 @@ namespace CheckIso {
 		// TODO
 		private string ShowValue (object value, ItemType type) {
 			switch (type) {
+			case ItemType.Byte:
 			case ItemType.Int:
 			case ItemType.Long:
 			case ItemType.Short: return $"{value} ({value:x}h)";
 			case ItemType.Matrix: return this.ShowMatrix (value);
+			case ItemType.String: return $"[{value}]";
 			}
 			return value.ToString ();
 		}

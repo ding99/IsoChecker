@@ -172,6 +172,8 @@ namespace IsoParser.Lib.Concretes {
 				return this.ParseMdhd (atom);
 			case AtomType.VMHD:
 				return this.ParseVmhd (atom);
+			case AtomType.SMHD:
+				return this.ParseSmhd (atom);
 			case AtomType.ELST:
 				return this.ParseElst (atom);
 			case AtomType.HDLR:
@@ -288,7 +290,24 @@ namespace IsoParser.Lib.Concretes {
 			}, atom);
 		}
 
-		private List<Item> ParseVmhd (Atom atom)  //TODO
+		private List<Item> ParseVmhd (Atom atom)
+		{
+			return this.ParseAtom (buffer => {
+				int value = this.ByteShort (buffer, 12);
+				string graphics = Enum.IsDefined (typeof (GraphicsMode), value) ? ( (GraphicsMode) value).ToString () : "";
+
+				return new[] {
+					new Item { Name = "Verison", Type = ItemType.Int, Value = buffer[8] },
+					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xffffff },
+					new Item { Name = "GraphicsMode", Type = ItemType.String, Value = graphics },
+					new Item { Name = "OpcolorRed", Type = ItemType.Short, Value = this.ByteShort (buffer, 14) },
+					new Item { Name = "OpcolorGreen", Type = ItemType.Short, Value = this.ByteShort (buffer, 16) },
+					new Item { Name = "OpcolorBlue", Type = ItemType.Short, Value = this.ByteShort (buffer, 18) }
+				}.ToList ();
+			}, atom);
+		}
+
+		private List<Item> ParseSmhd (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
 				int value = this.ByteShort (buffer, 12);
@@ -296,11 +315,8 @@ namespace IsoParser.Lib.Concretes {
 
 				return new[] {
 					new Item { Name = "Verison", Type = ItemType.Int, Value = buffer[8] },
-					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xfffff },
-					new Item { Name = "GraphicsMode", Type = ItemType.String, Value = graphics },
-					new Item { Name = "OpcolorRed", Type = ItemType.Short, Value = this.ByteShort(buffer, 14) },
-					new Item { Name = "OpcolorGreen", Type = ItemType.Short, Value = this.ByteShort(buffer, 16) },
-					new Item { Name = "OpcolorBlue", Type = ItemType.Short, Value = this.ByteShort(buffer, 18) }
+					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xffffff },
+					new Item { Name = "Balance", Type = ItemType.Short, Value = this.ByteShort (buffer, 12) }
 				}.ToList ();
 			}, atom);
 		}

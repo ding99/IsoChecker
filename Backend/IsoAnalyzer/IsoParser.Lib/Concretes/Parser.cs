@@ -71,7 +71,7 @@ namespace IsoParser.Lib.Concretes {
 		#region atom utilities
 		private Atom GetAtom (int id, long size, long offset, int head, Track track) {
 			//Console.WriteLine ($"id {id:x}, size {size:x}, offset {offset:x}, head {head:x}");
-			Atom atom = new (id, size, offset, head);
+			Atom atom = new (id, size, offset);
 
 			if (atom.Type.HasValue && !this.isContainer ((AtomType)atom.Type))
 			{
@@ -115,6 +115,9 @@ namespace IsoParser.Lib.Concretes {
 
 				//Console.WriteLine ($"  atomId {atomId:x}, si {si:x}, ip {ip:x}, atomHead {atomHead:x}");
 
+				if (!valid)
+					break;
+
 				if (Enum.IsDefined (typeof (AtomType), atomId)) {
 					if (((AtomType)atomId) == AtomType.DREF)
 						atomHead += 8;
@@ -122,9 +125,6 @@ namespace IsoParser.Lib.Concretes {
 					Atom newAtom = GetAtom (atomId, si, ip, atomHead, track);
 					atoms.Add (newAtom);
 				}
-
-				if (!valid)
-					break;
 			}
 
 			if (atoms.Count > 0)

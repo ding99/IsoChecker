@@ -14,6 +14,7 @@ namespace IsoParser.Lib.Concretes {
 		private long fileSize;
 
 		private readonly HashSet<AtomType> containers;
+		private readonly HashSet<RefAtom> references;
 
 		#region movie variable
 		private int? timeScale;
@@ -38,10 +39,10 @@ namespace IsoParser.Lib.Concretes {
 				AtomType.TRAK,
 				AtomType.UDTA
 			};
-			this.containers = new HashSet<AtomType> {
-				AtomType.CLIP
-			};
-		}
+            this.references = new HashSet<RefAtom> {
+                new RefAtom { Type = AtomType.DREF, Head = 8 }
+            };
+        }
 
 		public void End () {
 			if (this.file != null)
@@ -53,11 +54,11 @@ namespace IsoParser.Lib.Concretes {
 			this.fileSize = this.file.FileSize ();
 
 			Atom atom = new ();
+
 			// Root atom id is always 1
 			await Task.Run (() => atom = this.GetAtom (1, this.file.FileSize (), 0L, 0, new Track()) );
 
 			this.file.End ();
-
 			return atom;
         }
 
@@ -119,6 +120,7 @@ namespace IsoParser.Lib.Concretes {
 					break;
 
 				if (Enum.IsDefined (typeof (AtomType), atomId)) {
+					//TODO: use references hashset
 					if (((AtomType)atomId) == AtomType.DREF)
 						atomHead += 8;
 					//Console.WriteLine ($"-- Found Atom [{(AtomType)atomId}], subtype [{track.SubType}], head [{atomHead:x}h]");

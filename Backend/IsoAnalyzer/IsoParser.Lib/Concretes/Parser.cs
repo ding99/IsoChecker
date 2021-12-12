@@ -13,7 +13,9 @@ namespace IsoParser.Lib.Concretes {
 		private BinFile file;
 		private long fileSize;
 
+		private const int MaxSize = 1_048_576;
 		private readonly HashSet<AtomType> containers;
+		private readonly Dictionary<AtomType, int> references;
 
 		#region movie variable
 		private int? timeScale;
@@ -22,6 +24,7 @@ namespace IsoParser.Lib.Concretes {
 		#region public
 		public Parser () {
 			this.file = null;
+
 			this.containers = new HashSet<AtomType> {
 				AtomType.CLIP,
 				AtomType.DINF,
@@ -38,10 +41,11 @@ namespace IsoParser.Lib.Concretes {
 				AtomType.TRAK,
 				AtomType.UDTA
 			};
-			this.containers = new HashSet<AtomType> {
-				AtomType.CLIP
-			};
-		}
+
+            this.references = new Dictionary<AtomType, int> {
+				[AtomType.DREF] = 8
+            };
+        }
 
 		public void End () {
 			if (this.file != null)
@@ -49,19 +53,22 @@ namespace IsoParser.Lib.Concretes {
         }
 
 		public async Task<Atom> GetTree (string path) {
-			this.file = new BinFile (path);
+			this.file = new (path);
 			this.fileSize = this.file.FileSize ();
 
 			Atom atom = new ();
+
 			// Root atom id is always 1
 			await Task.Run (() => atom = this.GetAtom (1, this.file.FileSize (), 0L, 0, new Track()) );
 
 			this.file.End ();
-
 			return atom;
         }
 
 		public async Task<byte[]> GetData (string path, long offset, int size) {
+			if (size > MaxSize)
+				size = MaxSize;
+
 			//byte[] a = new byte[0];
 			return await Task.Run (() => new byte[size]);
 			//return a;
@@ -71,7 +78,7 @@ namespace IsoParser.Lib.Concretes {
 		#region atom utilities
 		private Atom GetAtom (int id, long size, long offset, int head, Track track) {
 			//Console.WriteLine ($"id {id:x}, size {size:x}, offset {offset:x}, head {head:x}");
-			Atom atom = new (id, size, offset, head);
+			Atom atom = new (id, size, offset);
 
 			if (atom.Type.HasValue && !this.isContainer ((AtomType)atom.Type))
 			{
@@ -115,16 +122,15 @@ namespace IsoParser.Lib.Concretes {
 
 				//Console.WriteLine ($"  atomId {atomId:x}, si {si:x}, ip {ip:x}, atomHead {atomHead:x}");
 
+				if (!valid)
+					break;
+
 				if (Enum.IsDefined (typeof (AtomType), atomId)) {
-					if (((AtomType)atomId) == AtomType.DREF)
-						atomHead += 8;
-					//Console.WriteLine ($"-- Found Atom [{(AtomType)atomId}], subtype [{track.SubType}], head [{atomHead:x}h]");
+					if (this.references.ContainsKey ((AtomType)atomId))
+						atomHead += this.references[(AtomType)atomId];
 					Atom newAtom = GetAtom (atomId, si, ip, atomHead, track);
 					atoms.Add (newAtom);
 				}
-
-				if (!valid)
-					break;
 			}
 
 			if (atoms.Count > 0)
@@ -195,14 +201,14 @@ namespace IsoParser.Lib.Concretes {
 		}
 
 		// TODO
-		private List<Item> ParseMvhd(Atom atom) {
+		private List<Item> ParseMvhd (Atom atom) {
 			return this.ParseAtom (buffer => {
 				this.timeScale = this.ByteInt (buffer, 20);
 				return new[] {
 					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xffffff },
-					new Item { Name = "CreationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 12, atom.Offset) },
-					new Item { Name = "ModificationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 16, atom.Offset) },
+					new Item { Name = "CreationTime", Type = ItemType.String, Value = this.ParseTime (buffer, 12, atom.Offset) },
+					new Item { Name = "ModificationTime", Type = ItemType.String, Value = this.ParseTime (buffer, 16, atom.Offset) },
 					new Item { Name = "TimeScale", Type = ItemType.Int, Value = this.timeScale },
 					new Item { Name = "Duration", Type = ItemType.String, Value = this.ParseDuration (buffer, 24, this.timeScale) },
 					new Item { Name = "PerferredRate", Type = ItemType.Int, Value = this.ByteInt (buffer, 28) },
@@ -221,7 +227,7 @@ namespace IsoParser.Lib.Concretes {
 					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "FlagDetails", Type = ItemType.String, Value = this.ParseFlags ((uint)this.ByteInt (buffer, 8) & 0xffffff) },
 					new Item { Name = "CreationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 12, atom.Offset) },
-					new Item { Name = "ModificationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 16, atom.Offset) },
+					new Item { Name = "ModificationTime", Type = ItemType.String, Value = this.ParseTime (buffer, 16, atom.Offset) },
 					new Item { Name = "TrackID", Type = ItemType.Int, Value = this.ByteInt (buffer, 20) },
 					new Item { Name = "Duration", Type = ItemType.String, Value = this.ParseDuration (buffer, 28, this.timeScale) },
 					new Item { Name = "Layer", Type = ItemType.Short, Value = this.ByteShort (buffer, 40) },
@@ -233,7 +239,7 @@ namespace IsoParser.Lib.Concretes {
 				}.ToList ();
 			}, atom);
 		}
-		private string ParseFlags(uint flags)
+		private string ParseFlags (uint flags)
         {
 			StringBuilder b = new ();
 			bool start = true;
@@ -272,8 +278,8 @@ namespace IsoParser.Lib.Concretes {
 				return new[] {
 					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xffffff },
-					new Item { Name = "CreationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 12, atom.Offset) },
-					new Item { Name = "ModificationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 16, atom.Offset) },
+					new Item { Name = "CreationTime", Type = ItemType.String, Value = this.ParseTime (buffer, 12, atom.Offset) },
+					new Item { Name = "ModificationTime", Type = ItemType.String, Value = this.ParseTime (buffer, 16, atom.Offset) },
 					new Item { Name = "TimeScale", Type = ItemType.Int, Value = timeScale },
 					new Item { Name = "Duration", Type = ItemType.String, Value = this.ParseDuration (buffer, 24, timeScale) },
 					new Item { Name = "Language", Type = ItemType.Short, Value = this.ByteShort (buffer, 28) },
@@ -346,7 +352,7 @@ namespace IsoParser.Lib.Concretes {
 
 		private List<Item> ParseHdlr (Atom atom, Track track) {
 			return this.ParseAtom (buffer => {
-				int value = this.ByteInt(buffer, 12);
+				int value = this.ByteInt (buffer, 12);
 				if (Enum.IsDefined (typeof (ComponentType), value))
 					track.Type = (ComponentType)value;
 
@@ -356,7 +362,7 @@ namespace IsoParser.Lib.Concretes {
 
 				return new[] {
 					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
-					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt(buffer, 8) & 0xffffff },
+					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "ComponentType", Type = ItemType.String, Value = this.ByteString (buffer, 12) },
 					new Item { Name = "ComponentSubType", Type = ItemType.String, Value = this.ByteString (buffer, 16) },
 					new Item { Name = "ComponentManufacturer", Type = ItemType.Int, Value = this.ByteInt (buffer, 20) },

@@ -18,15 +18,17 @@ namespace IsoParser.Lib.Models
 	//Box: in ISO specifications for MPEG-4, JPEG-2000
 	public class Atom {
 		public int Id { get; set; }
-		public int Index { get; set; }
 		public AtomType? Type { get; set; }
 		public long Offset { get; set; }
 		public long Size { get; set; }
 
-		public int QTId { get; set; }  //QT atom
-		public int Children { get; set; }  //QT atom
+        #region QT atom
+        public int Index { get; set; }
+		public int QTId { get; set; }
+		public int Children { get; set; }
+        #endregion
 
-		public List<Item> Items { get; set; }
+        public List<Item> Items { get; set; }
 		public List<Atom> Atoms { get; set; }
 
         public Atom () { }
@@ -37,7 +39,9 @@ namespace IsoParser.Lib.Models
 			this.Offset = offset;
 
 			if (Enum.IsDefined (typeof (AtomType), id))
-				this.Type = (AtomType) id;
+				this.Type = (AtomType)id;
+			else if (id == 1)
+				this.Type = AtomType.TOP;
         }
 	}
 
@@ -159,8 +163,12 @@ namespace IsoParser.Lib.Models
 
 		IN = 0x2020696e,  // '  in'
 		TY = 0x20207479,  // '  ty'
+
+		#region self define
+		TOP = 0x746f7020,  // 'top ', top level of mov file
+		#endregion
 	}
-	public enum GraphicsMode
+    public enum GraphicsMode
     {
 		Copy = 0,
 		Blend = 0x20,  // Use Opcolor
@@ -172,10 +180,4 @@ namespace IsoParser.Lib.Models
 		Commposition = 0x103,
 		StraightAlphaBlend = 0x104  // Use Opcolor
 	}
-
-	public class RefAtom
-    {
-		public AtomType Type { get; set; }
-		public int Head { get; set; }
-    }
 }

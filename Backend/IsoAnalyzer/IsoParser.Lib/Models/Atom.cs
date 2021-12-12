@@ -22,7 +22,6 @@ namespace IsoParser.Lib.Models
 		public AtomType? Type { get; set; }
 		public long Offset { get; set; }
 		public long Size { get; set; }
-		public int Head { get; set; }
 
 		public int QTId { get; set; }  //QT atom
 		public int Children { get; set; }  //QT atom
@@ -30,13 +29,12 @@ namespace IsoParser.Lib.Models
 		public List<Item> Items { get; set; }
 		public List<Atom> Atoms { get; set; }
 
-		public Atom () { this.Head = 0; }
+        public Atom () { }
 
-		public Atom (int id, long size, long offset, int head = 0) {
+        public Atom (int id, long size, long offset) {
 			this.Id = id;
 			this.Size = size;
 			this.Offset = offset;
-			this.Head = head;
 
 			if (Enum.IsDefined (typeof (AtomType), id))
 				this.Type = (AtomType) id;
@@ -46,6 +44,7 @@ namespace IsoParser.Lib.Models
 	public enum AtomType {
 		ALIS = 0x616c6973,  //alis, Macintosh alias
 		BEHA = 0x62656861,  //beha, sprite behavior
+		CDSC = 0x63647363,  //cdsc, reference in timed metaata track
 		CHAP = 0x63686170,  //chap, chapter or scene list
 		CLCP = 0x636c6370,  //clcp, closed caption
 		CLEF = 0x636c6566,  //clef
@@ -145,7 +144,7 @@ namespace IsoParser.Lib.Models
 		TKHD = 0x746b6864,  //tkhd
 		TMCD = 0x746d6364,  //tmcd, time code
 		TRAK = 0x7472616b,  //trak
-		TREF = 0x74726566,  //tref
+		TREF = 0x74726566,  //tref, track reference
 		TXAS = 0x74786173,  //txas
 
 		UDTA = 0x75647461,  //udta, user data
@@ -173,4 +172,10 @@ namespace IsoParser.Lib.Models
 		Commposition = 0x103,
 		StraightAlphaBlend = 0x104  // Use Opcolor
 	}
+
+	public class RefAtom
+    {
+		public AtomType Type { get; set; }
+		public int Head { get; set; }
+    }
 }

@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
+using Newtonsoft.Json;
+
 using IsoParser.Lib.Concretes;
 using IsoParser.Lib.Models;
 using IsoParser.Lib.Services;
@@ -26,10 +28,15 @@ namespace IsoParser.Api.Controllers
         }
 
         [HttpGet]
-        public string Get ()
+        public async Task<string> Get (string path)
         {
-            this._logger.LogInformation ("Getting...");
-            return "Returning a parsing result";
+            this._logger.LogInformation ($"path: {path}");
+
+            var movs = await this._parser.GetTree (path);
+            if(movs != null)
+            this._logger.LogInformation ($"id: {movs.Id}");
+
+            return JsonConvert.SerializeObject (movs);
         }
     }
 }

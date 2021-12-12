@@ -16,13 +16,13 @@ namespace IsoParser.Api.Controllers
     [Route ("[controller]")]
     public class IsoController : ControllerBase
     {
-        private readonly ILogger<Parser> _logger;
+        //private readonly ILogger<Parser> _logger;
         private readonly IParser _parser;
 
-        public IsoController (ILogger<Parser> logger, IParser parser)
+        public IsoController (/*ILogger<Parser> logger, */ IParser parser)
         {
-            this._logger = logger;
-            this._parser = parser;
+            //this._logger = logger;
+            //this._parser = parser;
 
         }
 

@@ -12,6 +12,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using IsoParser.Lib.Services;
+using IsoParser.Lib.Concretes;
+
 namespace IsoParser.Api {
 	public class Startup {
 		public Startup(IConfiguration configuration) {
@@ -24,6 +27,9 @@ namespace IsoParser.Api {
 		public void ConfigureServices(IServiceCollection services) {
 
 			services.AddControllers();
+
+			services.AddScoped<IParser, Parser> ();
+
 			services.AddSwaggerGen(c => {
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "IsoParser.Api", Version = "v1" });
 			});

@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using IsoParser.Lib.Concretes;
 using IsoParser.Lib.Models;
 using IsoParser.Lib.Services;
+using IsoParser.Api.Models;
 
 namespace IsoParser.Api.Controllers
 {
@@ -32,11 +33,51 @@ namespace IsoParser.Api.Controllers
         {
             this._logger.LogInformation ($"path: {path}");
 
-            var movs = await this._parser.GetTree (path);
-            if(movs != null)
-            this._logger.LogInformation ($"id: {movs.Id}");
+            var tree = await this._parser.GetTree (path);
+            if(tree != null)
+            this._logger.LogInformation ($"id: {tree.Id}");
 
-            return JsonConvert.SerializeObject (movs);
+            //return JsonConvert.SerializeObject (tree);
+            return JsonConvert.SerializeObject (this.GetAtom (tree));
+        }
+
+        private DisplayAtom GetAtom (Atom atom)
+        {
+            DisplayAtom dAtom = new (atom.Id, this.GetDisplayType (atom.Type),  atom.Size, atom.Offset);
+
+            if (atom.Items != null)
+                dAtom.Items = atom.Items.Select (e => this.GetItem (e)).ToList ();
+
+            if (atom.Atoms != null)
+                dAtom.Atoms = atom.Atoms.Select (e => this.GetAtom (e)).ToList ();
+
+            return dAtom;
+        }
+
+        private DisplayItem GetItem (Item item)
+        {
+            DisplayItem dItem = new () { Name = item.Name };
+            switch (item.Type)
+            {
+            case ItemType.Byte:
+            case ItemType.Int:
+            case ItemType.Short:
+            case ItemType.Long:
+                dItem.Value = $"{item.Value} ({item.Value:x}h)";
+                break;
+            case ItemType.Matrix:
+                dItem.Value = string.Join(",", ((double[])item.Value).ToArray());
+                break;
+            default:
+                dItem.Value = item.Value.ToString ();
+                break;
+            }
+            return dItem;
+        }
+
+        private string GetDisplayType(AtomType? type)
+        {
+            return type.HasValue ? BitConverter.GetBytes( (int)type).ToArray().Aggregate ("", (x, y) => Convert.ToChar (y) + x) : "none";
         }
     }
 }

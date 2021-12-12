@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-
-using Newtonsoft.Json;
-
+﻿using IsoParser.Api.Models;
 using IsoParser.Lib.Concretes;
 using IsoParser.Lib.Models;
 using IsoParser.Lib.Services;
-using IsoParser.Api.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace IsoParser.Api.Controllers
 {
@@ -34,10 +30,7 @@ namespace IsoParser.Api.Controllers
             this._logger.LogInformation ($"path: {path}");
 
             var tree = await this._parser.GetTree (path);
-            if(tree != null)
-            this._logger.LogInformation ($"id: {tree.Id}");
 
-            //return JsonConvert.SerializeObject (tree);
             return JsonConvert.SerializeObject (this.GetAtom (tree));
         }
 

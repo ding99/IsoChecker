@@ -56,23 +56,16 @@ namespace IsoParser.Api.Controllers
 
         private DisplayItem GetItem (Item item)
         {
-            DisplayItem dItem = new () { Name = item.Name };
-            switch (item.Type)
+            return new ()
             {
-            case ItemType.Byte:
-            case ItemType.Int:
-            case ItemType.Short:
-            case ItemType.Long:
-                dItem.Value = $"{item.Value} ({item.Value:x}h)";
-                break;
-            case ItemType.Matrix:
-                dItem.Value = string.Join(",", ((double[])item.Value).ToArray());
-                break;
-            default:
-                dItem.Value = item.Value.ToString ();
-                break;
-            }
-            return dItem;
+                Name = item.Name,
+                Value = item.Type switch
+                {
+                    ItemType.Byte or ItemType.Int or ItemType.Short or ItemType.Long => $"{item.Value} ({item.Value:x}h)",
+                    ItemType.Matrix => string.Join (",", ((double[])item.Value).ToArray ()),
+                    _ => item.Value.ToString ()
+                }
+            };
         }
 
         private string GetDisplayType(AtomType? type)

@@ -45,7 +45,7 @@ namespace CheckIso {
 
 		private void Content (StringBuilder b, Atom atom, int layer) {
 			try {
-				b.Append ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "ROOT")}] size {atom.Size:X} id {atom.Id:x}").Append (Environment.NewLine);
+				b.Append ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "NONE")}] size {atom.Size:X} id {atom.Id:x}").Append (Environment.NewLine);
 			}
 			catch (Exception e) {
 				Console.WriteLine (e.Message);

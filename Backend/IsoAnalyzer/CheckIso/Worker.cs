@@ -45,7 +45,7 @@ namespace CheckIso {
 
 		private void Content (StringBuilder b, Atom atom, int layer) {
 			try {
-				b.Append ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "ROOT")}] size {atom.Size:X} id {atom.Id:x}").Append (Environment.NewLine);
+				b.Append ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "NONE")}] size {atom.Size:X} id {atom.Id:x}").Append (Environment.NewLine);
 			}
 			catch (Exception e) {
 				Console.WriteLine (e.Message);
@@ -63,24 +63,11 @@ namespace CheckIso {
 			case ItemType.Int:
 			case ItemType.Long:
 			case ItemType.Short: return $"{value} ({value:x}h)";
-			case ItemType.Matrix: return this.ShowMatrix (value);
+			case ItemType.Matrix: return string.Join (", ", (value as double[]).ToArray ());
 			case ItemType.String: return $"[{value}]";
 			}
 			return value.ToString ();
 		}
-
-		private string ShowMatrix(object value)
-        {
-			double[] values = value as double [];
-			StringBuilder b = new ();
-			for (int i = 0; i < values.Length; i++)
-			{
-				if (i != 0)
-					b.Append (", ");
-				b.Append (values[i]);
-			}
-			return b.ToString ();
-        }
 
 		private string Spaces (int layer) {
 			StringBuilder b = new ();

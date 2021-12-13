@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-
-using Newtonsoft.Json;
-
+﻿using IsoParser.Api.Models;
 using IsoParser.Lib.Concretes;
 using IsoParser.Lib.Models;
 using IsoParser.Lib.Services;
-using IsoParser.Api.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace IsoParser.Api.Controllers
 {
@@ -34,10 +30,7 @@ namespace IsoParser.Api.Controllers
             this._logger.LogInformation ($"path: {path}");
 
             var tree = await this._parser.GetTree (path);
-            if(tree != null)
-            this._logger.LogInformation ($"id: {tree.Id}");
 
-            //return JsonConvert.SerializeObject (tree);
             return JsonConvert.SerializeObject (this.GetAtom (tree));
         }
 
@@ -56,23 +49,16 @@ namespace IsoParser.Api.Controllers
 
         private DisplayItem GetItem (Item item)
         {
-            DisplayItem dItem = new () { Name = item.Name };
-            switch (item.Type)
+            return new ()
             {
-            case ItemType.Byte:
-            case ItemType.Int:
-            case ItemType.Short:
-            case ItemType.Long:
-                dItem.Value = $"{item.Value} ({item.Value:x}h)";
-                break;
-            case ItemType.Matrix:
-                dItem.Value = string.Join(",", ((double[])item.Value).ToArray());
-                break;
-            default:
-                dItem.Value = item.Value.ToString ();
-                break;
-            }
-            return dItem;
+                Name = item.Name,
+                Value = item.Type switch
+                {
+                    ItemType.Byte or ItemType.Int or ItemType.Short or ItemType.Long => $"{item.Value} ({item.Value:x}h)",
+                    ItemType.Matrix => string.Join (",", ((double[])item.Value).ToArray ()),
+                    _ => item.Value.ToString ()
+                }
+            };
         }
 
         private string GetDisplayType(AtomType? type)

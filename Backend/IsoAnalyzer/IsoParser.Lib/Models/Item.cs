@@ -9,6 +9,7 @@
 		Bool,
 		Byte,
 		Short,
+		UShort,
 		Int,
 		Long,
 		Double,

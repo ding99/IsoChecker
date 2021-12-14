@@ -78,7 +78,7 @@ namespace IsoParser.Lib.Models
 		FREE = 0x66726565,  //free
 		FTAB = 0x67746162,  //ftab, text sample
 		FTYP = 0x66747970,  //ftyp
-		GMHD = 0x676d6864,  //gmhd
+		GMHD = 0x676d6864,  //gmhd, base media info head
 		GMIN = 0x676d696e,  //gmin, base media info
 
 		HCLR = 0x68636c72,  //hclr, text sample

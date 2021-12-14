@@ -200,7 +200,6 @@ namespace IsoParser.Lib.Concretes {
 			}, atom);
 		}
 
-		// TODO
 		private List<Item> ParseMvhd (Atom atom) {
 			return this.ParseAtom (buffer => {
 				this.timeScale = this.ByteInt (buffer, 20);
@@ -213,7 +212,14 @@ namespace IsoParser.Lib.Concretes {
 					new Item { Name = "Duration", Type = ItemType.String, Value = this.ParseDuration (buffer, 24, this.timeScale) },
 					new Item { Name = "PerferredRate", Type = ItemType.Int, Value = this.ByteInt (buffer, 28) },
 					new Item { Name = "PreferredVolume", Type = ItemType.Short, Value = this.ByteShort (buffer, 32) },
-					new Item { Name = "MatrixStructure", Type = ItemType.Matrix, Value = this.ParseMatrix (buffer, 44) }
+					new Item { Name = "MatrixStructure", Type = ItemType.Matrix, Value = this.ParseMatrix (buffer, 44) },
+					new Item { Name = "PreviewTime", Type = ItemType.String, Value = this.ParseTime (buffer, 80, atom.Offset) },
+					new Item { Name = "PreviewDuration", Type = ItemType.String, Value = this.ParseDuration (buffer, 84, this.timeScale) },
+					new Item { Name = "PosterTime", Type = ItemType.String, Value = this.ParseTime (buffer, 88, atom.Offset) },
+					new Item { Name = "SelectionTime", Type = ItemType.String, Value = this.ParseTime (buffer, 92, atom.Offset) },
+					new Item { Name = "SelectionDuration", Type = ItemType.String, Value = this.ParseDuration (buffer, 96, this.timeScale) },
+					new Item { Name = "CurrentTime", Type = ItemType.String, Value = this.ParseTime (buffer, 100, atom.Offset) },
+					new Item { Name = "NextTrackID", Type = ItemType.Int, Value = this.ByteInt (buffer, 104) },
 				}.ToList ();
 			}, atom);
         }

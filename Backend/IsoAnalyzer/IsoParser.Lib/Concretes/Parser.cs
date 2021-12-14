@@ -43,8 +43,9 @@ namespace IsoParser.Lib.Concretes {
 			};
 
             this.references = new Dictionary<AtomType, int> {
-				[AtomType.DREF] = 8
-            };
+				[AtomType.DREF] = 8,
+				[AtomType.STSD] = 8
+			};
         }
 
 		public void End () {
@@ -77,7 +78,7 @@ namespace IsoParser.Lib.Concretes {
 
 		#region atom utilities
 		private Atom GetAtom (int id, long size, long offset, int head, Track track) {
-			//Console.WriteLine ($"id {id:x}, size {size:x}, offset {offset:x}, head {head:x}");
+			Console.WriteLine ($"id {id:x}, size {size:x}, offset {offset:x}, head {head:x}");
 			Atom atom = new (id, size, offset);
 
 			if (atom.Type.HasValue && !this.isContainer ((AtomType)atom.Type))
@@ -179,6 +180,18 @@ namespace IsoParser.Lib.Concretes {
 				return this.ParseStsc (atom);
 			case AtomType.STCO:
 				return this.ParseStco (atom, track);
+			case AtomType.TMCD:
+				return this.ParseTmcd (atom, track);
+			case AtomType.TCMI:
+				return this.ParseTcmi (atom);
+			case AtomType.AVC1:
+				return this.ParseAvc1 (atom);
+			case AtomType.MP4A:
+				return this.ParseMp4a (atom);
+			case AtomType.C608:
+				return this.ParseC608 (atom);
+			case AtomType.C708:
+				return this.ParseC708 (atom);
 			}
 
 			return Array.Empty <Item> ().ToList ();
@@ -276,6 +289,7 @@ namespace IsoParser.Lib.Concretes {
 			return b.ToString ();
         }
 
+		//TODO: language
 		private List<Item> ParseMdhd (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
@@ -303,9 +317,9 @@ namespace IsoParser.Lib.Concretes {
 					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 					new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "GraphicsMode", Type = ItemType.String, Value = graphics },
-					new Item { Name = "OpcolorRed", Type = ItemType.Short, Value = DataType.ByteUShort (buffer, 14) },
-					new Item { Name = "OpcolorGreen", Type = ItemType.Short, Value = DataType.ByteUShort (buffer, 16) },
-					new Item { Name = "OpcolorBlue", Type = ItemType.Short, Value = DataType.ByteUShort (buffer, 18) }
+					new Item { Name = "OpcolorRed", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 14) },
+					new Item { Name = "OpcolorGreen", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 16) },
+					new Item { Name = "OpcolorBlue", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 18) }
 				}.ToList ();
 			}, atom);
 		}
@@ -384,7 +398,42 @@ namespace IsoParser.Lib.Concretes {
 			}.ToList(), atom);
 		}
 
-		private List<Item> ParseStsd (Atom atom) {
+		private List<Item> ParseAvc1 (Atom atom)
+        {
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
+			}.ToList (), atom);
+		}
+		private List<Item> ParseMp4a (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
+			}.ToList (), atom);
+		}
+		private List<Item> ParseC608 (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
+			}.ToList (), atom);
+		}
+		private List<Item> ParseC708 (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
+			}.ToList (), atom);
+		}
+
+		private List<Item> ParseStsd (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
+				new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
+				new Item { Name = "Entries", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) }
+			}.ToList (), atom);
+		}
+
+		private List<Item> ParseStsd_o (Atom atom)
+		{
 			return this.ParseAtom (buffer => {
 				int size = (int)atom.Size;
 
@@ -401,8 +450,9 @@ namespace IsoParser.Lib.Concretes {
 					for (int i = 0, pos = 16; i < count && pos < size; i++, pos += dataSize)
 					{
 						dataSize = DataType.ByteInt (buffer, pos);
-						entries.Add (new (DataType.ByteInt(buffer, pos + 4), dataSize, atom.Offset + pos) {
-							Items = new [] {
+						entries.Add (new (DataType.ByteInt (buffer, pos + 4), dataSize, atom.Offset + pos)
+						{
+							Items = new[] {
 								new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, pos + 14) }
 							}.ToList ()
 						});
@@ -448,6 +498,65 @@ namespace IsoParser.Lib.Concretes {
 
 				return items;
 			}, atom);
+		}
+
+
+		//TODO: parse for multi cases
+		private List<Item> ParseTmcd (Atom atom, Track track)
+		{
+			switch ((int) atom.Size)
+			{
+			case 0xc:  //tref
+				return new List<Item> ();
+			case 0x22:  //STSD
+				return this.ParseAtom (buffer => new[] {
+					new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
+				}.ToList (), atom);
+			}
+
+			return new List<Item> ();  //gmhd etc.
+		}
+
+		private List<Item> ParseTcmi (Atom atom)
+        {
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
+				new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
+				new Item { Name = "TextFont", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 12) },
+				new Item { Name = "TextFace", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) },
+				new Item { Name = "TextFaceDetails", Type = ItemType.String, Value = this.ParseFont (DataType.ByteShort (buffer, 14)) },
+				new Item { Name = "TextSize", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 16) },
+				new Item { Name = "TextColorRed", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 20) },
+				new Item { Name = "TextColorGreen", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 22) },
+				new Item { Name = "TextColorBlue", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 24) },
+				new Item { Name = "BackColorRed", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 26) },
+				new Item { Name = "BackColorGreen", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 28) },
+				new Item { Name = "BackColorBlue", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 30) },
+				new Item { Name = "FontName", Type = ItemType.String, Value = DataType.ByteString (buffer, 32, buffer[32]) }
+			}.ToList (), atom);
+		}
+		private string ParseFont (short flags)
+        {
+			if (flags == 0)
+				return "Normal";
+
+			List<string> styles = new ();
+			if ((flags & 1) > 0)
+				styles.Add ("Bold");
+			if ((flags & 2) > 0)
+				styles.Add ("Italic");
+			if ((flags & 4) > 0)
+				styles.Add ("Underline");
+			if ((flags & 8) > 0)
+				styles.Add ("Outline");
+			if ((flags & 10) > 0)
+				styles.Add ("Shadow");
+			if ((flags & 20) > 0)
+				styles.Add ("Condense");
+			if ((flags & 40) > 0)
+				styles.Add ("Extend");
+
+			return string.Join (", ", styles.ToArray ());
 		}
 
 		//TODO

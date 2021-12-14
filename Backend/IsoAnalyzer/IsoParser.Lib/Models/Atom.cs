@@ -5,7 +5,6 @@
 
 
 using System;
-using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 
 namespace IsoParser.Lib.Models
@@ -148,7 +147,6 @@ namespace IsoParser.Lib.Models
 		TCMI = 0x74636d69,  //tcmi, timecode media info
 		TKHD = 0x746b6864,  //tkhd
 		TMCD = 0x746d6364,  //tmcd, time code
-		[Display (Name = "trak")]
 		TRAK = 0x7472616b,  //trak
 		TREF = 0x74726566,  //tref, track reference
 		TXAS = 0x74786173,  //txas
@@ -169,8 +167,15 @@ namespace IsoParser.Lib.Models
 		#region self define
 		TOP = 0x746f7020,  // 'top ', top level of mov file
 		#endregion
+
+		#region codec
+		AVC1 = 0x61766331,  //avc1
+		MP4A = 0x6d703461,  //mp4a
+		C608 = 0x63363038,  //c608
+		C708 = 0x63373038,  //c708
+		#endregion
 	}
-    public enum GraphicsMode
+	public enum GraphicsMode
     {
 		Copy = 0,
 		Blend = 0x20,  // Use Opcolor

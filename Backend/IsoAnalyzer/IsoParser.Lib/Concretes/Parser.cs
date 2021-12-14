@@ -200,7 +200,6 @@ namespace IsoParser.Lib.Concretes {
 			}, atom);
 		}
 
-		// TODO
 		private List<Item> ParseMvhd (Atom atom) {
 			return this.ParseAtom (buffer => {
 				this.timeScale = this.ByteInt (buffer, 20);
@@ -213,12 +212,18 @@ namespace IsoParser.Lib.Concretes {
 					new Item { Name = "Duration", Type = ItemType.String, Value = this.ParseDuration (buffer, 24, this.timeScale) },
 					new Item { Name = "PerferredRate", Type = ItemType.Int, Value = this.ByteInt (buffer, 28) },
 					new Item { Name = "PreferredVolume", Type = ItemType.Short, Value = this.ByteShort (buffer, 32) },
-					new Item { Name = "MatrixStructure", Type = ItemType.Matrix, Value = this.ParseMatrix (buffer, 44) }
+					new Item { Name = "MatrixStructure", Type = ItemType.Matrix, Value = this.ParseMatrix (buffer, 44) },
+					new Item { Name = "PreviewTime", Type = ItemType.String, Value = this.ParseTime (buffer, 80, atom.Offset) },
+					new Item { Name = "PreviewDuration", Type = ItemType.String, Value = this.ParseDuration (buffer, 84, this.timeScale) },
+					new Item { Name = "PosterTime", Type = ItemType.String, Value = this.ParseTime (buffer, 88, atom.Offset) },
+					new Item { Name = "SelectionTime", Type = ItemType.String, Value = this.ParseTime (buffer, 92, atom.Offset) },
+					new Item { Name = "SelectionDuration", Type = ItemType.String, Value = this.ParseDuration (buffer, 96, this.timeScale) },
+					new Item { Name = "CurrentTime", Type = ItemType.String, Value = this.ParseTime (buffer, 100, atom.Offset) },
+					new Item { Name = "NextTrackID", Type = ItemType.Int, Value = this.ByteInt (buffer, 104) },
 				}.ToList ();
 			}, atom);
         }
 
-		// TODO
 		private List<Item> ParseTkhd (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
@@ -234,8 +239,8 @@ namespace IsoParser.Lib.Concretes {
 					new Item { Name = "AlternateGroup", Type = ItemType.Short, Value = this.ByteShort (buffer, 42) },
 					new Item { Name = "Volume", Type = ItemType.Short, Value = this.ByteShort (buffer, 44) },
 					new Item { Name = "MatrixStructure", Type = ItemType.Matrix, Value = this.ParseMatrix (buffer, 48) },
-					new Item { Name = "TrackWidth", Type = ItemType.Int, Value = this.ByteInt (buffer, 84) },
-					new Item { Name = "TrackHeight", Type = ItemType.Int, Value = this.ByteInt (buffer, 88) }
+					new Item { Name = "TrackWidth", Type = ItemType.Double, Value = this.ParseDimension (buffer, 84) },
+					new Item { Name = "TrackHeight", Type = ItemType.Double, Value = this.ParseDimension (buffer, 88) }
 				}.ToList ();
 			}, atom);
 		}
@@ -298,9 +303,9 @@ namespace IsoParser.Lib.Concretes {
 					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "GraphicsMode", Type = ItemType.String, Value = graphics },
-					new Item { Name = "OpcolorRed", Type = ItemType.Short, Value = this.ByteShort (buffer, 14) },
-					new Item { Name = "OpcolorGreen", Type = ItemType.Short, Value = this.ByteShort (buffer, 16) },
-					new Item { Name = "OpcolorBlue", Type = ItemType.Short, Value = this.ByteShort (buffer, 18) }
+					new Item { Name = "OpcolorRed", Type = ItemType.Short, Value = this.ByteUShort (buffer, 14) },
+					new Item { Name = "OpcolorGreen", Type = ItemType.Short, Value = this.ByteUShort (buffer, 16) },
+					new Item { Name = "OpcolorBlue", Type = ItemType.Short, Value = this.ByteUShort (buffer, 18) }
 				}.ToList ();
 			}, atom);
 		}
@@ -365,10 +370,10 @@ namespace IsoParser.Lib.Concretes {
 					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "ComponentType", Type = ItemType.String, Value = this.ByteString (buffer, 12) },
 					new Item { Name = "ComponentSubType", Type = ItemType.String, Value = this.ByteString (buffer, 16) },
-					new Item { Name = "ComponentManufacturer", Type = ItemType.Int, Value = this.ByteInt (buffer, 20) },
+					new Item { Name = "ComponentManufacturer", Type = ItemType.String, Value = this.ByteString (buffer, 20) },
 					new Item { Name = "ComponentFlags", Type = ItemType.Int, Value = this.ByteInt (buffer, 24) },
 					new Item { Name = "ComponentFlagsMask", Type = ItemType.Int, Value = this.ByteInt (buffer, 28) },
-					new Item { Name = "ComponentName", Type = ItemType.String, Value = this.ByteString (buffer, 32, (int)atom.Size - 32) },
+					new Item { Name = "ComponentName", Type = ItemType.String, Value = this.ByteString (buffer, 33, buffer[32]) },
 				}.ToList ();
 			}, atom);
 		}
@@ -483,6 +488,10 @@ namespace IsoParser.Lib.Concretes {
 		public short ByteShort (byte[] data, int offset) {
 			return (short) (data[offset] << 8 | data[offset + 1]);
 		}
+		public ushort ByteUShort (byte[] data, int offset)
+		{
+			return (ushort) (data[offset] << 8 | data[offset + 1]);
+		}
 
 		private long ByteLong (byte[] data, int offset) {
 			return (long)ByteInt (data, offset) << 32 + ByteInt (data, offset + 4);
@@ -543,7 +552,7 @@ namespace IsoParser.Lib.Concretes {
 				else
                 {
 					integerPortion = this.ByteShort (data, offset + i * 4);
-					fraction = ((ushort)this.ByteShort (data, offset + i * 4 + 2)) * 1.0 / 65536;
+					fraction = this.ByteUShort (data, offset + i * 4 + 2) * 1.0 / 65536;
                 }
 				if (integerPortion >= 0)
 					values[i] = (double)integerPortion + fraction;
@@ -553,6 +562,13 @@ namespace IsoParser.Lib.Concretes {
 
 			return values;
         }
+		private double ParseDimension (byte[] data, int offset)
+		{
+			int integerPortion = this.ByteShort (data, offset);
+			double fraction = this.ByteUShort (data, offset + 2) * 1.0 / 65_536;
+
+			return integerPortion >= 0 ? (double)integerPortion + fraction : (double)integerPortion - fraction;
+		}
 		#endregion common utilities
 	}
 }

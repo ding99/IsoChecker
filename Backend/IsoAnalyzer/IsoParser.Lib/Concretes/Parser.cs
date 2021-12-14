@@ -389,16 +389,25 @@ namespace IsoParser.Lib.Concretes {
 				int size = (int)atom.Size;
 
 				List<Item> items = new ();
+				items.Add (new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] });
+				items.Add (new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xffffff });
 				int count = this.ByteInt (buffer, 12);
 				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
 
-				int pos = 16;
-				for (int i = 0; i < count && pos < size; i++) {
-					int descriptionSize = this.ByteInt (buffer, pos);
-					items.Add (new Item { Name = "DescriptionSize", Type = ItemType.Int, Value = descriptionSize });
-					items.Add (new Item { Name = "DataFormat", Type = ItemType.String, Value = this.ByteString (buffer, pos + 4) });
-					items.Add (new Item { Name = "Index", Type = ItemType.Short, Value = this.ByteShort (buffer, pos + 14) });
-					pos += descriptionSize;
+				if (count > 0)
+				{
+					List<Atom> entries = new ();
+					int dataSize = 0;
+					for (int i = 0, pos = 16; i < count && pos < size; i++, pos += dataSize)
+					{
+						dataSize = this.ByteInt (buffer, pos);
+						entries.Add (new (this.ByteInt(buffer, pos + 4), dataSize, atom.Offset + pos) {
+							Items = new [] {
+								new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = this.ByteShort (buffer, pos + 14) }
+							}.ToList ()
+						});
+					}
+					atom.Atoms = entries;
 				}
 
 				return items;

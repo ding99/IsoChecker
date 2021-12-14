@@ -224,7 +224,6 @@ namespace IsoParser.Lib.Concretes {
 			}, atom);
         }
 
-		// TODO
 		private List<Item> ParseTkhd (Atom atom)
 		{
 			return this.ParseAtom (buffer => {

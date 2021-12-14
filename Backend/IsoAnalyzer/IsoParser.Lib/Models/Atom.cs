@@ -78,7 +78,7 @@ namespace IsoParser.Lib.Models
 		FREE = 0x66726565,  //free
 		FTAB = 0x67746162,  //ftab, text sample
 		FTYP = 0x66747970,  //ftyp
-		GMHD = 0x676d6864,  //gmhd
+		GMHD = 0x676d6864,  //gmhd, base media info head
 		GMIN = 0x676d696e,  //gmin, base media info
 
 		HCLR = 0x68636c72,  //hclr, text sample
@@ -167,8 +167,15 @@ namespace IsoParser.Lib.Models
 		#region self define
 		TOP = 0x746f7020,  // 'top ', top level of mov file
 		#endregion
+
+		#region codec
+		AVC1 = 0x61766331,  //avc1
+		MP4A = 0x6d703461,  //mp4a
+		C608 = 0x63363038,  //c608
+		C708 = 0x63373038,  //c708
+		#endregion
 	}
-    public enum GraphicsMode
+	public enum GraphicsMode
     {
 		Copy = 0,
 		Blend = 0x20,  // Use Opcolor

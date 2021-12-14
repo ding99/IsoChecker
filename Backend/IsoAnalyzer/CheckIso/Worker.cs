@@ -20,14 +20,14 @@ namespace CheckIso {
 			b.Append ("== Details ==").Append(Environment.NewLine);
 			this.Layer (b, atom, 0);
 
-			//b.Append (Environment.NewLine).Append ("== Content ==").Append (Environment.NewLine);
-			//this.Content (b, atom, 0);
-			return b.ToString ();
+            //b.Append (Environment.NewLine).Append ("== Content ==").Append (Environment.NewLine);
+            //this.Content (b, atom, 0);
+            return b.ToString ();
 		}
 
 		private void Layer (StringBuilder b, Atom atom, int layer) {
 			try {
-				b.Append ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "ROOT")}] size {atom.Size:X} id {atom.Id:x}").Append (Environment.NewLine);
+				b.Append ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "NONE")}] size {atom.Size:X} id {atom.Id:x}").Append (Environment.NewLine);
 
 				if(atom.Items != null)
 				foreach (var item in atom.Items)
@@ -62,6 +62,7 @@ namespace CheckIso {
 			case ItemType.Byte:
 			case ItemType.Int:
 			case ItemType.Long:
+			case ItemType.UShort:
 			case ItemType.Short: return $"{value} ({value:x}h)";
 			case ItemType.Matrix: return string.Join (", ", (value as double[]).ToArray ());
 			case ItemType.String: return $"[{value}]";

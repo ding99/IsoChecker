@@ -239,8 +239,8 @@ namespace IsoParser.Lib.Concretes {
 					new Item { Name = "AlternateGroup", Type = ItemType.Short, Value = this.ByteShort (buffer, 42) },
 					new Item { Name = "Volume", Type = ItemType.Short, Value = this.ByteShort (buffer, 44) },
 					new Item { Name = "MatrixStructure", Type = ItemType.Matrix, Value = this.ParseMatrix (buffer, 48) },
-					new Item { Name = "TrackWidth", Type = ItemType.Int, Value = this.ByteInt (buffer, 84) },
-					new Item { Name = "TrackHeight", Type = ItemType.Int, Value = this.ByteInt (buffer, 88) }
+					new Item { Name = "TrackWidth", Type = ItemType.Double, Value = this.ParseDimension (buffer, 84) },
+					new Item { Name = "TrackHeight", Type = ItemType.Double, Value = this.ParseDimension (buffer, 88) }
 				}.ToList ();
 			}, atom);
 		}
@@ -552,7 +552,7 @@ namespace IsoParser.Lib.Concretes {
 				else
                 {
 					integerPortion = this.ByteShort (data, offset + i * 4);
-					fraction = ((ushort)this.ByteShort (data, offset + i * 4 + 2)) * 1.0 / 65536;
+					fraction = this.ByteUShort (data, offset + i * 4 + 2) * 1.0 / 65536;
                 }
 				if (integerPortion >= 0)
 					values[i] = (double)integerPortion + fraction;
@@ -562,6 +562,13 @@ namespace IsoParser.Lib.Concretes {
 
 			return values;
         }
+		private double ParseDimension (byte[] data, int offset)
+		{
+			int integerPortion = this.ByteShort (data, offset);
+			double fraction = this.ByteUShort (data, offset + 2) * 1.0 / 65_536;
+
+			return integerPortion >= 0 ? (double)integerPortion + fraction : (double)integerPortion - fraction;
+		}
 		#endregion common utilities
 	}
 }

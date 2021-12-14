@@ -298,9 +298,9 @@ namespace IsoParser.Lib.Concretes {
 					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "GraphicsMode", Type = ItemType.String, Value = graphics },
-					new Item { Name = "OpcolorRed", Type = ItemType.Short, Value = this.ByteShort (buffer, 14) },
-					new Item { Name = "OpcolorGreen", Type = ItemType.Short, Value = this.ByteShort (buffer, 16) },
-					new Item { Name = "OpcolorBlue", Type = ItemType.Short, Value = this.ByteShort (buffer, 18) }
+					new Item { Name = "OpcolorRed", Type = ItemType.Short, Value = this.ByteUShort (buffer, 14) },
+					new Item { Name = "OpcolorGreen", Type = ItemType.Short, Value = this.ByteUShort (buffer, 16) },
+					new Item { Name = "OpcolorBlue", Type = ItemType.Short, Value = this.ByteUShort (buffer, 18) }
 				}.ToList ();
 			}, atom);
 		}
@@ -482,6 +482,10 @@ namespace IsoParser.Lib.Concretes {
 
 		public short ByteShort (byte[] data, int offset) {
 			return (short) (data[offset] << 8 | data[offset + 1]);
+		}
+		public ushort ByteUShort (byte[] data, int offset)
+		{
+			return (ushort) (data[offset] << 8 | data[offset + 1]);
 		}
 
 		private long ByteLong (byte[] data, int offset) {

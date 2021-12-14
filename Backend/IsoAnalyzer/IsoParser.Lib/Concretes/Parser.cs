@@ -365,10 +365,10 @@ namespace IsoParser.Lib.Concretes {
 					new Item { Name = "Flags", Type = ItemType.Int, Value = this.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "ComponentType", Type = ItemType.String, Value = this.ByteString (buffer, 12) },
 					new Item { Name = "ComponentSubType", Type = ItemType.String, Value = this.ByteString (buffer, 16) },
-					new Item { Name = "ComponentManufacturer", Type = ItemType.Int, Value = this.ByteInt (buffer, 20) },
+					new Item { Name = "ComponentManufacturer", Type = ItemType.String, Value = this.ByteString (buffer, 20) },
 					new Item { Name = "ComponentFlags", Type = ItemType.Int, Value = this.ByteInt (buffer, 24) },
 					new Item { Name = "ComponentFlagsMask", Type = ItemType.Int, Value = this.ByteInt (buffer, 28) },
-					new Item { Name = "ComponentName", Type = ItemType.String, Value = this.ByteString (buffer, 32, (int)atom.Size - 32) },
+					new Item { Name = "ComponentName", Type = ItemType.String, Value = this.ByteString (buffer, 33, buffer[32]) },
 				}.ToList ();
 			}, atom);
 		}

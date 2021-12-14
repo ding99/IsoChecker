@@ -27,7 +27,7 @@ namespace CheckIso {
 
 		private void Layer (StringBuilder b, Atom atom, int layer) {
 			try {
-				b.Append ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "ROOT")}] size {atom.Size:X} id {atom.Id:x}").Append (Environment.NewLine);
+				b.Append ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "NONE")}] size {atom.Size:X} id {atom.Id:x}").Append (Environment.NewLine);
 
 				if(atom.Items != null)
 				foreach (var item in atom.Items)

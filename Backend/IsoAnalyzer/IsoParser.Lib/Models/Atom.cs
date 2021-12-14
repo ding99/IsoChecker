@@ -5,6 +5,7 @@
 
 
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 
 namespace IsoParser.Lib.Models
@@ -147,6 +148,7 @@ namespace IsoParser.Lib.Models
 		TCMI = 0x74636d69,  //tcmi, timecode media info
 		TKHD = 0x746b6864,  //tkhd
 		TMCD = 0x746d6364,  //tmcd, time code
+		[Display (Name = "trak")]
 		TRAK = 0x7472616b,  //trak
 		TREF = 0x74726566,  //tref, track reference
 		TXAS = 0x74786173,  //txas

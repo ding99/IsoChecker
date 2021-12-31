@@ -1,16 +1,25 @@
 <template>
   <div class="components-container">
-    <split-pane @resize="resize" split="vertical">
+    <split-pane @resize="resize" split="vertical" :min-percent='20' :default-percent='30' >
       <template slot='paneL'>
-        <div class="left-container">Left</div>
+        <div class="left-container">
+          <h2>Left</h2>
+          <br />
+        </div>
       </template>
       <template slot='paneR'>
         <split-pane split="horizontal">
           <template slot="paneL">
-            <div class="top-container">Top</div>
+            <div class="top-container">
+              <h3>Top</h3>
+              <br />
+            </div>
           </template>
           <template slot="paneR">
-            <div class="bottom-container">Bottom</div>
+            <div class="bottom-container">
+              <p>Bottom</p>
+              <br />
+            </div>
           </template>
         </split-pane>
       </template>
@@ -22,8 +31,10 @@
 import splitPane from 'vue-splitpane'
 
 export default {
-  name: 'HelloWorld',
-  components: { splitPane },
+  name: 'TopPage',
+  components: {
+    splitPane
+  },
   methods: {
     resize () {
       console.log('resize')
@@ -35,7 +46,7 @@ export default {
 <style scoped>
   .components-containers {
     position: relative;
-    height: 100vh;
+    height: 300px;
   }
   .left-container {
     background-color: #681010;

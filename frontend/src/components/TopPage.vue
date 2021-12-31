@@ -1,113 +1,69 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li>
-        <a
-          href="https://vuejs.org"
-          target="_blank"
-        >
-          Core Docs
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://forum.vuejs.org"
-          target="_blank"
-        >
-          Forum
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://chat.vuejs.org"
-          target="_blank"
-        >
-          Community Chat
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://twitter.com/vuejs"
-          target="_blank"
-        >
-          Twitter
-        </a>
-      </li>
-      <br>
-      <li>
-        <a
-          href="http://vuejs-templates.github.io/webpack/"
-          target="_blank"
-        >
-          Docs for This Template
-        </a>
-      </li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li>
-        <a
-          href="http://router.vuejs.org/"
-          target="_blank"
-        >
-          vue-router
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vuex.vuejs.org/"
-          target="_blank"
-        >
-          vuex
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vue-loader.vuejs.org/"
-          target="_blank"
-        >
-          vue-loader
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/awesome-vue"
-          target="_blank"
-        >
-          awesome-vue
-        </a>
-      </li>
-    </ul>
+  <div class="components-container">
+    <split-pane @resize="resize" split="vertical" :min-percent='20' :default-percent='30' >
+      <template slot='paneL'>
+        <div class="left-container">
+          <h2>Left</h2>
+          <br />
+        </div>
+      </template>
+      <template slot='paneR'>
+        <split-pane split="horizontal">
+          <template slot="paneL">
+            <div class="top-container">
+              <h3>Top</h3>
+              <br />
+            </div>
+          </template>
+          <template slot="paneR">
+            <div class="bottom-container">
+              <p>Bottom</p>
+              <br />
+            </div>
+          </template>
+        </split-pane>
+      </template>
+    </split-pane>
   </div>
 </template>
 
 <script>
+import splitPane from 'vue-splitpane'
+
 export default {
-  name: 'HelloWorld',
-  data () {
-    return {
-      msg: 'Iso Checker version 0.1.0'
+  name: 'TopPage',
+  components: {
+    splitPane
+  },
+  methods: {
+    resize () {
+      console.log('resize')
     }
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+  .components-containers {
+    position: relative;
+    height: 300px;
+  }
+  .left-container {
+    background-color: #681010;
+    height: 100%;
+  }
+  .right-container {
+    background-color: #f8e088;
+    height: 200px;
+  }
+  .top-container {
+    background-color: #f8e088;
+    width: 100%;
+    height: 100%;
+  }
+  .bottom-container {
+    background-color: #086858;
+    width: 100%;
+    height: 100%;
+  }
 </style>

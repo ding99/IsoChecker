@@ -11,8 +11,13 @@ namespace CheckIso {
 			else {
 				try {
 					Console.WriteLine($"Arguments ({args.Length})");
+<<<<<<< HEAD
 					foreach (var a in args)
 						Console.WriteLine ($"  [{a}]");
+=======
+					foreach(var arg in args)
+						Console.WriteLine($"  [{arg}]");
+>>>>>>> d47b04760a1a0b9e269105775f6b9a7826ba5c01
 
 					string result = new Worker ().GetAtoms (args[0]);
 

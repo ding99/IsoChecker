@@ -532,7 +532,7 @@ namespace IsoParser.Lib.Concretes {
 				new Item { Name = "BackColorRed", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 26) },
 				new Item { Name = "BackColorGreen", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 28) },
 				new Item { Name = "BackColorBlue", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 30) },
-				new Item { Name = "FontName", Type = ItemType.String, Value = DataType.ByteString (buffer, 32, buffer[32]) }
+				new Item { Name = "FontName", Type = ItemType.String, Value = DataType.ByteString (buffer, 33, buffer[32]) }
 			}.ToList (), atom);
 		}
 		private string ParseFont (short flags)

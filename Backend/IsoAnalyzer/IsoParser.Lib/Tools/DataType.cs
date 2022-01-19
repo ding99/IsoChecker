@@ -33,14 +33,10 @@ namespace IsoParser.Lib.Tools
 			return (long)ByteInt (data, offset) << 32 + ByteInt (data, offset + 4);
 		}
 
-		public static string ByteString (byte[] data, int offset)
-		{
-			return data.Skip (offset).Take (4).ToArray ().Aggregate ("", (x, y) => x + Convert.ToChar (y));
-		}
-
 		public static string ByteString (byte[] data, int offset, int size = 4)
 		{
-			return data.Skip (offset).Take (size).ToArray ().Aggregate ("", (x, y) => x + Convert.ToChar (y));
+			return data.Skip (offset).Take (size).All(v => v == 0) ? string.Empty :
+				data.Skip (offset).Take (size).ToArray ().Aggregate ("", (x, y) => x + Convert.ToChar (y));
 		}
 
 		public static bool ValidId (int id)

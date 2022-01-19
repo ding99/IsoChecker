@@ -2,7 +2,7 @@
   "profiles": {
     "CheckIso": {
       "commandName": "Project",
-      "commandLineArgs": "E:\\Data\\Video\\MOV\\Dune\\dune-trailer-2_h1080p_tc.mov"
+      "commandLineArgs": "D:\\Data\\Video\\MOV\\Dune\\dune-trailer-2_h1080p_tc.mov"
     }
   }
 }

@@ -10,8 +10,8 @@ namespace CheckIso {
 			else {
 				try {
 					Console.WriteLine($"Arguments ({args.Length})");
-					foreach(var a in args)
-						Console.WriteLine($"  [{a}]");
+					foreach(var arg in args)
+						Console.WriteLine($"  [{arg}]");
 
 					Console.WriteLine(new Worker().GetAtoms(args[0]));
 				}

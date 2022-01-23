@@ -465,9 +465,20 @@ namespace IsoParser.Lib.Concretes {
 		}
 
 		private List<Item> ParseStts (Atom atom) {
-			return this.ParseAtom (buffer => new[] {
-				new Item { Name = "Entries", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) }
-			}.ToList (), atom);
+			return this.ParseAtom (buffer => {
+				List<Item> items = new ();
+				int count = DataType.ByteInt (buffer, 12);
+				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
+
+				items.Add (new Item { Name = "Table", Type = ItemType.String, Value = "SampleCount, Duration" });
+				for (int i = 0; i < count; i++)
+				{
+					int j = 16 + i * 8;
+					items.Add (new Item { Name = "Entry", Type = ItemType.String, Value = $"{DataType.ByteInt (buffer, j)}({DataType.ByteInt (buffer, j):x}h), {DataType.ByteInt (buffer, j + 4)}({DataType.ByteInt (buffer, j + 4):x}h)" });
+				}
+
+				return items;
+			}, atom);
 		}
 		private List<Item> ParseStss (Atom atom) {
 			return this.ParseAtom (buffer => new[] {
@@ -488,6 +499,7 @@ namespace IsoParser.Lib.Concretes {
 
 				if (track.SubType == ComponentSubType.Caption)
 				{
+					items.Add (new Item { Name = "Table", Type = ItemType.String, Value = "FirstChunk, Samples, Description ID" });
 					for (int i = 0; i < count; i++)
 					{
 						int j = 16 + i * 12;

@@ -77,6 +77,32 @@ namespace IsoParser.Lib.Concretes {
                 Console.Write ($" {tr.Type}-{tr.SubType}");
             Console.WriteLine ();
 
+			foreach (var tr in this.tracks)
+				if(tr.Type == ComponentType.Media && tr.SubType == ComponentSubType.Caption)
+                {
+                    Console.Write ($"Subtile :");
+					foreach (var f in tr.DataFormats)
+						Console.Write ($" {f}");
+                    Console.WriteLine ();
+
+					Console.Write ("TimeToSamples :");
+					foreach (var s in tr.TimeToSamples)
+						Console.Write ($" {s.SampleCount}({s.SampleCount:x})/{s.SampleDuration}({s.SampleDuration:x})");
+					Console.WriteLine ();
+
+					Console.WriteLine ($"SampleSize : {tr.SampleSize}/({tr.SampleSize:x}), SampleSizeCount : {tr.SampleSizeCount}/({tr.SampleSizeCount:x})");
+
+					Console.Write ("SampleToChunks :");
+					foreach (var s in tr.SampleToChunks)
+						Console.Write ($" {s.FirstChunk}({s.FirstChunk:x})/{s.SamplesPerChunk}({s.SamplesPerChunk:x})/{s.DescriptionId}({s.DescriptionId:x})");
+					Console.WriteLine ();
+
+					Console.Write ("ChunkOffsets :");
+					foreach (var s in tr.ChunkOffsets)
+						Console.Write ($" {s:x}");
+					Console.WriteLine ();
+				}
+
 			this.file.End ();
 			return atom;
         }
@@ -436,6 +462,8 @@ namespace IsoParser.Lib.Concretes {
 		}
 		private List<Item> ParseC708 (Atom atom)
 		{
+			this.track.DataFormats.Add ("c708");
+
 			return this.ParseAtom (buffer => new[] {
 				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
 			}.ToList (), atom);
@@ -491,8 +519,10 @@ namespace IsoParser.Lib.Concretes {
 				items.Add (new Item { Name = "Table", Type = ItemType.String, Value = "SampleCount, Duration" });
 				for (int i = 0; i < count; i++)
 				{
-					int j = 16 + i * 8;
-					items.Add (new Item { Name = "Entry", Type = ItemType.String, Value = $"{DataType.ByteInt (buffer, j)}({DataType.ByteInt (buffer, j):x}h), {DataType.ByteInt (buffer, j + 4)}({DataType.ByteInt (buffer, j + 4):x}h)" });
+					int SampleCount = DataType.ByteInt (buffer, 16 + i * 8);
+					int Duration = DataType.ByteInt (buffer, 20 + i * 8);
+					this.track.TimeToSamples.Add (new () { SampleCount = SampleCount, SampleDuration = Duration });
+					items.Add (new Item { Name = "Entry", Type = ItemType.String, Value = $"{SampleCount}({SampleCount:x}h), {Duration}({Duration:x}h)" });
 				}
 
 				return items;
@@ -505,8 +535,8 @@ namespace IsoParser.Lib.Concretes {
 		}
 		private List<Item> ParseStsz (Atom atom) {
 			return this.ParseAtom (buffer => new[] {
-				new Item { Name = "SampleSize", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) },
-				new Item { Name = "Entries", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 16) }
+				new Item { Name = "SampleSize", Type = ItemType.Int, Value = this.track.SampleSize = DataType.ByteInt (buffer, 12) },
+				new Item { Name = "Entries", Type = ItemType.Int, Value = this.track.SampleSizeCount = DataType.ByteInt (buffer, 16) }
 			}.ToList (), atom);
 		}
 		private List<Item> ParseStsc (Atom atom) {
@@ -520,8 +550,13 @@ namespace IsoParser.Lib.Concretes {
 					items.Add (new Item { Name = "Table", Type = ItemType.String, Value = "FirstChunk, Samples, Description ID" });
 					for (int i = 0; i < count; i++)
 					{
-						int j = 16 + i * 12;
-						items.Add (new Item { Name = "Chunk", Type = ItemType.String, Value = $"{DataType.ByteInt (buffer, j)}({DataType.ByteInt (buffer, j):x}h), {DataType.ByteInt (buffer, j + 4)}({DataType.ByteInt (buffer, j + 4):x}h), {DataType.ByteInt (buffer, j + 8)}({DataType.ByteInt (buffer, j+ 8):x}h)" });
+						int chunk = DataType.ByteInt (buffer, 16 + i * 12);
+						int samples = DataType.ByteInt (buffer, 20 + i * 12);
+						int id = DataType.ByteInt (buffer, 24 + i * 12);
+
+						this.track.SampleToChunks.Add (new () { FirstChunk = chunk, SamplesPerChunk = samples, DescriptionId = id });
+
+						items.Add (new Item { Name = "Chunk", Type = ItemType.String, Value = $"{chunk}({chunk:x}h), {samples}({samples:x}h), {id}({id:x}h)" });
 					}
 				}
 
@@ -536,13 +571,16 @@ namespace IsoParser.Lib.Concretes {
 
 				if(this.track.SubType == ComponentSubType.Caption) {
 					for (int i = 0; i < count; i++)
-						items.Add (new Item { Name = "Offset", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 16 + 4 * i) });
+					{
+						int offset = DataType.ByteInt (buffer, 16 + 4 * i);
+						this.track.ChunkOffsets.Add (offset);
+						items.Add (new Item { Name = "Offset", Type = ItemType.Int, Value = offset });
+					}
                 }
 
 				return items;
 			}, atom);
 		}
-
 
 		//TODO: parse for multi cases
 		private List<Item> ParseTmcd (Atom atom)

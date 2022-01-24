@@ -5,13 +5,13 @@ namespace IsoParser.Lib.Models
     public class Track {
         public ComponentType Type { get; set; }
 		public ComponentSubType SubType { get; set; }
-		public List<string> DataFormats { get; set; }
-		public List<TimeToSample> TimeToSamples { get; set; }
-		public int SampleSize { get; set; }
-		public List<int> SampleSizes { get; set; }
-		public int SampleSizeCount { get; set; }
-		public List<SampleToChunk> SampleToChunks { get; set; }
-		public List<int> ChunkOffsets { get; set; }
+		public List<string> DataFormats { get; set; }  // stsd
+		public List<TimeToSample> TimeToSamples { get; set; }  // stts
+		public int SampleSize { get; set; }  // stsz
+		public List<int> SampleSizes { get; set; }  // stsz
+		public int SampleSizeCount { get; set; }  // stsz
+		public List<SampleToChunk> SampleToChunks { get; set; }  // stsc
+		public List<int> ChunkOffsets { get; set; }  // stco
 
 		public Track ()
         {

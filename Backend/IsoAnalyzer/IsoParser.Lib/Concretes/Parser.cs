@@ -17,6 +17,8 @@ namespace IsoParser.Lib.Concretes {
 		private readonly HashSet<AtomType> containers;
 		private readonly Dictionary<AtomType, int> references;
 
+		private readonly List<Track> tracks;
+
 		#region movie variable
 		private int? timeScale;
 		#endregion
@@ -24,6 +26,7 @@ namespace IsoParser.Lib.Concretes {
 		#region public
 		public Parser () {
 			this.file = null;
+			this.tracks = new ();
 
 			this.containers = new HashSet<AtomType> {
 				AtomType.CLIP,
@@ -59,8 +62,20 @@ namespace IsoParser.Lib.Concretes {
 
 			Atom atom = new ();
 
+			Track track = new ();
+
 			// Root atom id is always 1
-			await Task.Run (() => atom = this.GetAtom (1, this.file.FileSize (), 0L, 0, new Track()) );
+			await Task.Run (() => atom = this.GetAtom (1, this.file.FileSize (), 0L, 0, track) );
+
+			if(track.Type != ComponentType.Unknown)
+            {
+				this.tracks.Add (track);
+            }
+
+			Console.Write ($"Tracks ({this.tracks.Count}):");
+			foreach(var tr in this.tracks)
+                Console.Write ($" {tr.Type}-{tr.SubType}");
+            Console.WriteLine ();
 
 			this.file.End ();
 			return atom;
@@ -173,7 +188,7 @@ namespace IsoParser.Lib.Concretes {
 			case AtomType.STSS:
 				return this.ParseStss (atom);
 			case AtomType.STTS:
-				return this.ParseStts (atom);
+				return this.ParseStts (atom, track);
 			case AtomType.STSZ:
 				return this.ParseStsz (atom);
 			case AtomType.STSC:
@@ -373,7 +388,15 @@ namespace IsoParser.Lib.Concretes {
 			return this.ParseAtom (buffer => {
 				int value = DataType.ByteInt (buffer, 12);
 				if (Enum.IsDefined (typeof (ComponentType), value))
-					track.Type = (ComponentType)value;
+				{
+					if(track.Type != ComponentType.Unknown)
+                    {
+                        Console.WriteLine ($"&&&&&&&&&&&&&&&&&&&&&& {track.Type} / {track.SubType}");
+						this.tracks.Add (track);
+                    }
+
+					track = new () { Type = (ComponentType)value };
+				}
 
 				value = DataType.ByteInt (buffer, 16);
 				if (Enum.IsDefined (typeof (ComponentSubType), value))
@@ -464,7 +487,7 @@ namespace IsoParser.Lib.Concretes {
 			}, atom);
 		}
 
-		private List<Item> ParseStts (Atom atom) {
+		private List<Item> ParseStts (Atom atom, Track track) {
 			return this.ParseAtom (buffer => {
 				List<Item> items = new ();
 				int count = DataType.ByteInt (buffer, 12);

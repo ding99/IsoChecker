@@ -17,11 +17,49 @@ namespace CheckIso {
 
 		private string Display (IsoInfo iso) {
 			StringBuilder b = new ();
-			b.Append ("== Details ==").Append(Environment.NewLine);
+			b.Append ("== Atoms ==").Append(Environment.NewLine);
 			this.Layer (b, iso.Atom, 0);
 
-            //b.Append (Environment.NewLine).Append ("== Content ==").Append (Environment.NewLine);
-            //this.Content (b, atom, 0);
+			#region display tracks
+			b.Append ("== Tracks ==").Append (Environment.NewLine);
+			b.Append ($"Tracks({iso.Tracks.Count}) :");
+			foreach (var tr in iso.Tracks)
+				b.Append ($" {tr.Type}-{tr.SubType}");
+			b.Append (Environment.NewLine);
+
+			foreach (var tr in iso.Tracks)
+				if (tr.Type == ComponentType.Media && tr.SubType == ComponentSubType.Caption)
+				{
+					b.Append ($"Subtile({tr.DataFormats.Count}) :");
+					foreach (var f in tr.DataFormats)
+						b.Append ($" {f}");
+					b.Append (Environment.NewLine);
+
+					b.Append ($"TimeToSamples({tr.TimeToSamples.Count}) :");
+					foreach (var s in tr.TimeToSamples)
+						b.Append ($" {s.SampleCount}({s.SampleCount:x})/{s.SampleDuration}({s.SampleDuration:x})");
+					b.Append (Environment.NewLine);
+
+					Console.WriteLine ($"SampleSize : {tr.SampleSize}/({tr.SampleSize:x}), SampleSizeCount : {tr.SampleSizeCount}/({tr.SampleSizeCount:x})");
+
+					b.Append ($"SampleToChunks({tr.SampleToChunks.Count}) :");
+					foreach (var s in tr.SampleToChunks)
+						b.Append ($" {s.FirstChunk}({s.FirstChunk:x})/{s.SamplesPerChunk}({s.SamplesPerChunk:x})/{s.DescriptionId}({s.DescriptionId:x})");
+					b.Append (Environment.NewLine);
+
+					b.Append ($"ChunkOffsets({tr.ChunkOffsets.Count}) :");
+					foreach (var s in tr.ChunkOffsets)
+						b.Append ($" {s:x}");
+					b.Append (Environment.NewLine);
+				}
+			#endregion
+
+			#region display notes
+			if(iso.Notes != null)
+			foreach (var note in iso.Notes)
+				b.Append (note).Append (Environment.NewLine);
+            #endregion
+
             return b.ToString ();
 		}
 

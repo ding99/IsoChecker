@@ -12,5 +12,7 @@ namespace IsoParser.Lib.Models
         public VideoInfo Video { get; set; }
         public AudioInfo Audio { get; set; }
         public SubtitleInfo Subtitle { get; set; }
+        public List<Track> Tracks { get; set; }
+        public List<string> Notes { get; set; }
     }
 }

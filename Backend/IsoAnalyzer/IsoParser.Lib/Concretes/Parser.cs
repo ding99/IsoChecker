@@ -58,7 +58,7 @@ namespace IsoParser.Lib.Concretes {
 				this.file.End ();
         }
 
-		public async Task<Atom> GetTree (string path) {
+		public async Task<IsoInfo> GetTree (string path) {
 			this.file = new (path);
 			this.fileSize = this.file.FileSize ();
 
@@ -71,6 +71,8 @@ namespace IsoParser.Lib.Concretes {
             {
 				this.tracks.Add (this.track);
             }
+
+			IsoInfo iso = new () { Atom = atom };
 
 			Console.Write ($"Tracks ({this.tracks.Count}):");
 			foreach(var tr in this.tracks)
@@ -104,7 +106,7 @@ namespace IsoParser.Lib.Concretes {
 				}
 
 			this.file.End ();
-			return atom;
+			return iso;
         }
 
 		public async Task<byte[]> GetData (string path, long offset, int size) {

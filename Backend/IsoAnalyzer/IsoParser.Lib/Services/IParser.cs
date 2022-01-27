@@ -8,7 +8,7 @@ using IsoParser.Lib.Models;
 
 namespace IsoParser.Lib.Services {
 	public interface IParser {
-		Task<Atom> GetTree (string path);
+		Task<IsoInfo> GetTree (string path);
 		Task<byte []> GetData (string path, long Offset, int size);
 	}
 }

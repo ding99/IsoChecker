@@ -15,10 +15,10 @@ namespace CheckIso {
 			return message;
 		}
 
-		private string Display (Atom atom) {
+		private string Display (IsoInfo iso) {
 			StringBuilder b = new ();
 			b.Append ("== Details ==").Append(Environment.NewLine);
-			this.Layer (b, atom, 0);
+			this.Layer (b, iso.Atom, 0);
 
             //b.Append (Environment.NewLine).Append ("== Content ==").Append (Environment.NewLine);
             //this.Content (b, atom, 0);

@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace IsoParser.Lib.Models
 {
-    public class SubtitleInfo
+    public class Audio
     {
-        public List<Subtitle> Subtitles { get; set; }
+        public string Codec { get; set; }
+        public int Bitrate { get; set; }
+        public int ChannelsCount { get; set; }
     }
 }

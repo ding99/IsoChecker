@@ -8,5 +8,6 @@ namespace IsoParser.Lib.Models
 {
     public class AudioInfo
     {
+        public List<Audio> Audios { get; set; }
     }
 }

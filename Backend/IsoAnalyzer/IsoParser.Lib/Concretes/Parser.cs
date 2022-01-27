@@ -72,38 +72,7 @@ namespace IsoParser.Lib.Concretes {
 				this.tracks.Add (this.track);
             }
 
-			IsoInfo iso = new () { Atom = atom };
-
-			Console.Write ($"Tracks ({this.tracks.Count}):");
-			foreach(var tr in this.tracks)
-                Console.Write ($" {tr.Type}-{tr.SubType}");
-            Console.WriteLine ();
-
-			foreach (var tr in this.tracks)
-				if(tr.Type == ComponentType.Media && tr.SubType == ComponentSubType.Caption)
-                {
-                    Console.Write ($"Subtile({tr.DataFormats.Count}) :");
-					foreach (var f in tr.DataFormats)
-						Console.Write ($" {f}");
-                    Console.WriteLine ();
-
-					Console.Write ($"TimeToSamples({tr.TimeToSamples.Count}) :");
-					foreach (var s in tr.TimeToSamples)
-						Console.Write ($" {s.SampleCount}({s.SampleCount:x})/{s.SampleDuration}({s.SampleDuration:x})");
-					Console.WriteLine ();
-
-					Console.WriteLine ($"SampleSize : {tr.SampleSize}/({tr.SampleSize:x}), SampleSizeCount : {tr.SampleSizeCount}/({tr.SampleSizeCount:x})");
-
-					Console.Write ($"SampleToChunks({tr.SampleToChunks.Count}) :");
-					foreach (var s in tr.SampleToChunks)
-						Console.Write ($" {s.FirstChunk}({s.FirstChunk:x})/{s.SamplesPerChunk}({s.SamplesPerChunk:x})/{s.DescriptionId}({s.DescriptionId:x})");
-					Console.WriteLine ();
-
-					Console.Write ($"ChunkOffsets({tr.ChunkOffsets.Count}) :");
-					foreach (var s in tr.ChunkOffsets)
-						Console.Write ($" {s:x}");
-					Console.WriteLine ();
-				}
+			IsoInfo iso = new () { Atom = atom, Tracks = tracks };
 
 			this.file.End ();
 			return iso;

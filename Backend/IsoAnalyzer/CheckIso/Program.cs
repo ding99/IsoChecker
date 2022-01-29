@@ -7,12 +7,18 @@ namespace CheckIso {
 			Console.WriteLine ("CheckIso");
 
 			if (args.Length < 1)
-				Console.WriteLine ("Usage:  CheckIso <file_path>");
-			else {
-				try {
+			{
+				Console.WriteLine ("Usage:  CheckIso <file_path> [s]");
+                Console.WriteLine ("  file_path: file to be analyzed. Mandatory");
+				Console.WriteLine ("  s: save result to a local file. Optional");
+			}
+			else
+			{
+				try
+				{
 					Console.WriteLine ($"Arguments ({args.Length})");
 					foreach (var arg in args)
-						Console.WriteLine($"  [{arg}]");
+						Console.WriteLine ($"  [{arg}]");
 
 					string result = new Worker ().GetAtoms (args[0]);
 
@@ -21,13 +27,16 @@ namespace CheckIso {
 					// temp
 					if (args.Length > 1 && args[1].Trim ().ToLower ().Equals ("s"))
 					{
-						var a = new StreamWriter ($"{args[0]}_parsed.txt");
+						string file = $"{args[0]}_parsed.txt";
+						var a = new StreamWriter (file);
 						a.WriteLine (result);
 						a.Flush ();
 						a.Close ();
+                        Console.WriteLine ($"Save reuslt to {file}");
 					}
 				}
-				catch (Exception e) {
+				catch (Exception e)
+				{
 					Console.WriteLine (e.Message);
 					Console.WriteLine (e.StackTrace);
 				}

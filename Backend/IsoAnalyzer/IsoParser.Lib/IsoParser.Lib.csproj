@@ -6,7 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Libs\" />
+    <Compile Remove="Libs\**" />
+    <EmbeddedResource Remove="Libs\**" />
+    <None Remove="Libs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DSoft_CaptionParser" Version="1.0.0" />
+    <PackageReference Include="DSoft_CCD" Version="1.0.0" />
+    <PackageReference Include="DSoft_MccParser" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

@@ -10,6 +10,8 @@ namespace IsoParser.Lib.Concretes
 {
     partial class Parser
     {
+		private int? timeScale;
+
 		private Atom GetAtom (int id, long size, long offset, int head)
 		{
 			Console.WriteLine ($"id {id:x}, size {size:x}, offset {offset:x}, head {head:x}");
@@ -325,7 +327,7 @@ namespace IsoParser.Lib.Concretes
 				if (Enum.IsDefined (typeof (ComponentType), value))
 				{
 					if (this.track.Type != ComponentType.Unknown)
-						this.tracks.Add (this.track);
+						this.iso.Tracks.Add (this.track);
 
 					this.track = new () { Type = (ComponentType)value };
 				}

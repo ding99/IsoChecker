@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace IsoParser.Lib.Models
 {
     public class SubtitleInfo
     {
         public List<Subtitle> Subtitles { get; set; }
+
+        public SubtitleInfo ()
+        {
+            this.Subtitles = new List<Subtitle> ();
+        }
     }
 }

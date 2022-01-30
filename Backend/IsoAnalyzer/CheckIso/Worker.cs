@@ -29,6 +29,7 @@ namespace CheckIso {
 			this.Layer (b, iso.Atom, 0);
 
 			#region display tracks
+			b.Append (Environment.NewLine);
 			b.Append ("== Tracks ==").Append (Environment.NewLine);
 			b.Append ($"Tracks({iso.Tracks.Count}) :");
 			foreach (var tr in iso.Tracks)
@@ -47,8 +48,6 @@ namespace CheckIso {
 					foreach (var s in tr.TimeToSamples)
 						b.Append ($" {s.SampleCount}({s.SampleCount:x})/{s.SampleDuration}({s.SampleDuration:x})");
 					b.Append (Environment.NewLine);
-
-					Console.WriteLine ($"SampleSize : {tr.SampleSize}/({tr.SampleSize:x}), SampleSizeCount : {tr.SampleSizeCount}/({tr.SampleSizeCount:x})");
 
 					b.Append ($"SampleToChunks({tr.SampleToChunks.Count}) :");
 					foreach (var s in tr.SampleToChunks)
@@ -71,10 +70,11 @@ namespace CheckIso {
 			#region subtitle
 			if(iso.Subtitle != null)
             {
+				b.Append (Environment.NewLine);
 				b.Append ($"== Subtitles({iso.Subtitle.Subtitles.Count}) ==").Append(Environment.NewLine);
 				foreach (var s in iso.Subtitle.Subtitles)
 				{
-					b.Append ($"-- Type {s.Type} Frames({s.Frames.Count})").Append(Environment.NewLine);
+					b.Append ($"-- Type {s.Type}, Frames({s.Frames.Count})").Append(Environment.NewLine);
 					b.Append (this.DisplaySub (s.Frames, "(fa0000-18)", "Frames", a => this.mcc.DspLine (a)));
 				}
             }

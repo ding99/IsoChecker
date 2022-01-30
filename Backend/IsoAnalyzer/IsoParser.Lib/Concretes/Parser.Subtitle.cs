@@ -49,14 +49,13 @@ namespace IsoParser.Lib.Concretes
 
 		private void AnalyzeCaption (Track track)
         {
-            Console.WriteLine ($"-- Caption : {track.DataFormats[0]}");
 			Subtitle sub = new () { Type = track.DataFormats.Count > 0 ? track.DataFormats[0] : "Unknow" };
 
 			for(int i = 0; i < track.ChunkOffsets.Count; i++)
             {
-				int samplesCount = this.GainCount (track, i + 1);
+				int count = this.GainCount (track, i + 1);
 				this.file.GotoByte (track.ChunkOffsets[i]);
-				for(int k = 0; k < samplesCount; k++)
+				for(int k = 0; k < count; k++)
                 {
 					byte[] head = this.file.Read (8);
 					sub.Frames.Add (this.file.Read(DataType.ByteInt(head, 0) - 8));

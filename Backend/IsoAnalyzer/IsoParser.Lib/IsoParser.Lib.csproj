@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -20,6 +20,15 @@
   <ItemGroup>
 	  <Compile Update="$(ProjectDir)\Concretes\Parser.*.cs">
 		  <DependentUpon>$(ProjectDir)\Concretes\Parser.cs</DependentUpon>
+	  </Compile>
+	  <Compile Update="$(ProjectDir)\Models\Audio.cs">
+		  <DependentUpon>$(ProjectDir)\Models\AudioInfo.cs</DependentUpon>
+	  </Compile>
+	  <Compile Update="$(ProjectDir)\Models\Video.cs">
+		  <DependentUpon>$(ProjectDir)\Models\VideoInfo.cs</DependentUpon>
+	  </Compile>
+	  <Compile Update="$(ProjectDir)\Models\Subtitle.cs">
+		  <DependentUpon>$(ProjectDir)\Models\SubtitleInfo.cs</DependentUpon>
 	  </Compile>
   </ItemGroup>
 

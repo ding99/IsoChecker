@@ -15,18 +15,13 @@ namespace IsoParser.Lib.Concretes
 		private readonly HashSet<AtomType> containers;
 		private readonly Dictionary<AtomType, int> references;
 
-		private readonly List<Track> tracks;
-		private Track track;
+		private readonly IsoInfo iso;
 
-		#region movie variable
-		private int? timeScale;
-		#endregion
+		private Track track;
 
 		#region public
 		public Parser () {
 			this.file = null;
-			this.tracks = new ();
-			this.track = new ();
 
 			this.containers = new HashSet<AtomType> {
 				AtomType.CLIP,
@@ -49,7 +44,11 @@ namespace IsoParser.Lib.Concretes
 				[AtomType.DREF] = 8,
 				[AtomType.STSD] = 8
 			};
-        }
+
+			this.iso = new ();
+
+			this.track = new ();
+		}
 
 		public void End () {
 			if (this.file != null)
@@ -60,17 +59,15 @@ namespace IsoParser.Lib.Concretes
 			this.file = new (path);
 			this.fileSize = this.file.FileSize ();
 
-			Atom atom = new ();
-
 			// Root atom id is always 1
-			await Task.Run (() => atom = this.GetAtom (1, this.file.FileSize (), 0L, 0));
+			await Task.Run (() => this.iso.Atom = this.GetAtom (1, this.file.FileSize (), 0L, 0));
 
 			if(this.track.Type != ComponentType.Unknown)
             {
-				this.tracks.Add (this.track);
+				this.iso.Tracks.Add (this.track);
             }
 
-			IsoInfo iso = new () { Atom = atom, Tracks = tracks };
+			this.AnalyzeSubtitles ();
 
 			this.file.End ();
 			return iso;

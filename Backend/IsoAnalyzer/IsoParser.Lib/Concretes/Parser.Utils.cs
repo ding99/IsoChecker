@@ -6,7 +6,7 @@ using IsoParser.Lib.Tools;
 
 namespace IsoParser.Lib.Concretes
 {
-    partial class Parser
+    public partial class Parser
 	{
 		private bool isContainer (AtomType type)
 		{

@@ -5,9 +5,17 @@ using System.Linq;
 
 using IsoParser.Lib.Concretes;
 using IsoParser.Lib.Models;
+using Parsers.MccParser;
 
 namespace CheckIso {
 	public class Worker {
+		private readonly MccParser mcc;
+
+		public Worker ()
+        {
+			this.mcc = new (false);
+        }
+
 		public string GetAtoms (string file) {
 			Parser parser = new ();
 			string message = Display (parser.GetTree (file).Result);
@@ -63,11 +71,11 @@ namespace CheckIso {
 			#region subtitle
 			if(iso.Subtitle != null)
             {
-				b.Append ("== Subtitles ==").Append(Environment.NewLine);
+				b.Append ($"== Subtitles({iso.Subtitle.Subtitles.Count}) ==").Append(Environment.NewLine);
 				foreach (var s in iso.Subtitle.Subtitles)
 				{
-					b.Append ($"-- Type {s.Type}").Append (Environment.NewLine);
-					b.Append ($"Frames({s.Frames.Count})").Append(Environment.NewLine);
+					b.Append ($"-- Type {s.Type} Frames({s.Frames.Count})").Append(Environment.NewLine);
+					b.Append (this.DisplaySub (s.Frames, "(fa0000-18)", "Frames", a => this.mcc.DspLine (a)));
 				}
             }
 			#endregion
@@ -126,5 +134,36 @@ namespace CheckIso {
 				b.Append ("  ");
 			return b.ToString ();
 		}
+
+		private string DisplaySub (List<byte[]> lines, string key, string name, Func<byte[], string> getValue)
+		{
+			StringBuilder b = new StringBuilder ($"-- Display list of {name}").Append (Environment.NewLine);
+
+			int count = 0;
+			bool dsp;
+
+			foreach (var line in lines)
+			{
+				string data = getValue (line);
+
+                if (data.IndexOf (key) > 0)
+                {
+                    dsp = count++ < 5;
+                }
+                else
+                {
+                    count = 0;
+                    dsp = true;
+                }
+
+                if (dsp)
+                    b.Append (data).Append (Environment.NewLine);
+                if (count == 6)
+                    b.Append ("......").Append (Environment.NewLine);
+			}
+
+			return b.ToString ();
+		}
+
 	}
 }

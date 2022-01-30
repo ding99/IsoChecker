@@ -55,11 +55,13 @@ namespace IsoParser.Lib.Concretes
 			for(int i = 0; i < track.ChunkOffsets.Count; i++)
             {
 				int samplesCount = this.GainCount (track, i + 1);
+				this.file.GotoByte (track.ChunkOffsets[i]);
 				for(int k = 0; k < samplesCount; k++)
                 {
-					sub.Frames.Add (new byte[] { 0x96, 0x69, 3 });
-                }
-            }
+					byte[] head = this.file.Read (8);
+					sub.Frames.Add (this.file.Read(DataType.ByteInt(head, 0) - 8));
+				}
+			}
 
 			this.iso.Subtitle.Subtitles.Add (sub);
         }

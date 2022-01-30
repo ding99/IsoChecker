@@ -58,9 +58,21 @@ namespace CheckIso {
 			if(iso.Notes != null)
 			foreach (var note in iso.Notes)
 				b.Append (note).Append (Environment.NewLine);
-            #endregion
+			#endregion
 
-            return b.ToString ();
+			#region subtitle
+			if(iso.Subtitle != null)
+            {
+				b.Append ("== Subtitles ==").Append(Environment.NewLine);
+				foreach (var s in iso.Subtitle.Subtitles)
+				{
+					b.Append ($"-- Type {s.Type}").Append (Environment.NewLine);
+					b.Append ($"Frames({s.Frames.Count})").Append(Environment.NewLine);
+				}
+            }
+			#endregion
+
+			return b.ToString ();
 		}
 
 		private void Layer (StringBuilder b, Atom atom, int layer) {

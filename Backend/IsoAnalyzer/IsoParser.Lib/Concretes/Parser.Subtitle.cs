@@ -18,15 +18,13 @@ namespace IsoParser.Lib.Concretes
 					if(this.iso.Subtitle == null)
 						this.iso.Subtitle = new ();
 
-                    Console.WriteLine ($"subtitles is null {this.iso.Subtitle.Subtitles == null}");
-                    Console.WriteLine ($"subtitles count {this.iso.Subtitle.Subtitles.Count}");
 					this.AnalyzeCaption (track);
 				}
         }
 
 		private void AnalyzeCaption(Track track)
         {
-
+            Console.WriteLine ($"-- Caption : {track.DataFormats[0]}");
         }
 
 	}

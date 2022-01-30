@@ -1,7 +1,8 @@
-﻿using IsoParser.Lib.Models;
-using IsoParser.Lib.Tools;
-using System;
+﻿using System;
 using System.Text;
+
+using IsoParser.Lib.Models;
+using IsoParser.Lib.Tools;
 
 namespace IsoParser.Lib.Concretes
 {

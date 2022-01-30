@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using IsoParser.Lib.Services;
 using IsoParser.Lib.Models;
+using IsoParser.Lib.Services;
 using IsoParser.Lib.Tools;
 
-namespace IsoParser.Lib.Concretes {
-	public partial class Parser : IParser {
+namespace IsoParser.Lib.Concretes
+{
+    public partial class Parser : IParser {
 		private BinFile file;
 		private long fileSize;
 

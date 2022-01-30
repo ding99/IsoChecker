@@ -17,4 +17,10 @@
     <PackageReference Include="DSoft_MccParser" Version="1.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+	  <Compile Update="$(ProjectDir)\Concretes\Parser.*.cs">
+		  <DependentUpon>$(ProjectDir)\Concretes\Parser.cs</DependentUpon>
+	  </Compile>
+  </ItemGroup>
+
 </Project>

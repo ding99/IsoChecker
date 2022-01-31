@@ -14,7 +14,7 @@
   <ItemGroup>
     <PackageReference Include="DSoft_CaptionParser" Version="1.0.0" />
     <PackageReference Include="DSoft_CCD" Version="1.0.0" />
-    <PackageReference Include="DSoft_MccParser" Version="1.0.0" />
+    <PackageReference Include="DSoft_MccParser" Version="1.0.3" />
   </ItemGroup>
 
   <ItemGroup>

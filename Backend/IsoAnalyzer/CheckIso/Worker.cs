@@ -76,7 +76,9 @@ namespace CheckIso {
 				{
 					b.Append ($"-- Type {s.Type}, Frames({s.Frames.Count})").Append(Environment.NewLine);
 					b.Append (this.DisplaySub (s.Frames, "(fa0000-18)", "Frames", a => this.mcc.DspLine (a)));
+					//b.Append (this.DisplaySub (s.Frames, "Data:(00-36)", "Line Structure", a => this.mcc.LineStructure (a, "")));
 				}
+				b.Append (this.mcc.End ());
             }
 			#endregion
 

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using IsoParser.Lib.Models;
 using IsoParser.Lib.Services;
 using IsoParser.Lib.Tools;
-using Parsers.CaptionParser;
 
 namespace IsoParser.Lib.Concretes
 {
@@ -17,8 +16,6 @@ namespace IsoParser.Lib.Concretes
 		private readonly Dictionary<AtomType, int> references;
 
 		private readonly IsoInfo iso;
-
-		private readonly Parsers.MccParser.MccParser mcc;
 
 		private Track track;
 
@@ -49,7 +46,6 @@ namespace IsoParser.Lib.Concretes
 			};
 
 			this.iso = new ();
-			this.mcc = new (false);
 
 			this.track = new ();
 		}

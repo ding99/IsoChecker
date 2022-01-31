@@ -22,7 +22,7 @@ namespace IsoParser.Lib.Concretes
 				}
         }
 
-		private int GainCount (Track track, int chunk)
+		private int GainCount_org (Track track, int chunk)
         {
 			int n = track.SampleToChunks.Count;
 			for (int i = 0; i < n; i++)
@@ -46,6 +46,15 @@ namespace IsoParser.Lib.Concretes
 
 			return track.SampleSizeCount;
         }
+		private int GainCount (Track track, int chunk)
+		{
+			int n = track.SampleToChunks.Count;
+			for (int i = 0; i < n; i++)
+				if (chunk == track.SampleToChunks[i].FirstChunk || i + 1 == n || chunk < track.SampleToChunks[i + 1].FirstChunk)
+					return track.SampleToChunks[i].SamplesPerChunk;
+
+			return track.SampleSizeCount;
+		}
 
 		private void AnalyzeCaption (Track track)
         {

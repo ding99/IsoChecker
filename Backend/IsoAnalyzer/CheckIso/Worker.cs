@@ -72,17 +72,52 @@ namespace CheckIso {
             {
 				b.Append (Environment.NewLine);
 				b.Append ($"== Subtitles({iso.Subtitle.Subtitles.Count}) ==").Append(Environment.NewLine);
+
 				foreach (var s in iso.Subtitle.Subtitles)
 				{
 					b.Append ($"-- Type {s.Type}, Frames({s.Frames.Count})").Append(Environment.NewLine);
-					b.Append (this.DisplaySub (s.Frames, "(fa0000-18)", "Frames", a => this.mcc.DspLine (a)));
-					//b.Append (this.DisplaySub (s.Frames, "Data:(00-36)", "Line Structure", a => this.mcc.LineStructure (a, "")));
+					if (s.Type.Equals ("c708")){
+						b.Append (this.DisplaySub (s.Frames, "(fa0000-18)", "Frames", a => this.mcc.DisplayLine (a)));
+						b.Append (this.DisplaySub (s.Frames, "Data:(00-36)", "Line Structure", a => this.mcc.AnalyzeLine (a, "")));
+					}
+					if(s.Type.Equals ("c608"))
+                    {
+						b.Append (this.DisplaySub (s.Frames, "8080", "Frames", a => this.mcc.DisplayLine (a)));
+						b.Append (this.DisplaySub (s.Frames, "8080", "Line Structure", a => this.mcc.Analyzec608Line (a, "")));
+					}
 				}
-				b.Append (this.mcc.End ());
-            }
+                Console.WriteLine ("mark 001");
+
+				//b.Append (this.mcc.End ());
+				this.TestSEnd ();
+				Console.WriteLine ("mark 002");
+			}
 			#endregion
 
 			return b.ToString ();
+		}
+
+		private void TestSEnd ()
+        {
+			CC cc = this.mcc.CC1;
+            Console.WriteLine ($"Current : {cc.Current}");
+			Console.WriteLine ($"Caption : {cc.Caption == null}");
+			Console.WriteLine ($"Captions: {cc.Captions.Count}");
+			foreach(var a in cc.Captions)
+            {
+                Console.WriteLine ("------");
+                Console.WriteLine ($"  Start [{a.Start}]");
+				Console.WriteLine ($"  Words is null [{a.Words == null}]");
+				if (a.Words != null)
+				{
+					Console.Write ("  Words:");
+					foreach (var w in a.Words)
+					{
+						Console.Write ($" {w:x}");
+					}
+					Console.WriteLine ();
+				}
+			}
 		}
 
 		private void Layer (StringBuilder b, Atom atom, int layer) {
@@ -139,14 +174,23 @@ namespace CheckIso {
 
 		private string DisplaySub (List<byte[]> lines, string key, string name, Func<byte[], string> getValue)
 		{
+            Console.WriteLine ($"DisplaySub terms {lines.Count}");
 			StringBuilder b = new StringBuilder ($"-- Display list of {name}").Append (Environment.NewLine);
 
-			int count = 0;
+			int count = 0, count1 = 0;
 			bool dsp;
 
 			foreach (var line in lines)
 			{
 				string data = getValue (line);
+				//if (key.Equals ("Data:(00-36)"))
+				//{
+				//    Console.WriteLine ($"DisplaySub [{data}] ({line.Length})");
+				//}
+				if (key.Equals ("8080") && count1++ > 3 && count1 < 8)
+				{
+					b.Append ($"  data [{data}]").Append (Environment.NewLine);
+				}
 
                 if (data.IndexOf (key) > 0)
                 {

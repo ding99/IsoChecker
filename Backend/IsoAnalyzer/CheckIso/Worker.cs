@@ -83,7 +83,7 @@ namespace CheckIso {
 					if(s.Type.Equals ("c608"))
                     {
 						b.Append (this.DisplaySub (s.Frames, "8080", "Frames", a => this.mcc.DisplayLine (a)));
-						//b.Append (this.DisplaySub (s.Frames, "8080", "Line Structure", a => this.mcc.Analyzec608Line (a, "")));
+						b.Append (this.DisplaySub (s.Frames, "8080", "Line Structure", a => this.mcc.Analyzec608Line (a, "")));
 					}
 				}
                 Console.WriteLine ("mark 001");
@@ -177,16 +177,20 @@ namespace CheckIso {
             Console.WriteLine ($"DisplaySub terms {lines.Count}");
 			StringBuilder b = new StringBuilder ($"-- Display list of {name}").Append (Environment.NewLine);
 
-			int count = 0;
+			int count = 0, count1 = 0;
 			bool dsp;
 
 			foreach (var line in lines)
 			{
 				string data = getValue (line);
-                //if (key.Equals ("Data:(00-36)"))
-                //{
-                //    Console.WriteLine ($"DisplaySub [{data}] ({line.Length})");
-                //}
+				//if (key.Equals ("Data:(00-36)"))
+				//{
+				//    Console.WriteLine ($"DisplaySub [{data}] ({line.Length})");
+				//}
+				if (key.Equals ("8080") && count1++ > 3 && count1 < 8)
+				{
+					b.Append ($"  data [{data}]").Append (Environment.NewLine);
+				}
 
                 if (data.IndexOf (key) > 0)
                 {

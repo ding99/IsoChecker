@@ -34,7 +34,8 @@ namespace IsoParser.Api.Controllers
 
             var tree = await this._parser.GetTree (path);
 
-            return JsonConvert.SerializeObject (this.GetAtom (tree));
+            return JsonConvert.SerializeObject (new DisplayAtom());
+//            return JsonConvert.SerializeObject (this.GetAtom (tree));  //TODO
         }
 
         private DisplayAtom GetAtom (Atom atom)

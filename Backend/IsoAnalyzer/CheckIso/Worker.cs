@@ -78,19 +78,17 @@ namespace CheckIso {
 					b.Append ($"-- Type {s.Type}, Frames({s.Frames.Count})").Append(Environment.NewLine);
 					if (s.Type.Equals ("c708")){
 						b.Append (this.DisplaySub (s.Frames, "(fa0000-18)", "Frames", a => this.mcc.DisplayLine (a)));
-						b.Append (this.DisplaySub (s.Frames, "Data:(00-36)", "Line Structure", a => this.mcc.AnalyzeLine (a, "")));
+						b.Append (this.DisplaySub (s.Frames, "Data:(00-36)", "Line Structure", a => this.mcc.LineC708 (a, "")));
 					}
 					if(s.Type.Equals ("c608"))
                     {
 						b.Append (this.DisplaySub (s.Frames, "8080", "Frames", a => this.mcc.DisplayLine (a)));
-						b.Append (this.DisplaySub (s.Frames, "8080", "Line Structure", a => this.mcc.Analyzec608Line (a, "")));
+						b.Append (this.DisplaySub (s.Frames, "8080", "Line Structure", a => this.mcc.LineC608 (a, "")));
 					}
 				}
-                Console.WriteLine ("mark 001");
 
-				//b.Append (this.mcc.End ());
-				this.TestSEnd ();
-				Console.WriteLine ("mark 002");
+				b.Append (this.mcc.End ());
+				//this.TestSEnd ();
 			}
 			#endregion
 
@@ -177,7 +175,7 @@ namespace CheckIso {
             Console.WriteLine ($"DisplaySub terms {lines.Count}");
 			StringBuilder b = new StringBuilder ($"-- Display list of {name}").Append (Environment.NewLine);
 
-			int count = 0, count1 = 0;
+			int count = 0;
 			bool dsp;
 
 			foreach (var line in lines)
@@ -187,12 +185,8 @@ namespace CheckIso {
 				//{
 				//    Console.WriteLine ($"DisplaySub [{data}] ({line.Length})");
 				//}
-				if (key.Equals ("8080") && count1++ > 3 && count1 < 8)
-				{
-					b.Append ($"  data [{data}]").Append (Environment.NewLine);
-				}
 
-                if (data.IndexOf (key) > 0)
+                if (data.IndexOf (key) >= 0)
                 {
                     dsp = count++ < 5;
                 }

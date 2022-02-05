@@ -164,10 +164,7 @@ namespace CheckIso {
 		}
 
 		private string Spaces (int layer) {
-			StringBuilder b = new ();
-			for (int i = 0; i < layer; i++)
-				b.Append ("  ");
-			return b.ToString ();
+			return string.Join("", Enumerable.Repeat(' ', layer * 2 ));
 		}
 
 		private string DisplaySub (List<byte[]> lines, string key, string name, Func<byte[], string> getValue)

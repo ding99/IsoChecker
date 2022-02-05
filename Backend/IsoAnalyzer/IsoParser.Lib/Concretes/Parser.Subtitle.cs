@@ -1,14 +1,9 @@
-﻿using System;
-using System.Text;
-using System.Linq;
-using System.Collections.Generic;
-
-using IsoParser.Lib.Models;
+﻿using IsoParser.Lib.Models;
 using IsoParser.Lib.Tools;
 
 namespace IsoParser.Lib.Concretes
 {
-	partial class Parser
+    partial class Parser
 	{
 		private void AnalyzeSubtitles ()
 		{
@@ -22,30 +17,6 @@ namespace IsoParser.Lib.Concretes
 				}
         }
 
-		private int GainCount_org (Track track, int chunk)
-        {
-			int n = track.SampleToChunks.Count;
-			for (int i = 0; i < n; i++)
-			{
-				if (chunk < track.SampleToChunks[i].FirstChunk)
-					continue;
-				if (chunk == track.SampleToChunks[i].FirstChunk)
-					return track.SampleToChunks[i].SamplesPerChunk;
-
-				if(i + 1 < n)
-                {
-					if (chunk < track.SampleToChunks[i + 1].FirstChunk)
-						return track.SampleToChunks[i].SamplesPerChunk;
-					continue;
-                }
-                else
-                {
-					return track.SampleToChunks[i].SamplesPerChunk;
-                }
-			}
-
-			return track.SampleSizeCount;
-        }
 		private int GainCount (Track track, int chunk)
 		{
 			int n = track.SampleToChunks.Count;

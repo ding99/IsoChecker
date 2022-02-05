@@ -370,6 +370,7 @@ namespace IsoParser.Lib.Concretes
 		}
 		private List<Item> ParseC608 (Atom atom)
 		{
+			this.track.DataFormats.Add ("c608");
 			return this.ParseAtom (buffer => new[] {
 				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
 			}.ToList (), atom);

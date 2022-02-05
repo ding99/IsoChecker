@@ -18,7 +18,7 @@ namespace CheckIso {
 
 		public string GetAtoms (string file) {
 			Parser parser = new ();
-			string message = Display (parser.GetTree (file).Result);
+			string message = this.Display (parser.GetTree (file).Result);
 			parser.End ();
 			return message;
 		}

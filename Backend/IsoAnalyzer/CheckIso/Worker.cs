@@ -18,7 +18,7 @@ namespace CheckIso {
 
 		public string GetAtoms (string file) {
 			Parser parser = new ();
-			string message = Display (parser.GetTree (file).Result);
+			string message = this.Display (parser.GetTree (file).Result);
 			parser.End ();
 			return message;
 		}
@@ -73,6 +73,7 @@ namespace CheckIso {
 				b.Append (Environment.NewLine);
 				b.Append ($"== Subtitles({iso.Subtitle.Subtitles.Count}) ==").Append(Environment.NewLine);
 
+				int count = 0;
 				foreach (var s in iso.Subtitle.Subtitles)
 				{
 					b.Append ($"-- Type {s.Type}, Frames({s.Frames.Count})").Append(Environment.NewLine);
@@ -82,8 +83,8 @@ namespace CheckIso {
 					}
 					if(s.Type.Equals ("c608"))
                     {
-						b.Append (this.DisplaySub (s.Frames, "8080", "Frames", a => this.mcc.DisplayLine (a)));
-						b.Append (this.DisplaySub (s.Frames, "8080", "Line Structure", a => this.mcc.LineC608 (a, "")));
+						//b.Append (this.DisplaySub (s.Frames, "8080", "Frames", a => this.mcc.DisplayLine (a)));
+						b.Append (this.DisplaySub (s.Frames, "8080", "Line Structure", a => this.mcc.LineC608 (a, "", (count++ % 2) == 0)));
 					}
 				}
 
@@ -97,7 +98,7 @@ namespace CheckIso {
 
 		private void TestSEnd ()
         {
-			CC cc = this.mcc.CC1;
+			Field cc = this.mcc.Field1;
             Console.WriteLine ($"Current : {cc.Current}");
 			Console.WriteLine ($"Caption : {cc.Caption == null}");
 			Console.WriteLine ($"Captions: {cc.Captions.Count}");
@@ -164,10 +165,7 @@ namespace CheckIso {
 		}
 
 		private string Spaces (int layer) {
-			StringBuilder b = new ();
-			for (int i = 0; i < layer; i++)
-				b.Append ("  ");
-			return b.ToString ();
+			return string.Join("", Enumerable.Repeat(' ', layer * 2 ));
 		}
 
 		private string DisplaySub (List<byte[]> lines, string key, string name, Func<byte[], string> getValue)

@@ -84,7 +84,7 @@ namespace CheckIso {
 					if(s.Type.Equals ("c608"))
                     {
 						//b.Append (this.DisplaySub (s.Frames, "8080", "Frames", a => this.mcc.DisplayLine (a)));
-						b.Append (this.DisplaySub (s.Frames, "8080", "Line Structure", a => this.mcc.LineC608 (a, "", (count++ % 2) == 0)));
+						b.Append (this.DisplaySub (s.Frames, "8080", "Line Structure", a => this.mcc.LineC608 (a, count++ % 2 == 0)));
 					}
 				}
 
@@ -179,6 +179,7 @@ namespace CheckIso {
 			foreach (var line in lines)
 			{
 				string data = getValue (line);
+
 				//if (key.Equals ("Data:(00-36)"))
 				//{
 				//    Console.WriteLine ($"DisplaySub [{data}] ({line.Length})");

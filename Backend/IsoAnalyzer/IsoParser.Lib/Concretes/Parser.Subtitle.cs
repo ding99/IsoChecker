@@ -10,7 +10,7 @@ namespace IsoParser.Lib.Concretes
 			foreach (var track in this.iso.Tracks)
 				if (track.Type == ComponentType.Media && track.SubType == ComponentSubType.Caption)
 				{
-					if(this.iso.Subtitle == null)
+					if (this.iso.Subtitle == null)
 						this.iso.Subtitle = new ();
 
 					this.AnalyzeCaption (track);
@@ -28,22 +28,22 @@ namespace IsoParser.Lib.Concretes
 		}
 
 		private void AnalyzeCaption (Track track)
-        {
+		{
 			Subtitle sub = new () { Type = track.DataFormats.Count > 0 ? track.DataFormats[0] : "Unknow" };
 
-			for(int i = 0; i < track.ChunkOffsets.Count; i++)
-            {
+			for (int i = 0; i < track.ChunkOffsets.Count; i++)
+			{
 				int count = this.GainCount (track, i + 1);
 				this.file.GotoByte (track.ChunkOffsets[i]);
-				for(int k = 0; k < count; k++)
-                {
+				for (int k = 0; k < count; k++)
+				{
 					byte[] head = this.file.Read (8);
-					sub.Frames.Add (this.file.Read(DataType.ByteInt(head, 0) - 8));
+					sub.Frames.Add (this.file.Read (DataType.ByteInt (head, 0) - 8));
 				}
 			}
 
 			this.iso.Subtitle.Subtitles.Add (sub);
-        }
+		}
 
 	}
 }

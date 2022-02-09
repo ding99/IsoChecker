@@ -118,9 +118,24 @@ namespace IsoParser.Lib.Tools {
 
 		public byte[] Read (int size) {
 			try {
+				var ip = this.reader.BaseStream.Position;
 				return this.reader.ReadBytes (size);
 			}
 			catch (Exception) {
+				this.valid = false;
+				return Array.Empty<byte> ();
+			}
+		}
+
+		public byte[] Read (int size, ref int oset)
+		{
+			try
+			{
+				oset = (int) this.reader.BaseStream.Position;
+				return this.reader.ReadBytes (size);
+			}
+			catch (Exception)
+			{
 				this.valid = false;
 				return Array.Empty<byte> ();
 			}

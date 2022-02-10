@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text;
-
-using IsoParser.Lib.Models;
+﻿using IsoParser.Lib.Models;
 using IsoParser.Lib.Tools;
 
 namespace IsoParser.Lib.Concretes
@@ -12,7 +7,7 @@ namespace IsoParser.Lib.Concretes
 	{
 		private void AnalyzeSubtitles ()
 		{
-            Console.WriteLine ($"-- tracks count {this.iso.Tracks.Count}");
+			System.Console.WriteLine ($"-- tracks count {this.iso.Tracks.Count}");
 			foreach (var track in this.iso.Tracks)
 				if (track.Type == ComponentType.Media && track.SubType == ComponentSubType.Caption)
 				{
@@ -36,23 +31,17 @@ namespace IsoParser.Lib.Concretes
 		private void AnalyzeCaption (Track track)
 		{
 			Subtitle sub = new () { Type = track.DataFormats.Count > 0 ? track.DataFormats[0] : "Unknow" };
-            //int temp = 0, pre = 0;
-            Console.WriteLine ($"   sub {sub.Type}, ChunkOffsets count {track.ChunkOffsets.Count}");
+			System.Console.WriteLine ($"   sub {sub.Type}, ChunkOffsets count {track.ChunkOffsets.Count}");
+
 			for (int i = 0; i < track.ChunkOffsets.Count; i++)
 			{
 				int count = this.GainCount (track, i + 1) * 2;
 				this.file.GotoByte (track.ChunkOffsets[i]);
-				Console.WriteLine ($"  count {count}");
+				System.Console.WriteLine ($"  count {count}");
+
 				for (int k = 0; k < count; k++)
 				{
 					byte[] head = this.file.Read (8);
-					//if (i < 2)
-					//{
-					//	sub.Frames.Add (this.file.Read (DataType.ByteInt (head, 0) - 8, ref temp));
-					//	System.Console.WriteLine ($"  <  {k} : {temp:x}  > {(temp != pre + 10 ? "WWWWarning" : "")}");
-					//	pre = temp;
-					//}
-					//else
 					bool finish = false;
 					switch (DataType.ByteInt (head, 4))
                     {
@@ -68,12 +57,6 @@ namespace IsoParser.Lib.Concretes
 						break;
 				}
 			}
-
-			//this.file.GotoByte (0x1896c1);
-			//byte[] head1 = this.file.Read (8);
-			//byte[] read = this.file.Read (DataType.ByteInt (head1, 0) - 8);
-			//string reads = string.Join (" ", Array.ConvertAll(read, x => x.ToString("x2")));
-   //         System.Console.WriteLine ($"  <<  {reads}  >>");
 
 			this.iso.Subtitle.Subtitles.Add (sub);
 		}

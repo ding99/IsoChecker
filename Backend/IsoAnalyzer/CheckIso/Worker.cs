@@ -107,7 +107,6 @@ namespace CheckIso {
 			}
 			if (type.Equals ("c608"))
 			{
-				//b.Append (this.DisplaySub (s.Frames, "8080", "Frames", a => this.mcc.DisplayLine (a)));
 				b.Append (this.DisplaySub (sub.Frames, "8080", "Line Structure", a => this.mcc.LineC608 (a, count++ % 2 == 0)));
 			}
 		}
@@ -144,17 +143,14 @@ namespace CheckIso {
 		}
 
 		private string ShowValue (object value, ItemType type) {
-			switch (type) {
-			case ItemType.Byte:
-			case ItemType.Int:
-			case ItemType.Long:
-			case ItemType.UShort:
-			case ItemType.Short: return $"{value} ({value:x}h)";
-			case ItemType.Matrix: return string.Join (", ", (value as double[]).ToArray ());
-			case ItemType.String: return $"[{value}]";
-			}
-			return value.ToString ();
-		}
+            return type switch
+            {
+                ItemType.Byte or ItemType.Int or ItemType.Long or ItemType.UShort or ItemType.Short => $"{value} ({value:x}h)",
+                ItemType.Matrix => string.Join (", ", (value as double[]).ToArray ()),
+                ItemType.String => $"[{value}]",
+                _ => value.ToString (),
+            };
+        }
 
 		private string Spaces (int layer) {
 			return string.Join("", Enumerable.Repeat(' ', layer * 2 ));

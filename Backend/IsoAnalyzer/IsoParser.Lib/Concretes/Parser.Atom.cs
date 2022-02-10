@@ -464,19 +464,16 @@ namespace IsoParser.Lib.Concretes
 				int count = DataType.ByteInt (buffer, 12);
 				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
 
-				if (this.track.SubType == ComponentSubType.Caption)
-				{
 					items.Add (new Item { Name = "Table", Type = ItemType.String, Value = "FirstChunk, Samples, Description ID" });
-					for (int i = 0; i < count; i++)
-					{
-						int chunk = DataType.ByteInt (buffer, 16 + i * 12);
-						int samples = DataType.ByteInt (buffer, 20 + i * 12);
-						int id = DataType.ByteInt (buffer, 24 + i * 12);
+				for (int i = 0; i < count; i++)
+				{
+					int chunk = DataType.ByteInt (buffer, 16 + i * 12);
+					int samples = DataType.ByteInt (buffer, 20 + i * 12);
+					int id = DataType.ByteInt (buffer, 24 + i * 12);
 
-						this.track.SampleToChunks.Add (new () { FirstChunk = chunk, SamplesPerChunk = samples, DescriptionId = id });
+					this.track.SampleToChunks.Add (new () { FirstChunk = chunk, SamplesPerChunk = samples, DescriptionId = id });
 
-						items.Add (new Item { Name = "Chunk", Type = ItemType.String, Value = $"{chunk}({chunk:x}h), {samples}({samples:x}h), {id}({id:x}h)" });
-					}
+					items.Add (new Item { Name = "Chunk", Type = ItemType.String, Value = $"{chunk}({chunk:x}h), {samples}({samples:x}h), {id}({id:x}h)" });
 				}
 
 				return items;
@@ -489,14 +486,11 @@ namespace IsoParser.Lib.Concretes
 				int count = DataType.ByteInt (buffer, 12);
 				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
 
-				if (this.track.SubType == ComponentSubType.Caption)
+				for (int i = 0; i < count; i++)
 				{
-					for (int i = 0; i < count; i++)
-					{
-						int offset = DataType.ByteInt (buffer, 16 + 4 * i);
-						this.track.ChunkOffsets.Add (offset);
-						items.Add (new Item { Name = "Offset", Type = ItemType.Int, Value = offset });
-					}
+					int offset = DataType.ByteInt (buffer, 16 + 4 * i);
+					this.track.ChunkOffsets.Add (offset);
+					items.Add (new Item { Name = "Offset", Type = ItemType.Int, Value = offset });
 				}
 
 				return items;

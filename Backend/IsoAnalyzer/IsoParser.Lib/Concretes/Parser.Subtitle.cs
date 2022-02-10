@@ -61,7 +61,7 @@ namespace IsoParser.Lib.Concretes
 						sub.CC1.Frames.Add (this.file.Read (DataType.ByteInt (head, 0) - 8));
 						break;
 					case 0x63647432:  //cdt2
-						sub.CC1.Frames.Add (this.file.Read (DataType.ByteInt (head, 0) - 8));
+						sub.CC1.Frames.Add (this.file.Read (DataType.ByteInt (head, 0) - 8));  // cdt2 as CC1 temporarily
 						break;
 					case 0x63647433:  //cdt3
 						sub.CC3.Frames.Add (this.file.Read (DataType.ByteInt (head, 0) - 8));

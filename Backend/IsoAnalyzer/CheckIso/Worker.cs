@@ -59,6 +59,7 @@ namespace CheckIso {
 						b.Append ($" {s:x}");
 					b.Append (Environment.NewLine);
 				}
+
 			#endregion
 
 			#region display notes

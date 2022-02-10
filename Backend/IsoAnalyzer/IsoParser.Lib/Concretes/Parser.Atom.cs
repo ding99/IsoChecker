@@ -464,7 +464,7 @@ namespace IsoParser.Lib.Concretes
 				int count = DataType.ByteInt (buffer, 12);
 				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
 
-				if (this.track.SubType == ComponentSubType.Caption)
+				//if (this.track.SubType == ComponentSubType.Caption)
 				{
 					items.Add (new Item { Name = "Table", Type = ItemType.String, Value = "FirstChunk, Samples, Description ID" });
 					for (int i = 0; i < count; i++)
@@ -489,7 +489,7 @@ namespace IsoParser.Lib.Concretes
 				int count = DataType.ByteInt (buffer, 12);
 				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
 
-				if (this.track.SubType == ComponentSubType.Caption)
+				//if (this.track.SubType == ComponentSubType.Caption || this.track.SubType == ComponentSubType.Sound )
 				{
 					for (int i = 0; i < count; i++)
 					{

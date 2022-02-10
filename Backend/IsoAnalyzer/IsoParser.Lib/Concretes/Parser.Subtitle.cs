@@ -54,23 +54,13 @@ namespace IsoParser.Lib.Concretes
 					//}
 					//else
 					bool finish = false;
-					var wt = (DataType.ByteInt (head, 4));
 					switch (DataType.ByteInt (head, 4))
                     {
 					case 0x63646174:  //cdat
-						sub.CC1.Frames.Add (this.file.Read (DataType.ByteInt (head, 0) - 8));
-						break;
 					case 0x63647432:  //cdt2
-						sub.CC1.Frames.Add (this.file.Read (DataType.ByteInt (head, 0) - 8));
-						break;
-					case 0x63647433:  //cdt3
-						sub.CC3.Frames.Add (this.file.Read (DataType.ByteInt (head, 0) - 8));
-						break;
-					case 0x63647434:  //cdt4
-						sub.CC4.Frames.Add (this.file.Read (DataType.ByteInt (head, 0) - 8));
+						sub.Frames.Add (this.file.Read (DataType.ByteInt (head, 0) - 8));  // cdt2 as CC1 temporarily
 						break;
 					default:
-                        Console.WriteLine ($"<><><> {wt}");
 						finish = true;
 						break;
 					}

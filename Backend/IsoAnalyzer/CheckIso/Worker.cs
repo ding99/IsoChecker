@@ -12,10 +12,14 @@ namespace CheckIso {
 		private const int maxRepeat = 5;
 		private readonly MccParser mcc;
 
-		public Worker ()
+		private readonly bool _detail;
+
+		public Worker (bool detail = false)
         {
 			this.mcc = new (false);
-        }
+
+			this._detail = detail;
+		}
 
 		public string GetAtoms (string file) {
 			Parser parser = new ();
@@ -173,20 +177,23 @@ namespace CheckIso {
 				//    Console.WriteLine ($"DisplaySub [{data}] ({line.Length})");
 				//}
 
-                if (data.IndexOf (key) >= 0)
-                {
-                    dsp = count++ < 5;
-                }
-                else
-                {
-                    count = 0;
-                    dsp = true;
-                }
+				if (data.IndexOf (key) >= 0)
+				{
+					dsp = count++ < 5;
+				}
+				else
+				{
+					count = 0;
+					dsp = true;
+				}
 
-                //if (dsp)
-                //    b.Append (data).Append (Environment.NewLine);
-                //if (count == maxRepeat)
-                //    b.Append ("......").Append (Environment.NewLine);
+				if (this._detail)
+				{
+					if (dsp)
+						b.Append (data).Append (Environment.NewLine);
+					if (count == maxRepeat)
+						b.Append ("......").Append (Environment.NewLine);
+				}
 			}
 
 			return b.ToString ();

@@ -77,71 +77,34 @@ namespace CheckIso {
 
 				foreach (var s in iso.Subtitle.Subtitles)
 				{
-					b.Append ($"-- Type {s.Type}, Frames({s.CC1.Frames.Count})").Append(Environment.NewLine);
-					this.OneCC (b, s.CC1, "c608", "CC1");
-					this.OneCC (b, s.CC2, "c608", "CC2");
-					this.OneCC (b, s.CC3, "c608", "CC3");
-					this.OneCC (b, s.CC4, "c608", "CC4");
-					//if (s.Type.Equals ("c708")){
-					//	b.Append (this.DisplaySub (s.CC1.Frames, "(fa0000-18)", "Frames", a => this.mcc.DisplayLine (a)));
-					//	b.Append (this.DisplaySub (s.CC1.Frames, "Data:(00-36)", "Line Structure", a => this.mcc.LineC708 (a, "")));
-					//}
-					//if(s.Type.Equals ("c608"))
-     //               {
-					//	//b.Append (this.DisplaySub (s.Frames, "8080", "Frames", a => this.mcc.DisplayLine (a)));
-					//	b.Append (this.DisplaySub (s.CC1.Frames, "8080", "Line Structure", a => this.mcc.LineC608 (a, count++ % 2 == 0)));
-					//}
-				}
+					b.Append ($"-- Type {s.Type}, Frames({s.Frames.Count})");
+                    this.ShowTitles (b, s, "c608");
+                }
 
 				b.Append (this.mcc.End ());
-				//this.TestSEnd ();
 			}
 			#endregion
 
 			return b.ToString ();
 		}
 
-		private void OneCC (StringBuilder b, ClosedCaption cc, string type, string name)
+		private void ShowTitles (StringBuilder b, Subtitle sub, string type)
 		{
-			if (cc.Frames.Count < 1)
-				return;
-
 			b.Append (Environment.NewLine);
-			b.Append ($"-- Type {type}, Frames({cc.Frames.Count})").Append (Environment.NewLine);
+
+			if (sub.Frames.Count < 1)
+				return;
 
 			int count = 0;
 			if (type.Equals ("c708"))
 			{
-				b.Append (this.DisplaySub (cc.Frames, "(fa0000-18)", "Frames", a => this.mcc.DisplayLine (a)));
-				b.Append (this.DisplaySub (cc.Frames, "Data:(00-36)", "Line Structure", a => this.mcc.LineC708 (a, "")));
+				b.Append (this.DisplaySub (sub.Frames, "(fa0000-18)", "Frames", a => this.mcc.DisplayLine (a)));
+				b.Append (this.DisplaySub (sub.Frames, "Data:(00-36)", "Line Structure", a => this.mcc.LineC708 (a, "")));
 			}
 			if (type.Equals ("c608"))
 			{
 				//b.Append (this.DisplaySub (s.Frames, "8080", "Frames", a => this.mcc.DisplayLine (a)));
-				b.Append (this.DisplaySub (cc.Frames, "8080", "Line Structure", a => this.mcc.LineC608 (a, count++ % 2 == 0)));
-			}
-		}
-
-		private void TestSEnd ()
-        {
-			Field cc = this.mcc.Field1;
-            Console.WriteLine ($"Current : {cc.Current}");
-			Console.WriteLine ($"Caption : {cc.Caption == null}");
-			Console.WriteLine ($"Captions: {cc.Captions.Count}");
-			foreach(var a in cc.Captions)
-            {
-                Console.WriteLine ("------");
-                Console.WriteLine ($"  Start [{a.Start}]");
-				Console.WriteLine ($"  Words is null [{a.Words == null}]");
-				if (a.Words != null)
-				{
-					Console.Write ("  Words:");
-					foreach (var w in a.Words)
-					{
-						Console.Write ($" {w:x}");
-					}
-					Console.WriteLine ();
-				}
+				b.Append (this.DisplaySub (sub.Frames, "8080", "Line Structure", a => this.mcc.LineC608 (a, count++ % 2 == 0)));
 			}
 		}
 
@@ -176,7 +139,6 @@ namespace CheckIso {
 					Content (b, a, layer + 1);
 		}
 
-		// TODO
 		private string ShowValue (object value, ItemType type) {
 			switch (type) {
 			case ItemType.Byte:

@@ -9,6 +9,7 @@ using Parsers.MccParser;
 
 namespace CheckIso {
 	public class Worker {
+		private const int maxRepeat = 5;
 		private readonly MccParser mcc;
 
 		public Worker ()
@@ -220,10 +221,10 @@ namespace CheckIso {
                     dsp = true;
                 }
 
-                if (dsp)
-                    b.Append (data).Append (Environment.NewLine);
-                if (count == 6)
-                    b.Append ("......").Append (Environment.NewLine);
+                //if (dsp)
+                //    b.Append (data).Append (Environment.NewLine);
+                //if (count == maxRepeat)
+                //    b.Append ("......").Append (Environment.NewLine);
 			}
 
 			return b.ToString ();

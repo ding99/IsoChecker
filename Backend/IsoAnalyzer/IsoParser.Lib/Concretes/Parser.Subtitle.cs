@@ -7,7 +7,7 @@ namespace IsoParser.Lib.Concretes
 	{
 		private void AnalyzeSubtitles ()
 		{
-			System.Console.WriteLine ($"-- tracks count {this.iso.Tracks.Count}");
+			System.Console.WriteLine ($"-- tracks ({this.iso.Tracks.Count})");
 			foreach (var track in this.iso.Tracks)
 				if (track.Type == ComponentType.Media && track.SubType == ComponentSubType.Caption)
 				{

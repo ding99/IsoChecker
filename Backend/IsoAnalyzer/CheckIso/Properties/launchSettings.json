@@ -2,7 +2,7 @@
   "profiles": {
     "CheckIso": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\Data\\Subtitle\\MovText\\program4_c708.mov s m"
+      "commandLineArgs": "D:\\Data\\Subtitle\\mcc\\source271_c708.mov s m"
     }
   }
 }

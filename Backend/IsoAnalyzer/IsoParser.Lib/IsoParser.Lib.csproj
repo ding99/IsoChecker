@@ -12,7 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\CS\CapMagic\Parsers\MccParser\MccParser.csproj" />
+    <ProjectReference Include="..\..\..\..\..\CS\CapMagic\Utils\CEA608\CEA608.csproj" />
+    <ProjectReference Include="..\..\..\..\..\CS\CapMagic\Utils\CEA708\CEA708.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -8,7 +8,7 @@ namespace IsoParser.Lib.Models
 
         public SubtitleInfo ()
         {
-            this.Subtitles = new List<Subtitle> ();
+            this.Subtitles = new ();
         }
     }
 }

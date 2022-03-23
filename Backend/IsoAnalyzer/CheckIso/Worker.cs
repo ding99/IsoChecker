@@ -23,7 +23,8 @@ namespace CheckIso {
 
 		public string GetAtoms (string file) {
 			Parser parser = new ();
-			string message = this.Display (parser.GetTree (file).Result);
+			IsoInfo iso = parser.GetTree (file).Result;
+			string message = this.Display (iso);
 			parser.End ();
 			return message;
 		}

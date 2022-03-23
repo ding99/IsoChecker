@@ -12,9 +12,12 @@ namespace IsoParser.Lib.Models
 
         public Subtitle ()
         {
+            this.Format =  string.Empty;
+            this.Type = string.Empty;
+
             this.Notes = new ();
-            this.Boxes = new ();
             this.Frames = new ();
+            this.Boxes = new ();
         }
     }
 }

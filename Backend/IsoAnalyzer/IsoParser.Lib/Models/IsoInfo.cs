@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace IsoParser.Lib.Models
 {
@@ -21,6 +17,10 @@ namespace IsoParser.Lib.Models
             this.Tracks = new ();
             this.Notes = new ();
             this.Atom = new ();
+
+            this.Video = new ();
+            this.Audio = new ();
+            this.Subtitle = new ();
         }
     }
 }

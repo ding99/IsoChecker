@@ -10,5 +10,11 @@ namespace IsoParser.Lib.Models
     {
         public string Codec { get; set; }
         public int Bitrate { get; set; }
+
+        public Video ()
+        {
+            this.Codec = string.Empty;
+            this.Bitrate = 0;
+        }
     }
 }

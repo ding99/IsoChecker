@@ -5,19 +5,18 @@ using System.Linq;
 
 using IsoParser.Lib.Concretes;
 using IsoParser.Lib.Models;
-using Parsers.MccParser;
+
+using Utils.CEA708;
+using Utils.CEA708.Models;
 
 namespace CheckIso {
 	public class Worker {
-		private const int maxRepeat = 5;
-		private readonly MccParser mcc;
+		private const int maxRepeat = 6;
 
 		private readonly bool _detail;
 
 		public Worker (bool detail = false)
         {
-			this.mcc = new (false);
-
 			this._detail = detail;
 		}
 
@@ -31,12 +30,12 @@ namespace CheckIso {
 
 		private string Display (IsoInfo iso) {
 			StringBuilder b = new ();
-			b.Append ("== Atoms ==").Append(Environment.NewLine);
+			b.AppendLine ("== Atoms ==");
 			this.Layer (b, iso.Atom, 0);
 
 			#region display tracks
 			b.Append (Environment.NewLine);
-			b.Append ("== Tracks ==").Append (Environment.NewLine);
+			b.AppendLine ("== Tracks ==");
 			b.Append ($"Tracks({iso.Tracks.Count}) :");
 			foreach (var tr in iso.Tracks)
 				b.Append ($" {tr.Type}-{tr.SubType}");
@@ -71,55 +70,56 @@ namespace CheckIso {
 			#region display notes
 			if(iso.Notes != null)
 			foreach (var note in iso.Notes)
-				b.Append (note).Append (Environment.NewLine);
+				b.AppendLine (note);
 			#endregion
 
 			#region subtitle
 			if(iso.Subtitle != null)
             {
 				b.Append (Environment.NewLine);
-				b.Append ($"== Subtitles({iso.Subtitle.Subtitles.Count}) ==").Append(Environment.NewLine);
+				b.AppendLine ($"== Subtitles({iso.Subtitle.Subtitles.Count}) ==");
 
 				foreach (var s in iso.Subtitle.Subtitles)
 				{
 					b.Append ($"-- Type {s.Type}, Frames({s.Frames.Count})");
-                    this.ShowTitles (b, s, "c608");
+                    this.ShowTitles (b, s);
                 }
-
-				b.Append (this.mcc.End ());
 			}
 			#endregion
 
 			return b.ToString ();
 		}
 
-		private void ShowTitles (StringBuilder b, Subtitle sub, string type)
+		private void ShowTitles (StringBuilder b, Subtitle sub)
 		{
 			b.Append (Environment.NewLine);
-
 			if (sub.Frames.Count < 1)
 				return;
 
-			int count = 0;
-			if (type.Equals ("c708"))
-			{
-				b.Append (this.DisplaySub (sub.Frames, "(fa0000-18)", "Frames", a => this.mcc.DisplayLine (a)));
-				b.Append (this.DisplaySub (sub.Frames, "Data:(00-36)", "Line Structure", a => this.mcc.LineC708 (a, "")));
-			}
-			if (type.Equals ("c608"))
-			{
-				b.Append (this.DisplaySub (sub.Frames, "8080", "Line Structure", a => this.mcc.LineC608 (a, count++ % 2 == 0)));
-			}
+            if (sub.Type.Equals ("c708"))
+            {
+				List<C708Line> c708lines = new ();
+
+				int number = 0;
+				foreach(var frame in sub.Frames)
+					c708lines.Add (new C708Line (number++.ToString(), frame));
+
+                Console.WriteLine ($"detail {this._detail}");
+				C708Framework framework = new C708Parser ().Decode (c708lines);
+				if(this._detail)
+					b.AppendLine (framework.ShowPockets (maxRepeat));
+				b.AppendLine (framework.ShowBlocks ());
+				b.AppendLine (framework.ShowFields ());
+            }
 		}
 
 		private void Layer (StringBuilder b, Atom atom, int layer) {
 			try {
-				b.Append ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "NONE")}] size {atom.Size:X} id {atom.Id:x}").Append (Environment.NewLine);
+				b.AppendLine ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "NONE")}] size {atom.Size:X} id {atom.Id:x}");
 
 				if(atom.Items != null)
 				foreach (var item in atom.Items)
-					b.Append ($"{Spaces (layer + 1)}{item.Name}: {ShowValue (item.Value, item.Type)}")
-						.Append (Environment.NewLine);
+					b.AppendLine ($"{Spaces (layer + 1)}{item.Name}: {ShowValue (item.Value, item.Type)}");
 			}
 			catch(Exception e) {
                 Console.WriteLine (e.Message);
@@ -132,7 +132,7 @@ namespace CheckIso {
 
 		private void Content (StringBuilder b, Atom atom, int layer) {
 			try {
-				b.Append ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "NONE")}] size {atom.Size:X} id {atom.Id:x}").Append (Environment.NewLine);
+				b.AppendLine ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "NONE")}] size {atom.Size:X} id {atom.Id:x}");
 			}
 			catch (Exception e) {
 				Console.WriteLine (e.Message);
@@ -187,9 +187,9 @@ namespace CheckIso {
 				if (this._detail)
 				{
 					if (dsp)
-						b.Append (data).Append (Environment.NewLine);
+						b.AppendLine (data);
 					if (count == maxRepeat)
-						b.Append ("......").Append (Environment.NewLine);
+						b.AppendLine ("......");
 				}
 			}
 

@@ -100,7 +100,7 @@ namespace CheckIso {
 		private void ShowTitles (StringBuilder b, Subtitle sub, string type)
 		{
 			b.Append (Environment.NewLine);
-
+			b.AppendLine ($"<> ShowTitles Frames [{sub.Frames.Count}]");
 			if (sub.Frames.Count < 1)
 				return;
 
@@ -114,6 +114,24 @@ namespace CheckIso {
 			{
 				//b.Append (this.DisplaySub (sub.Frames, "8080", "Line Structure", a => this.mcc.LineC608 (a, count++ % 2 == 0)));
 			}
+            if (sub.Type.Equals ("c708"))
+            {
+				List<C708Line> c708lines = new ();
+				int number = 0;
+				foreach(var frame in sub.Frames)
+                {
+					c708lines.Add (new C708Line (number.ToString(), frame));
+					number++;
+                }
+
+				b.AppendLine ($"-- frames [{sub.Frames.Count}]");
+				C708Framework framework = new C708Parser ().Decode (c708lines);
+				b.AppendLine ($"   pockets [{framework.Packets.Count}]");
+				b.AppendLine ($"   blocks  [{framework.Blocks.Count}]");
+				b.AppendLine (framework.ShowPockets (6));
+				b.AppendLine (framework.ShowBlocks ());
+				b.AppendLine (framework.ShowFields ());
+            }
 		}
 
 		private void Layer (StringBuilder b, Atom atom, int layer) {

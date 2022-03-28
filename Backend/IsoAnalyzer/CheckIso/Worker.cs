@@ -104,6 +104,7 @@ namespace CheckIso {
 				foreach(var frame in sub.Frames)
 					c708lines.Add (new C708Line (number++.ToString(), frame));
 
+                Console.WriteLine ($"detail {this._detail}");
 				C708Framework framework = new C708Parser ().Decode (c708lines);
 				if(this._detail)
 					b.AppendLine (framework.ShowPockets (maxRepeat));

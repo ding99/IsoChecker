@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\CS\CapMagic\Utils\CEA608\CEA608.csproj" />
+    <ProjectReference Include="..\..\..\..\..\CS\CapMagic\Utils\CEA708\CEA708.csproj" />
     <ProjectReference Include="..\IsoParser.Lib\IsoParser.Lib.csproj" />
   </ItemGroup>
 

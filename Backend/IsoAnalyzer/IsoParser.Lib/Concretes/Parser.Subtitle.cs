@@ -47,6 +47,7 @@ namespace IsoParser.Lib.Concretes
                     {
 					case 0x63646174:  //cdat
 					case 0x63647432:  //cdt2
+					case 0x63636470:  //ccdp
 						sub.Frames.Add (this.file.Read (DataType.ByteInt (head, 0) - 8));  // cdt2 as CC1 temporarily
 						break;
 					default:
@@ -57,7 +58,7 @@ namespace IsoParser.Lib.Concretes
 						break;
 				}
 			}
-
+            System.Console.WriteLine ($"   sub :: frames [{sub.Frames.Count}]");
 			this.iso.Subtitle.Subtitles.Add (sub);
 		}
 

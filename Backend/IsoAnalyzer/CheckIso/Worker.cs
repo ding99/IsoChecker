@@ -5,23 +5,18 @@ using System.Linq;
 
 using IsoParser.Lib.Concretes;
 using IsoParser.Lib.Models;
-//using Parsers.MccParser;
 
-using Utils.CEA608;
 using Utils.CEA708;
 using Utils.CEA708.Models;
 
 namespace CheckIso {
 	public class Worker {
-		private const int maxRepeat = 5;
-//		private readonly MccParser mcc;
+		private const int maxRepeat = 6;
 
 		private readonly bool _detail;
 
 		public Worker (bool detail = false)
         {
-//			this.mcc = new (false);
-
 			this._detail = detail;
 		}
 
@@ -87,48 +82,32 @@ namespace CheckIso {
 				foreach (var s in iso.Subtitle.Subtitles)
 				{
 					b.Append ($"-- Type {s.Type}, Frames({s.Frames.Count})");
-                    this.ShowTitles (b, s, "c608");
+                    this.ShowTitles (b, s);
                 }
-
-//				b.Append (this.mcc.End ());
 			}
 			#endregion
 
 			return b.ToString ();
 		}
 
-		private void ShowTitles (StringBuilder b, Subtitle sub, string type)
+		private void ShowTitles (StringBuilder b, Subtitle sub)
 		{
 			b.Append (Environment.NewLine);
-			b.AppendLine ($"<> ShowTitles Frames [{sub.Frames.Count}]");
 			if (sub.Frames.Count < 1)
 				return;
 
-			int count = 0;
-			if (type.Equals ("c708"))
-			{
-				//b.Append (this.DisplaySub (sub.Frames, "(fa0000-18)", "Frames", a => this.mcc.DisplayLine (a)));
-				//b.Append (this.DisplaySub (sub.Frames, "Data:(00-36)", "Line Structure", a => this.mcc.LineC708 (a, "")));
-			}
-			if (type.Equals ("c608"))
-			{
-				//b.Append (this.DisplaySub (sub.Frames, "8080", "Line Structure", a => this.mcc.LineC608 (a, count++ % 2 == 0)));
-			}
             if (sub.Type.Equals ("c708"))
             {
 				List<C708Line> c708lines = new ();
+
 				int number = 0;
 				foreach(var frame in sub.Frames)
-                {
-					c708lines.Add (new C708Line (number.ToString(), frame));
-					number++;
-                }
+					c708lines.Add (new C708Line (number++.ToString(), frame));
 
-				b.AppendLine ($"-- frames [{sub.Frames.Count}]");
+                Console.WriteLine ($"detail {this._detail}");
 				C708Framework framework = new C708Parser ().Decode (c708lines);
-				b.AppendLine ($"   pockets [{framework.Packets.Count}]");
-				b.AppendLine ($"   blocks  [{framework.Blocks.Count}]");
-				b.AppendLine (framework.ShowPockets (6));
+				if(this._detail)
+					b.AppendLine (framework.ShowPockets (maxRepeat));
 				b.AppendLine (framework.ShowBlocks ());
 				b.AppendLine (framework.ShowFields ());
             }

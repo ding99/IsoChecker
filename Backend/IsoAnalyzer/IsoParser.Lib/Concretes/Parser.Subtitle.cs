@@ -31,7 +31,7 @@ namespace IsoParser.Lib.Concretes
 		private void AnalyzeCaption (Track track)
 		{
 			Subtitle sub = new () { Type = track.DataFormats.Count > 0 ? track.DataFormats[0] : "Unknow" };
-			System.Console.WriteLine ($"   sub {sub.Type}, ChunkOffsets count {track.ChunkOffsets.Count}");
+			System.Console.WriteLine ($"  sub {sub.Type}, ChunkOffsets count {track.ChunkOffsets.Count}");
 
 			for (int i = 0; i < track.ChunkOffsets.Count; i++)
 			{
@@ -58,7 +58,7 @@ namespace IsoParser.Lib.Concretes
 						break;
 				}
 			}
-            System.Console.WriteLine ($"   sub :: frames [{sub.Frames.Count}]");
+            System.Console.WriteLine ($"  sub, frames count [{sub.Frames.Count}]");
 			this.iso.Subtitle.Subtitles.Add (sub);
 		}
 

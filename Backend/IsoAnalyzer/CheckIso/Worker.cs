@@ -117,17 +117,17 @@ namespace CheckIso {
 			try {
 				b.AppendLine ($"{Spaces (layer)}{atom.Offset:X10} [{(atom.Type.HasValue ? atom.Type.ToString () : "NONE")}] size {atom.Size:X} id {atom.Id:x}");
 
-				if(atom.Items != null)
-				foreach (var item in atom.Items)
-					b.AppendLine ($"{Spaces (layer + 1)}{item.Name}: {ShowValue (item.Value, item.Type)}");
+				if (atom.Items != null)
+					foreach (var item in atom.Items)
+						b.AppendLine ($"{Spaces (layer + 1)}{item.Name}: {ShowValue (item.Value, item.Type)}");
 			}
 			catch(Exception e) {
                 Console.WriteLine (e.Message);
             }
 
-			if(atom.Atoms != null)
-			foreach (var a in atom.Atoms)
-				Layer (b, a, layer + 1);
+			if (atom.Atoms != null)
+				foreach (var a in atom.Atoms)
+					Layer (b, a, layer + 1);
 		}
 
 		private void Content (StringBuilder b, Atom atom, int layer) {

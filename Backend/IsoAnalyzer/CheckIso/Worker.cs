@@ -34,12 +34,12 @@ namespace CheckIso {
 			this.Layer (b, iso.Atom, 0);
 
 			#region display tracks
-			b.Append (Environment.NewLine);
+			b.AppendLine ();
 			b.AppendLine ("== Tracks ==");
 			b.Append ($"Tracks({iso.Tracks.Count}) :");
 			foreach (var tr in iso.Tracks)
 				b.Append ($" {tr.Type}-{tr.SubType}");
-			b.Append (Environment.NewLine);
+			b.AppendLine ();
 
 			foreach (var tr in iso.Tracks)
 				if (tr.Type == ComponentType.Media && tr.SubType == ComponentSubType.Caption)
@@ -47,36 +47,36 @@ namespace CheckIso {
 					b.Append ($"Subtile({tr.DataFormats.Count}) :");
 					foreach (var f in tr.DataFormats)
 						b.Append ($" {f}");
-					b.Append (Environment.NewLine);
+					b.AppendLine ();
 
 					b.Append ($"TimeToSamples({tr.TimeToSamples.Count}) :");
 					foreach (var s in tr.TimeToSamples)
 						b.Append ($" {s.SampleCount}({s.SampleCount:x})/{s.SampleDuration}({s.SampleDuration:x})");
-					b.Append (Environment.NewLine);
+					b.AppendLine ();
 
 					b.Append ($"SampleToChunks({tr.SampleToChunks.Count}) :");
 					foreach (var s in tr.SampleToChunks)
 						b.Append ($" {s.FirstChunk}({s.FirstChunk:x})/{s.SamplesPerChunk}({s.SamplesPerChunk:x})/{s.DescriptionId}({s.DescriptionId:x})");
-					b.Append (Environment.NewLine);
+					b.AppendLine ();
 
 					b.Append ($"ChunkOffsets({tr.ChunkOffsets.Count}) :");
 					foreach (var s in tr.ChunkOffsets)
 						b.Append ($" {s:x}");
-					b.Append (Environment.NewLine);
+					b.AppendLine ();
 				}
 
 			#endregion
 
 			#region display notes
 			if(iso.Notes != null)
-			foreach (var note in iso.Notes)
-				b.AppendLine (note);
+				foreach (var note in iso.Notes)
+					b.AppendLine (note);
 			#endregion
 
 			#region subtitle
 			if(iso.Subtitle != null)
             {
-				b.Append (Environment.NewLine);
+				b.AppendLine ();
 				b.AppendLine ($"== Subtitles({iso.Subtitle.Subtitles.Count}) ==");
 
 				foreach (var s in iso.Subtitle.Subtitles)
@@ -92,7 +92,7 @@ namespace CheckIso {
 
 		private void ShowTitles (StringBuilder b, Subtitle sub)
 		{
-			b.Append (Environment.NewLine);
+			b.AppendLine ();
 			if (sub.Frames.Count < 1)
 				return;
 
@@ -156,45 +156,5 @@ namespace CheckIso {
 		private string Spaces (int layer) {
 			return string.Join("", Enumerable.Repeat(' ', layer * 2 ));
 		}
-
-		//private string DisplaySub (List<byte[]> lines, string key, string name, Func<byte[], string> getValue)
-		//{
-  //          Console.WriteLine ($"DisplaySub terms {lines.Count}");
-		//	StringBuilder b = new StringBuilder ($"-- Display list of {name}").Append (Environment.NewLine);
-
-		//	int count = 0;
-		//	bool dsp;
-
-		//	foreach (var line in lines)
-		//	{
-		//		string data = getValue (line);
-
-		//		//if (key.Equals ("Data:(00-36)"))
-		//		//{
-		//		//    Console.WriteLine ($"DisplaySub [{data}] ({line.Length})");
-		//		//}
-
-		//		if (data.Contains (key, StringComparison.CurrentCulture))
-		//		{
-		//			dsp = ++count < maxRepeat;
-		//		}
-		//		else
-		//		{
-		//			count = 0;
-		//			dsp = true;
-		//		}
-
-		//		if (this._detail)
-		//		{
-		//			if (dsp)
-		//				b.AppendLine (data);
-		//			if (count == maxRepeat)
-		//				b.AppendLine ("......");
-		//		}
-		//	}
-
-		//	return b.ToString ();
-		//}
-
 	}
 }

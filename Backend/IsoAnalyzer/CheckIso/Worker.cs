@@ -11,7 +11,7 @@ using Utils.CEA708.Models;
 
 namespace CheckIso {
 	public class Worker {
-		private const int maxRepeat = 6;
+		private const int maxRepeat = 4;
 
 		private readonly bool _detail;
 
@@ -157,44 +157,44 @@ namespace CheckIso {
 			return string.Join("", Enumerable.Repeat(' ', layer * 2 ));
 		}
 
-		private string DisplaySub (List<byte[]> lines, string key, string name, Func<byte[], string> getValue)
-		{
-            Console.WriteLine ($"DisplaySub terms {lines.Count}");
-			StringBuilder b = new StringBuilder ($"-- Display list of {name}").Append (Environment.NewLine);
+		//private string DisplaySub (List<byte[]> lines, string key, string name, Func<byte[], string> getValue)
+		//{
+  //          Console.WriteLine ($"DisplaySub terms {lines.Count}");
+		//	StringBuilder b = new StringBuilder ($"-- Display list of {name}").Append (Environment.NewLine);
 
-			int count = 0;
-			bool dsp;
+		//	int count = 0;
+		//	bool dsp;
 
-			foreach (var line in lines)
-			{
-				string data = getValue (line);
+		//	foreach (var line in lines)
+		//	{
+		//		string data = getValue (line);
 
-				//if (key.Equals ("Data:(00-36)"))
-				//{
-				//    Console.WriteLine ($"DisplaySub [{data}] ({line.Length})");
-				//}
+		//		//if (key.Equals ("Data:(00-36)"))
+		//		//{
+		//		//    Console.WriteLine ($"DisplaySub [{data}] ({line.Length})");
+		//		//}
 
-				if (data.IndexOf (key) >= 0)
-				{
-					dsp = count++ < 5;
-				}
-				else
-				{
-					count = 0;
-					dsp = true;
-				}
+		//		if (data.Contains (key, StringComparison.CurrentCulture))
+		//		{
+		//			dsp = ++count < maxRepeat;
+		//		}
+		//		else
+		//		{
+		//			count = 0;
+		//			dsp = true;
+		//		}
 
-				if (this._detail)
-				{
-					if (dsp)
-						b.AppendLine (data);
-					if (count == maxRepeat)
-						b.AppendLine ("......");
-				}
-			}
+		//		if (this._detail)
+		//		{
+		//			if (dsp)
+		//				b.AppendLine (data);
+		//			if (count == maxRepeat)
+		//				b.AppendLine ("......");
+		//		}
+		//	}
 
-			return b.ToString ();
-		}
+		//	return b.ToString ();
+		//}
 
 	}
 }

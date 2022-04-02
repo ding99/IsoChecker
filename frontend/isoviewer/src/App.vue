@@ -1,5 +1,5 @@
 <template>
-  <img alt="Vue logo" src="./assets/iso.png">
+  <img alt="Vue logo" src="./assets/iso96.png">
   <HelloWorld msg="Iso Viewer"/>
 </template>
 

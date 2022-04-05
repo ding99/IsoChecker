@@ -2,7 +2,7 @@
   "profiles": {
     "CheckIso": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\Data\\Subtitle\\program3_c708.mov s m d"
+      "commandLineArgs": "D:\\Data\\Video\\MP4\\TC_SEI\\Empty_01hour_TC_SEI.mp4 s m d"
     }
   }
 }

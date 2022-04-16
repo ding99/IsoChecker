@@ -334,7 +334,7 @@ namespace IsoParser.Lib.Concretes
 					if (this.timeScale.HasValue && this.timeScale != 0)
 						items.Add (new Item
 						{
-							Name = "DurationSec",
+							Name = "TrackDurationSec",
 							Type = ItemType.Double,
 							Value = (double)DataType.ByteInt (buffer, 16 + 12 * i) / (double)this.timeScale
 						});
@@ -391,12 +391,14 @@ namespace IsoParser.Lib.Concretes
 			}.ToList (), atom);
 		}
 
+		//TODO: details
 		private List<Item> ParseAvc1 (Atom atom)
 		{
 			return this.ParseAtom (buffer => new[] {
 				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
 			}.ToList (), atom);
 		}
+		//TODO: details
 		private List<Item> ParseMp4a (Atom atom)
 		{
 			return this.ParseAtom (buffer => new[] {

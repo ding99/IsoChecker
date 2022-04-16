@@ -2,7 +2,7 @@
   "profiles": {
     "CheckIso": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\Data\\Subtitle\\program3_c708.mov s m d"
+      "commandLineArgs": "D:\\Data\\Subtitle\\Mov\\S-383\\3programs\\c708JaSpEn.mov s m d"
     }
   }
 }

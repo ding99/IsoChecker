@@ -99,6 +99,8 @@ namespace IsoParser.Lib.Concretes
 				return this.ParseVmhd (atom);
 			case AtomType.SMHD:
 				return this.ParseSmhd (atom);
+			case AtomType.LOAD:
+				return this.ParseLoad (atom);
 			case AtomType.ELST:
 				return this.ParseElst (atom);
 			case AtomType.HDLR:
@@ -283,6 +285,39 @@ namespace IsoParser.Lib.Concretes
 			}, atom);
 		}
 
+		private List<Item> ParseLoad (Atom atom)
+		{
+			return this.ParseAtom (buffer => {
+				List<Item> items = new ();
+
+				items.Add (new Item { Name = "PreloadStartTime", Type = ItemType.String, Value = this.ParseTime (buffer, 8, atom.Offset) });
+				items.Add (new Item { Name = "PreloadDuration", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) });
+				int flags = DataType.ByteInt (buffer, 16);
+				items.Add (new Item { Name = "PreloadFlags", Type = ItemType.Int, Value = flags });
+				if(flags == 1 & flags == 2)
+                {
+					items.Add (new Item { Name = "PreloadFlagsDetails", Type = ItemType.String, Value = $"preloaded {(flags == 1 ? "absolutely" : "only if enabled")}" });
+				}
+				int hints = DataType.ByteInt (buffer, 20);
+				items.Add (new Item { Name = "DefaultHints", Type = ItemType.Int, Value = hints });
+				if (hints != 0)
+				{
+					StringBuilder s = new ();
+					if ((hints & 0x20) != 0)
+					{
+						s.Append ("double-buffer");
+					}
+					if ((hints & 0x100) != 0)
+					{
+						s.Append ($"{(s.Length > 0 ? " " : "")}high-quality");
+					}
+					items.Add (new Item {  Name = "DefaultHintsDetails", Type= ItemType.String, Value = s.ToString() });
+				}
+
+				return items;
+			}, atom);
+		}
+
 		private List<Item> ParseElst (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
@@ -299,7 +334,7 @@ namespace IsoParser.Lib.Concretes
 					if (this.timeScale.HasValue && this.timeScale != 0)
 						items.Add (new Item
 						{
-							Name = "DurationSec",
+							Name = "TrackDurationSec",
 							Type = ItemType.Double,
 							Value = (double)DataType.ByteInt (buffer, 16 + 12 * i) / (double)this.timeScale
 						});
@@ -356,12 +391,14 @@ namespace IsoParser.Lib.Concretes
 			}.ToList (), atom);
 		}
 
+		//TODO: details
 		private List<Item> ParseAvc1 (Atom atom)
 		{
 			return this.ParseAtom (buffer => new[] {
 				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
 			}.ToList (), atom);
 		}
+		//TODO: details
 		private List<Item> ParseMp4a (Atom atom)
 		{
 			return this.ParseAtom (buffer => new[] {

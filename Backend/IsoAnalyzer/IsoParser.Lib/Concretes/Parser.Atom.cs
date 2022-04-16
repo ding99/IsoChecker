@@ -99,6 +99,8 @@ namespace IsoParser.Lib.Concretes
 				return this.ParseVmhd (atom);
 			case AtomType.SMHD:
 				return this.ParseSmhd (atom);
+			case AtomType.LOAD:
+				return this.ParseLoad (atom);
 			case AtomType.ELST:
 				return this.ParseElst (atom);
 			case AtomType.HDLR:
@@ -280,6 +282,39 @@ namespace IsoParser.Lib.Concretes
 					new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "Balance", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 12) }
 				}.ToList ();
+			}, atom);
+		}
+
+		private List<Item> ParseLoad (Atom atom)
+		{
+			return this.ParseAtom (buffer => {
+				List<Item> items = new ();
+
+				items.Add (new Item { Name = "PreloadStartTime", Type = ItemType.String, Value = this.ParseTime (buffer, 8, atom.Offset) });
+				items.Add (new Item { Name = "PreloadDuration", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) });
+				int flags = DataType.ByteInt (buffer, 16);
+				items.Add (new Item { Name = "PreloadFlags", Type = ItemType.Int, Value = flags });
+				if(flags == 1 & flags == 2)
+                {
+					items.Add (new Item { Name = "PreloadFlagsDetails", Type = ItemType.String, Value = $"preloaded {(flags == 1 ? "absolutely" : "only if enabled")}" });
+				}
+				int hints = DataType.ByteInt (buffer, 20);
+				items.Add (new Item { Name = "DefaultHints", Type = ItemType.Int, Value = hints });
+				if (hints != 0)
+				{
+					StringBuilder s = new ();
+					if ((hints & 0x20) != 0)
+					{
+						s.Append ("double-buffer");
+					}
+					if ((hints & 0x100) != 0)
+					{
+						s.Append ($"{(s.Length > 0 ? " " : "")}high-quality");
+					}
+					items.Add (new Item {  Name = "DefaultHintsDetails", Type= ItemType.String, Value = s.ToString() });
+				}
+
+				return items;
 			}, atom);
 		}
 

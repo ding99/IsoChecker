@@ -91,7 +91,7 @@ namespace IsoParser.Lib.Models
 		IDAT = 0x69646174,  //idat
 		IDSC = 0x69647363,  //idsc
 		ILST = 0x696c7374,  //ilst
-		IMDA = 0x696d6461,  //imda, sprite imaged data
+		IMDA = 0x696d6461,  //imda, sprite imaged datatkhd
 		IMAG = 0x696d6167,  //imag, text sample, sprite image
 		IMAP = 0x696d6170,  //imap
 		IMCT = 0x696d6374,  //imct, sprite images container
@@ -102,7 +102,7 @@ namespace IsoParser.Lib.Models
 		KEYS = 0x6b657973,  //keys
 		KMAT = 0x6b6d6174,  //kmat
 		LANG = 0x6c616e67,  //lang
-		LOAD = 0x6c6f6164,  //load
+		LOAD = 0x6c6f6164,  //load, track load settings
 		MATT = 0x6d617474,  //matt
 		MDAT = 0x6d646174,  //mdat
 		MDIA = 0x6d646961,  //mdia

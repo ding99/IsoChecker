@@ -105,6 +105,10 @@ namespace IsoParser.Lib.Concretes
 				return this.ParseElst (atom);
 			case AtomType.HDLR:
 				return this.ParseHdlr (atom);
+			case AtomType.KEYS:
+				return this.ParseKeys (atom);
+			case AtomType.ILST:
+				return this.ParseIlst (atom);
 			case AtomType.DREF:
 				return this.ParseDref (atom);
 			case AtomType.ALIS:
@@ -381,6 +385,46 @@ namespace IsoParser.Lib.Concretes
 					new Item { Name = "ComponentFlagsMask", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 28) },
 					new Item { Name = "ComponentName", Type = ItemType.String, Value = DataType.ByteString (buffer, 33, buffer[32]) },
 				}.ToList ();
+			}, atom);
+		}
+
+		private List<Item> ParseKeys (Atom atom)
+		{
+			return this.ParseAtom (buffer => {
+				List<Item> items = new ();
+
+				int count = DataType.ByteInt (buffer, 12), pos = 16, keySize = 0;
+				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
+
+				for (int i = 0; i < count; i++, pos += keySize)
+				{
+					keySize = DataType.ByteInt (buffer, pos);
+					items.Add (new Item { Name = "KeySize", Type = ItemType.Int, Value = keySize });
+					items.Add (new Item { Name = "KeyNamespace", Type = ItemType.String, Value = DataType.ByteString (buffer, pos + 4) });
+					items.Add (new Item { Name = "KeyValue", Type = ItemType.String, Value = DataType.ByteString (buffer, pos + 8, keySize - 8) });
+				}
+
+				return items;
+			}, atom);
+		}
+
+		private List<Item> ParseIlst (Atom atom)
+		{
+			return this.ParseAtom (buffer => {
+				List<Item> items = new ();
+
+				//int count = DataType.ByteInt (buffer, 12), pos = 16, keySize = 0;
+				//items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
+
+				//for (int i = 0; i < count; i++, pos += keySize)
+				//{
+				//	keySize = DataType.ByteInt (buffer, pos);
+				//	items.Add (new Item { Name = "KeySize", Type = ItemType.Int, Value = keySize });
+				//	items.Add (new Item { Name = "KeyNamespace", Type = ItemType.String, Value = DataType.ByteString (buffer, pos + 4) });
+				//	items.Add (new Item { Name = "KeyValue", Type = ItemType.String, Value = DataType.ByteString (buffer, pos + 8, keySize - 8) });
+				//}
+
+				return items;
 			}, atom);
 		}
 

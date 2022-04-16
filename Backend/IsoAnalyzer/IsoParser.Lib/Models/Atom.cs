@@ -61,6 +61,7 @@ namespace IsoParser.Lib.Models
 		CTAB = 0x63746162,  //ctab, color table
 		CTRY = 0x63747279,  //ctry
 		CTTS = 0x63747473,  //ctts, composition offset
+		DATA = 0x64617461,  //data, value atome
 		DEFI = 0x64656669,  //defi, sprite image defualt image index
 		DFLT = 0x64666c74,  //dflt, sprite shared data
 		DINF = 0x64696e66,  //dinf
@@ -99,6 +100,7 @@ namespace IsoParser.Lib.Models
 		IMRE = 0x696d7265,  //imre, sprite image data ref
 		IMRG = 0x696d7267,  //imrg, sprite image registration
 		IMRT = 0x696d7274,  //imrt, sprite image data ref type
+		ITIF = 0x69746966,  //itif, item information
 		KEYS = 0x6b657973,  //keys
 		KMAT = 0x6b6d6174,  //kmat
 		LANG = 0x6c616e67,  //lang

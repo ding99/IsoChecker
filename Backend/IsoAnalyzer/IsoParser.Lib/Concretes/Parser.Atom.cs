@@ -149,6 +149,18 @@ namespace IsoParser.Lib.Concretes
 				return this.ParseTcmi (atom);
 			case AtomType.avc1:
 				return this.ParseAvc1 (atom);
+			case AtomType.avcC:
+				return this.ParseAvcC (atom);
+			case AtomType.btrt:
+				return this.ParseBtrt (atom);
+			case AtomType.colr:
+				return this.ParseColr (atom);
+			case AtomType.pasp:
+				return this.ParsePasp (atom);
+			case AtomType.fiel:
+				return this.ParseFiel (atom);
+			case AtomType.clap:
+				return this.ParseClap (atom);
 			case AtomType.mp4a:
 				return this.ParseMp4a (atom);
 			case AtomType.c608:
@@ -481,6 +493,70 @@ namespace IsoParser.Lib.Concretes
 				new Item { Name = "ColorTableID", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 84) }
 			}.ToList (), atom);
 		}
+
+		/* 14496-15 5.2.4.1.1 */
+		private List<Item> ParseAvcC (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "ConfigurationVersion", Type = ItemType.Byte, Value = buffer[8] },
+				new Item { Name = "AVCProfileIndication", Type = ItemType.Byte, Value = buffer[9] },
+				new Item { Name = "ProfileCompatibility", Type = ItemType.Byte, Value = buffer[10] },
+				new Item { Name = "AVCLevelIndication", Type = ItemType.Byte, Value = buffer[11] },
+				new Item { Name = "LengthSizeMinusOne", Type = ItemType.Byte, Value = buffer[12] & 3 },
+				new Item { Name = "NumOfSequenceParameterSets", Type = ItemType.Byte, Value = buffer[13] & 31 },
+			}.ToList (), atom);
+		}
+
+		private List<Item> ParseBtrt (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "BufferSize", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) },
+				new Item { Name = "MaxBitRate", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) },
+				new Item { Name = "AverageBitRate", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 16) }
+			}.ToList (), atom);
+		}
+
+		private List<Item> ParseColr (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "ColorParameterType", Type = ItemType.String, Value = DataType.ByteString (buffer, 8) },
+				new Item { Name = "PrimariesIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 12) },
+				new Item { Name = "TransferFunctionIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) },
+				new Item { Name = "MatrixIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 16) }
+			}.ToList (), atom);
+		}
+
+		private List<Item> ParsePasp (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "hSpacing", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) },
+				new Item { Name = "vSpacing", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) },
+			}.ToList (), atom);
+		}
+
+		private List<Item> ParseFiel (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "FieldCount", Type = ItemType.Byte, Value = buffer[8] },
+				new Item { Name = "ScanType", Type = ItemType.String, Value = buffer[8] == 1 ? "progressive" : buffer[8] == 2 ? "interlaced" : "" },
+				new Item { Name = "FieldOrdering", Type = ItemType.Byte, Value = buffer[9] }
+			}.ToList (), atom);
+		}
+
+		private List<Item> ParseClap (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "ApertureWidth_N", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) },
+				new Item { Name = "ApertureWidth_D", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) },
+				new Item { Name = "ApertureHeight_N", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 16) },
+				new Item { Name = "ApertureHeight_D", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 20) },
+				new Item { Name = "HorizOff_N", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 24) },
+				new Item { Name = "HorizOff_D", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 28) },
+				new Item { Name = "VertOff_N", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 32) },
+				new Item { Name = "VertOff_D", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 36) }
+			}.ToList (), atom);
+		}
+
 		//TODO: details
 		private List<Item> ParseMp4a (Atom atom)
 		{

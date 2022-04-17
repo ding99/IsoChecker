@@ -35,7 +35,7 @@ namespace IsoParser.Lib.Concretes
 
 				int atomId = DataType.ByteInt (buffer, 4), subIndex = atomId;
 				int atomHead = 8;
-                if (id.Equals ((int)AtomType.ILST)) {
+                if (id.Equals ((int)AtomType.ilst)) {
 					atomId = (int)AtomType.ITEM;
                 }
 
@@ -90,70 +90,70 @@ namespace IsoParser.Lib.Concretes
 		{
 			switch (atom.Type)
 			{
-			case AtomType.FTYP:
+			case AtomType.ftyp:
 				return this.ParseFtyp (atom);
-			case AtomType.MVHD:
+			case AtomType.mvhd:
 				return this.ParseMvhd (atom);
-			case AtomType.TKHD:
+			case AtomType.tkhd:
 				return this.ParseTkhd (atom);
-			case AtomType.MDHD:
+			case AtomType.mdhd:
 				return this.ParseMdhd (atom);
-			case AtomType.VMHD:
+			case AtomType.vmhd:
 				return this.ParseVmhd (atom);
-			case AtomType.SMHD:
+			case AtomType.smhd:
 				return this.ParseSmhd (atom);
-			case AtomType.LOAD:
+			case AtomType.load:
 				return this.ParseLoad (atom);
-			case AtomType.ELST:
+			case AtomType.elst:
 				return this.ParseElst (atom);
-			case AtomType.HDLR:
+			case AtomType.hdlr:
 				return this.ParseHdlr (atom);
-			case AtomType.KEYS:
+			case AtomType.keys:
 				return this.ParseKeys (atom);
-			case AtomType.MDTA:
-			case AtomType.UDTA:
+			case AtomType.mdta:
+			case AtomType.udta:
 				return this.ParseMdta (atom);
             case AtomType.ITEM:
 				return this.ParseItem (atom, index);
-			case AtomType.DATA:
+			case AtomType.data:
 				return this.ParseData (atom);
-			case AtomType.ITIF:
+			case AtomType.itif:
 				return this.ParseItif (atom);
-			case AtomType.NAME:
+			case AtomType.name:
 				return this.ParseName (atom);
-			case AtomType.DREF:
+			case AtomType.dref:
 				return this.ParseDref (atom);
-			case AtomType.ALIS:
+			case AtomType.alis:
 				return this.ParseAlis (atom);
-			case AtomType.RSRC:
+			case AtomType.rsrc:
 				return this.ParseRsrc (atom);
 			case AtomType.URL:
 				return this.ParseUrl (atom);
-			case AtomType.GMIN:
+			case AtomType.gmin:
 				return this.ParseGmin (atom);
-			case AtomType.STSD:
+			case AtomType.stsd:
 				return this.ParseStsd (atom);
-			case AtomType.STSS:
+			case AtomType.stss:
 				return this.ParseStss (atom);
-			case AtomType.STTS:
+			case AtomType.stts:
 				return this.ParseStts (atom);
-			case AtomType.STSZ:
+			case AtomType.stsz:
 				return this.ParseStsz (atom);
-			case AtomType.STSC:
+			case AtomType.stsc:
 				return this.ParseStsc (atom);
-			case AtomType.STCO:
+			case AtomType.stco:
 				return this.ParseStco (atom);
-			case AtomType.TMCD:
+			case AtomType.tmcd:
 				return this.ParseTmcd (atom);
-			case AtomType.TCMI:
+			case AtomType.tcmi:
 				return this.ParseTcmi (atom);
-			case AtomType.AVC1:
+			case AtomType.avc1:
 				return this.ParseAvc1 (atom);
-			case AtomType.MP4A:
+			case AtomType.mp4a:
 				return this.ParseMp4a (atom);
-			case AtomType.C608:
+			case AtomType.c608:
 				return this.ParseC608 (atom);
-			case AtomType.C708:
+			case AtomType.c708:
 				return this.ParseC708 (atom);
 			}
 
@@ -453,11 +453,32 @@ namespace IsoParser.Lib.Concretes
 			}.ToList (), atom);
 		}
 
-		//TODO: details
+		/*
+		 * qtff-2015
+		 * p100 General Structure of a Sample Description
+		 * p156 Video Media
+		 */
 		private List<Item> ParseAvc1 (Atom atom)
 		{
 			return this.ParseAtom (buffer => new[] {
-				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
+				new Item { Name = "FormatDescription", Type = ItemType.String, Value = "H.264 video" },
+				/* General Structure of a Sample Description */
+				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) },
+				/* Video Media */
+				new Item { Name = "Version", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 16) },
+				new Item { Name = "RevisionLevel", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 18) },
+				new Item { Name = "Vendor", Type = ItemType.String, Value = DataType.ByteString (buffer, 20) },
+				new Item { Name = "TemporalQuality", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 24) },
+				new Item { Name = "SpatialQuality", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 28) },
+				new Item { Name = "Width", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 32) },
+				new Item { Name = "Height", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 34) },
+				new Item { Name = "HorizontalResolution", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 36) },
+				new Item { Name = "VerticalResolution", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 40) },
+				new Item { Name = "DataSize", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 44) },
+				new Item { Name = "FrameCount", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 48) },
+				new Item { Name = "CompressorName", Type = ItemType.String, Value = DataType.PascalString (buffer, 50) },
+				new Item { Name = "Depth", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 82) },
+				new Item { Name = "ColorTableID", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 84) }
 			}.ToList (), atom);
 		}
 		//TODO: details

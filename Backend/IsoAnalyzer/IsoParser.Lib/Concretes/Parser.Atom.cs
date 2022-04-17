@@ -453,11 +453,32 @@ namespace IsoParser.Lib.Concretes
 			}.ToList (), atom);
 		}
 
-		//TODO: details
+		/*
+		 * qtff-2015
+		 * p100 General Structure of a Sample Description
+		 * p156 Video Media
+		 */
 		private List<Item> ParseAvc1 (Atom atom)
 		{
 			return this.ParseAtom (buffer => new[] {
-				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
+				new Item { Name = "FormatDescription", Type = ItemType.String, Value = "H.264 video" },
+				/* General Structure of a Sample Description */
+				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) },
+				/* Video Media */
+				new Item { Name = "Version", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 16) },
+				new Item { Name = "RevisionLevel", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 18) },
+				new Item { Name = "Vendor", Type = ItemType.String, Value = DataType.ByteString (buffer, 20) },
+				new Item { Name = "TemporalQuality", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 24) },
+				new Item { Name = "SpatialQuality", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 28) },
+				new Item { Name = "Width", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 32) },
+				new Item { Name = "Height", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 34) },
+				new Item { Name = "HorizontalResolution", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 36) },
+				new Item { Name = "VerticalResolution", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 40) },
+				new Item { Name = "DataSize", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 44) },
+				new Item { Name = "FrameCount", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 48) },
+				new Item { Name = "CompressorName", Type = ItemType.String, Value = DataType.PascalString (buffer, 50) },
+				new Item { Name = "Depth", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 82) },
+				new Item { Name = "ColorTableID", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 84) }
 			}.ToList (), atom);
 		}
 		//TODO: details

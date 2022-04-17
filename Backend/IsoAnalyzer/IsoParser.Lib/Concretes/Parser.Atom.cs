@@ -12,14 +12,14 @@ namespace IsoParser.Lib.Concretes
     {
 		private int? timeScale;
 
-		private Atom GetAtom (int id, long size, long offset, int head)
+		private Atom GetAtom (int id, long size, long offset, int head, int index = 0)
 		{
 			Console.WriteLine ($"id {id:x}, size {size:x}, offset {offset:x}, head {head:x}");
 			Atom atom = new (id, size, offset);
 
 			if (atom.Type.HasValue && !this.isContainer ((AtomType)atom.Type))
 			{
-				atom.Items = this.Parse (atom);
+				atom.Items = this.Parse (atom, index);
 			}
 
 			List<Atom> atoms = new ();
@@ -33,8 +33,11 @@ namespace IsoParser.Lib.Concretes
 				if (buffer.Length < 1)
 					break;
 
-				int atomId = DataType.ByteInt (buffer, 4);
+				int atomId = DataType.ByteInt (buffer, 4), subIndex = atomId;
 				int atomHead = 8;
+                if (id.Equals ((int)AtomType.ILST)) {
+					atomId = (int)AtomType.ITEM;
+                }
 
 				if (DataType.ValidId (atomId))
 				{
@@ -72,7 +75,7 @@ namespace IsoParser.Lib.Concretes
 				{
 					if (this.references.ContainsKey ((AtomType)atomId))
 						atomHead += this.references[(AtomType)atomId];
-					Atom newAtom = GetAtom (atomId, si, ip, atomHead);
+					Atom newAtom = GetAtom (atomId, si, ip, atomHead, subIndex);
 					atoms.Add (newAtom);
 				}
 			}
@@ -83,7 +86,7 @@ namespace IsoParser.Lib.Concretes
 			return atom;
 		}
 
-		private List<Item> Parse (Atom atom)
+		private List<Item> Parse (Atom atom, int index)
 		{
 			switch (atom.Type)
 			{
@@ -107,8 +110,17 @@ namespace IsoParser.Lib.Concretes
 				return this.ParseHdlr (atom);
 			case AtomType.KEYS:
 				return this.ParseKeys (atom);
-			case AtomType.ILST:
-				return this.ParseIlst (atom);
+			case AtomType.MDTA:
+			case AtomType.UDTA:
+				return this.ParseMdta (atom);
+            case AtomType.ITEM:
+				return this.ParseItem (atom, index);
+			case AtomType.DATA:
+				return this.ParseData (atom);
+			case AtomType.ITIF:
+				return this.ParseItif (atom);
+			case AtomType.NAME:
+				return this.ParseName (atom);
 			case AtomType.DREF:
 				return this.ParseDref (atom);
 			case AtomType.ALIS:
@@ -390,63 +402,48 @@ namespace IsoParser.Lib.Concretes
 
 		private List<Item> ParseKeys (Atom atom)
 		{
-			return this.ParseAtom (buffer => {
-				List<Item> items = new ();
-
-				int count = DataType.ByteInt (buffer, 12), pos = 16, keySize = 0;
-				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
-
-				for (int i = 0; i < count; i++, pos += keySize)
-				{
-					keySize = DataType.ByteInt (buffer, pos);
-					items.Add (new Item { Name = "KeySize", Type = ItemType.Int, Value = keySize });
-					items.Add (new Item { Name = "KeyNamespace", Type = ItemType.String, Value = DataType.ByteString (buffer, pos + 4) });
-					items.Add (new Item { Name = "KeyValue", Type = ItemType.String, Value = DataType.ByteString (buffer, pos + 8, keySize - 8) });
-				}
-
-				return items;
-			}, atom);
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "Entries", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) }
+			}.ToList (), atom);
 		}
 
-		private List<Item> ParseIlst (Atom atom)
+		private List<Item> ParseMdta (Atom atom)
+        {
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "KeyValue", Type = ItemType.String, Value = DataType.ByteString (buffer, 8, DataType.ByteInt (buffer, 0) - 8) }
+			}.ToList (), atom);
+		}
+
+		private List<Item> ParseItem (Atom atom, int index)
+        {
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "KeyIndex", Type = ItemType.Int, Value = index }
+			}.ToList (), atom);
+		}
+
+		private List<Item> ParseData (Atom atom)
 		{
-			return this.ParseAtom (buffer => {
-				List<Item> items = new ();
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "Type", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) },
+				new Item { Name = "Locale", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) },
+				new Item { Name = "Value", Type = ItemType.String, Value = DataType.ByteString (buffer, 16, DataType.ByteInt(buffer, 0) - 16) }
+			}.ToList (), atom);
+		}
 
-				int size = DataType.ByteInt (buffer, 0), itemSize = 0;
+		private List<Item> ParseItif (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "ItemID", Type = ItemType.Int, Value = Encoding.UTF8.GetString (buffer.Skip (12).Take (DataType.ByteInt (buffer, 0) - 12).ToArray ()) }
+			}.ToList (), atom);
+		}
 
-                for (int i = 8; i < size; i += itemSize)
-                {
-					itemSize = DataType.ByteInt (buffer, i);
-					items.Add (new Item { Name = "ItemSize", Type = ItemType.Int, Value = itemSize });
-					items.Add (new Item { Name = "KeyIndex", Type = ItemType.Int, Value = DataType.ByteInt (buffer, i + 4) });
 
-					int cellSize = 0;
-					for (int j = 8; j < itemSize; j += cellSize)
-					{
-						cellSize = DataType.ByteInt (buffer, i + j);
-						string dataId = DataType.ByteString (buffer, i + j + 4);
-						items.Add (new Item { Name = "DataSize", Type = ItemType.Int, Value = cellSize });
-						items.Add (new Item { Name = "DataId", Type = ItemType.String, Value = dataId });
-
-						switch (dataId) {
-						case "data":
-							items.Add (new Item { Name = "Type", Type = ItemType.Int, Value = DataType.ByteInt (buffer, i + j + 8) });
-							items.Add (new Item { Name = "Locale", Type = ItemType.Int, Value = DataType.ByteInt (buffer, i + j + 12) });
-							items.Add (new Item { Name = "Value", Type = ItemType.String, Value = DataType.ByteString (buffer, i + j + 16, cellSize - 16) });
-							break;
-						case "itif":
-							items.Add (new Item { Name = "ItemID", Type = ItemType.Int, Value = DataType.ByteInt (buffer, i + j + 12) });
-							break;
-						case "name":
-							items.Add (new Item { Name = "Name", Type = ItemType.String, Value = System.Text.Encoding.UTF8.GetString (buffer.Skip (i + j + 12).Take (cellSize - 12).ToArray ()) });
-							break;
-						}
-					}
-                }
-
-                return items;
-			}, atom);
+		// TODO: compare with the 'name' atom in metadata (ilst)
+		private List<Item> ParseName (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "Name", Type = ItemType.String, Value = Encoding.UTF8.GetString (buffer.Skip (8).Take (DataType.ByteInt (buffer, 0) - 8).ToArray ()) }
+			}.ToList (), atom);
 		}
 
 		private List<Item> ParseGmin (Atom atom)
@@ -493,38 +490,6 @@ namespace IsoParser.Lib.Concretes
 				new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
 				new Item { Name = "Entries", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) }
 			}.ToList (), atom);
-		}
-
-		private List<Item> ParseStsd_o (Atom atom)
-		{
-			return this.ParseAtom (buffer => {
-				int size = (int)atom.Size;
-
-				List<Item> items = new ();
-				items.Add (new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] });
-				items.Add (new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff });
-				int count = DataType.ByteInt (buffer, 12);
-				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
-
-				if (count > 0)
-				{
-					List<Atom> entries = new ();
-					int dataSize = 0;
-					for (int i = 0, pos = 16; i < count && pos < size; i++, pos += dataSize)
-					{
-						dataSize = DataType.ByteInt (buffer, pos);
-						entries.Add (new (DataType.ByteInt (buffer, pos + 4), dataSize, atom.Offset + pos)
-						{
-							Items = new[] {
-								new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, pos + 14) }
-							}.ToList ()
-						});
-					}
-					atom.Atoms = entries;
-				}
-
-				return items;
-			}, atom);
 		}
 
 		private List<Item> ParseStts (Atom atom)
@@ -599,7 +564,7 @@ namespace IsoParser.Lib.Concretes
 			}, atom);
 		}
 
-		//TODO: parse for multi cases
+		//TODO: parse for multiple cases
 		private List<Item> ParseTmcd (Atom atom)
 		{
 			switch ((int)atom.Size)

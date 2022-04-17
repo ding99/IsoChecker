@@ -464,14 +464,16 @@ namespace IsoParser.Lib.Concretes
 		private List<Item> ParseItif (Atom atom)
 		{
 			return this.ParseAtom (buffer => new[] {
-				new Item { Name = "ItemID", Type = ItemType.Int, Value = Encoding.UTF8.GetString (buffer.Skip (12).Take (DataType.ByteInt(buffer, 0) - 12).ToArray ()) }
+				new Item { Name = "ItemID", Type = ItemType.Int, Value = Encoding.UTF8.GetString (buffer.Skip (12).Take (DataType.ByteInt (buffer, 0) - 12).ToArray ()) }
 			}.ToList (), atom);
 		}
 
+
+		// TODO: compare with the 'name' atom in metadata (ilst)
 		private List<Item> ParseName (Atom atom)
 		{
 			return this.ParseAtom (buffer => new[] {
-				new Item { Name = "Name", Type = ItemType.String, Value = DataType.ByteString (buffer, 16, DataType.ByteInt(buffer, 0) - 16) }
+				new Item { Name = "Name", Type = ItemType.String, Value = Encoding.UTF8.GetString (buffer.Skip (8).Take (DataType.ByteInt (buffer, 0) - 8).ToArray ()) }
 			}.ToList (), atom);
 		}
 

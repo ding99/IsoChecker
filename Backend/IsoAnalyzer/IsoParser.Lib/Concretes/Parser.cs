@@ -37,14 +37,14 @@ namespace IsoParser.Lib.Concretes
 				AtomType.MOOV,
 				AtomType.STBL,
 				AtomType.TRAK,
+				AtomType.ILST,
 				AtomType.UDTA
 			};
 
             this.references = new Dictionary<AtomType, int> {
 				[AtomType.DREF] = 8,
 				[AtomType.STSD] = 8,
-				[AtomType.ILST] = 8,
-				[AtomType.KEYS] = 8,
+				[AtomType.KEYS] = 8
 			};
 
 			this.iso = new ();

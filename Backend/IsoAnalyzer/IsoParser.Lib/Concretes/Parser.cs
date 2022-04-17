@@ -24,27 +24,28 @@ namespace IsoParser.Lib.Concretes
 			this.file = null;
 
 			this.containers = new HashSet<AtomType> {
-				AtomType.CLIP,
-				AtomType.DINF,
-				AtomType.EDTS,
-				AtomType.GMHD,
-				AtomType.IMAP,
+				AtomType.clip,
+				AtomType.dinf,
+				AtomType.edts,
+				AtomType.gmhd,
+				AtomType.imap,
 				AtomType.IN,
-				AtomType.MATT,
-				AtomType.META,
-				AtomType.MDIA,
-				AtomType.MINF,
-				AtomType.MOOV,
-				AtomType.STBL,
-				AtomType.TRAK,
-				AtomType.ILST,
-				AtomType.UDTA
+				AtomType.matt,
+				AtomType.meta,
+				AtomType.mdia,
+				AtomType.minf,
+				AtomType.moov,
+				AtomType.stbl,
+				AtomType.trak,
+				AtomType.ilst,
+				AtomType.udta
 			};
 
             this.references = new Dictionary<AtomType, int> {
-				[AtomType.DREF] = 8,
-				[AtomType.STSD] = 8,
-				[AtomType.KEYS] = 8
+				[AtomType.dref] = 8,
+				[AtomType.stsd] = 8,
+				[AtomType.keys] = 8,
+				[AtomType.avc1] = 78
 			};
 
 			this.iso = new ();

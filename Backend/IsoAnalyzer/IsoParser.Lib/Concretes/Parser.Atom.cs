@@ -21,10 +21,6 @@ namespace IsoParser.Lib.Concretes
 			if (atom.Type.HasValue && !this.isContainer ((AtomType)atom.Type))
 			{
 				(atom.Items, headPlus) = this.Parse (atom, index);
-                if (id.Equals ((int)AtomType.dref) || id.Equals ((int)AtomType.stsd))
-                {
-                    Console.WriteLine ($"-- {headPlus} {(AtomType)id}");
-                }
 			}
 
 			List<Atom> atoms = new ();
@@ -78,8 +74,6 @@ namespace IsoParser.Lib.Concretes
 
 				if (Enum.IsDefined (typeof (AtomType), atomId))
 				{
-					//if (this.references.ContainsKey ((AtomType)atomId))
-					//	atomHead += this.references[(AtomType)atomId];
 					Atom newAtom = GetAtom (atomId, si, ip, atomHead, subIndex);
 					atoms.Add (newAtom);
 				}

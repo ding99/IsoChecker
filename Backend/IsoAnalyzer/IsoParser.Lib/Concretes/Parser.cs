@@ -41,12 +41,12 @@ namespace IsoParser.Lib.Concretes
 				AtomType.udta
 			};
 
-            this.references = new Dictionary<AtomType, int> {
-				[AtomType.dref] = 8,
-				[AtomType.stsd] = 8,
-				[AtomType.keys] = 8,
-				[AtomType.avc1] = 78
-			};
+   //         this.references = new Dictionary<AtomType, int> {
+			//	[AtomType.dref] = 8,
+			//	[AtomType.stsd] = 8,
+			//	[AtomType.keys] = 8,
+			//	[AtomType.avc1] = 78
+			//};
 
 			this.iso = new ();
 

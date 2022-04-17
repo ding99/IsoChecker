@@ -8,8 +8,8 @@ using IsoParser.Lib.Tools;
 
 namespace IsoParser.Lib.Concretes
 {
-    partial class Parser
-    {
+	partial class Parser
+	{
 		private int? timeScale;
 
 		private Atom GetAtom (int id, long size, long offset, int head, int index = 0)
@@ -36,9 +36,9 @@ namespace IsoParser.Lib.Concretes
 
 				int atomId = DataType.ByteInt (buffer, 4), subIndex = atomId;
 				int atomHead = 8;
-                if (id.Equals ((int)AtomType.ilst)) {
+				if (id.Equals ((int)AtomType.ilst)) {
 					atomId = (int)AtomType.ITEM;
-                }
+				}
 
 				if (DataType.ValidId (atomId))
 				{
@@ -112,7 +112,7 @@ namespace IsoParser.Lib.Concretes
 			case AtomType.mdta:
 			case AtomType.udta:
 				return this.ParseMdta (atom);
-            case AtomType.ITEM:
+			case AtomType.ITEM:
 				return this.ParseItem (atom, index);
 			case AtomType.data:
 				return this.ParseData (atom);
@@ -162,6 +162,12 @@ namespace IsoParser.Lib.Concretes
 				return this.ParseClap (atom);
 			case AtomType.mp4a:
 				return this.ParseMp4a (atom);
+			case AtomType.chan:
+				return this.ParseChan (atom);
+			case AtomType.frma:
+				return this.ParseFrma (atom);
+			case AtomType.esds:
+				return this.ParseEsds (atom);
 			case AtomType.c608:
 				return this.ParseC608 (atom);
 			case AtomType.c708:
@@ -321,8 +327,8 @@ namespace IsoParser.Lib.Concretes
 				items.Add (new Item { Name = "PreloadDuration", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) });
 				int flags = DataType.ByteInt (buffer, 16);
 				items.Add (new Item { Name = "PreloadFlags", Type = ItemType.Int, Value = flags });
-				if(flags == 1 & flags == 2)
-                {
+				if (flags == 1 & flags == 2)
+				{
 					items.Add (new Item { Name = "PreloadFlagsDetails", Type = ItemType.String, Value = $"preloaded {(flags == 1 ? "absolutely" : "only if enabled")}" });
 				}
 				int hints = DataType.ByteInt (buffer, 20);
@@ -338,7 +344,7 @@ namespace IsoParser.Lib.Concretes
 					{
 						s.Append ($"{(s.Length > 0 ? " " : "")}high-quality");
 					}
-					items.Add (new Item {  Name = "DefaultHintsDetails", Type= ItemType.String, Value = s.ToString() });
+					items.Add (new Item { Name = "DefaultHintsDetails", Type = ItemType.String, Value = s.ToString () });
 				}
 
 				return (items, 0);
@@ -419,14 +425,14 @@ namespace IsoParser.Lib.Concretes
 		}
 
 		private (List<Item>, int) ParseMdta (Atom atom)
-        {
+		{
 			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "KeyValue", Type = ItemType.String, Value = DataType.ByteString (buffer, 8, DataType.ByteInt (buffer, 0) - 8) }
 			}.ToList (), 0), atom);
 		}
 
 		private (List<Item>, int) ParseItem (Atom atom, int index)
-        {
+		{
 			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "KeyIndex", Type = ItemType.Int, Value = index }
 			}.ToList (), 0), atom);
@@ -471,7 +477,7 @@ namespace IsoParser.Lib.Concretes
 		 */
 		private (List<Item>, int) ParseAvc1 (Atom atom)
 		{
-			return this.ParseAtom (buffer => ( new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "FormatDescription", Type = ItemType.String, Value = "H.264 video" },
 				/* General Structure of a Sample Description */
 				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) },
@@ -510,7 +516,7 @@ namespace IsoParser.Lib.Concretes
 				int seqs = buffer[offset++] & 31;
 				items.Add (new Item { Name = "NumOfSequenceParameterSets", Type = ItemType.Byte, Value = seqs });
 				for (int i = 0; i < seqs; i++)
-                {
+				{
 					int length = DataType.ByteShort (buffer, offset);
 					items.Add (new Item { Name = $"SequenceParameterSet{i + 1}Length", Type = ItemType.Short, Value = length });
 					offset += 2 + length;
@@ -638,6 +644,61 @@ namespace IsoParser.Lib.Concretes
 				}
 
 				return (items, headSize);
+			}, atom);
+		}
+
+		/* An elementary stream descriptor for MPEG-4 audio, as defined in the MPEG-4 specification ISO/IEC 14496 */
+		private (List<Item>, int) ParseEsds (Atom atom)
+		{
+			return this.ParseAtom (buffer => {
+				List<Item> items = new ();
+
+				items.Add (new Item { Name = "TODO", Type = ItemType.String, Value = "todo" });
+
+				//items.Add (new Item { Name = "ConfigurationVersion", Type = ItemType.Byte, Value = buffer[8] });
+				//items.Add (new Item { Name = "AVCProfileIndication", Type = ItemType.Byte, Value = buffer[9] });
+				//items.Add (new Item { Name = "ProfileCompatibility", Type = ItemType.Byte, Value = buffer[10] });
+				//items.Add (new Item { Name = "AVCLevelIndication", Type = ItemType.Byte, Value = buffer[11] });
+				//items.Add (new Item { Name = "LengthSizeMinusOne", Type = ItemType.Byte, Value = buffer[12] & 3 });
+
+				//int offset = 13;
+
+				//int seqs = buffer[offset++] & 31;
+				//items.Add (new Item { Name = "NumOfSequenceParameterSets", Type = ItemType.Byte, Value = seqs });
+				//for (int i = 0; i < seqs; i++)
+				//{
+				//	int length = DataType.ByteShort (buffer, offset);
+				//	items.Add (new Item { Name = $"SequenceParameterSet{i + 1}Length", Type = ItemType.Short, Value = length });
+				//	offset += 2 + length;
+				//}
+
+				//int pics = buffer[offset++];
+				//items.Add (new Item { Name = "NumOfPictureParameterSets", Type = ItemType.Byte, Value = pics });
+				//for (int i = 0; i < pics; i++)
+				//{
+				//	int length = DataType.ByteShort (buffer, offset);
+				//	items.Add (new Item { Name = $"PictureParameterSet{i + 1}Length", Type = ItemType.Short, Value = length });
+				//	offset += 2 + length;
+				//}
+
+				return (items, 0);
+			}, atom);
+		}
+
+		private (List<Item>, int) ParseChan (Atom atom)
+		{
+			return this.ParseAtom (buffer => (new[] {
+				new Item { Name = "TODO", Type = ItemType.String, Value = "todo" }
+			}.ToList (), 0), atom);
+		}
+
+		private (List<Item>, int) ParseFrma (Atom atom)
+		{
+			return this.ParseAtom (buffer =>
+			{
+				return (new[] {
+					new Item { Name = "DataFormat", Type = ItemType.String, Value = DataType.ByteString(buffer, 8, (int)atom.Size - 8) }
+				}.ToList (), 0);
 			}, atom);
 		}
 

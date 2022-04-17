@@ -37,6 +37,7 @@ namespace IsoParser.Lib.Concretes
 				AtomType.stbl,
 				AtomType.trak,
 				AtomType.ilst,
+				AtomType.wave,
 				AtomType.udta
 			};
 

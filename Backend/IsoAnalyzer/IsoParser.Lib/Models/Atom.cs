@@ -50,6 +50,7 @@ namespace IsoParser.Lib.Models
 		beha = 0x62656861,  //beha, sprite behavior
 		btrt = 0x62747274,  //btrt, bit rate
 		cdsc = 0x63647363,  //cdsc, reference in timed metaata track
+		chan = 0x6368616e,  //chan, audio channel layout
 		chap = 0x63686170,  //chap, chapter or scene list
 		clap = 0x636c6170,  //clap, clean aperture
 		clcp = 0x636c6370,  //clcp, closed caption
@@ -74,12 +75,14 @@ namespace IsoParser.Lib.Models
 		elng = 0x656c6e67,  //elng, extended language tag
 		elst = 0x656c7374,  //elst, edit list
 		enof = 0x656e6f66,  //enof, track encoded pixels demension
+		esds = 0x65736473,  //esds, elementary stream descriptor
 		fall = 0x66616c6c,  //fall, identical content audio trck
 		fiel = 0x6669656c,  //fiel, field handling, two 8-bit integers
 		flov = 0x666c6f76,  //flov, sprite floating point variable
 		folw = 0x666f6c77,  //folw, ref subtitle track from audio
 		forc = 0x666f7263,  //forc, forced subtitle
 		free = 0x66726565,  //free, free space
+		frma = 0x66726d61,  //frma, format
 		ftab = 0x67746162,  //ftab, text sample
 		ftyp = 0x66747970,  //ftyp, file type compatibility
 		gmhd = 0x676d6864,  //gmhd, base media info head
@@ -163,6 +166,7 @@ namespace IsoParser.Lib.Models
 		uses = 0x75736573,  //uses, spite uses image id
 		vars = 0x76617273,  //vars, sprite variable container
 		vmhd = 0x766d6864,  //vmhd, video media info header
+		wave = 0x77617665,  //wave, decompression parameter
 		wide = 0x77696465,  //wide, placeholder
 		wtxt = 0x77747874,  //wtxt, wired text
 

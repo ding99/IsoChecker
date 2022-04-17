@@ -109,6 +109,7 @@ namespace IsoParser.Lib.Models
 		MDAT = 0x6d646174,  //mdat
 		MDIA = 0x6d646961,  //mdia
 		MDHD = 0x6d646864,  //mdhd
+		MDTA = 0x6d647461,  //mdta, key namespace
 		META = 0x6d657461,  //meta
 		METR = 0x6d657472,  //metr, text sample
 		MHDR = 0x6d686472,  //mhdr

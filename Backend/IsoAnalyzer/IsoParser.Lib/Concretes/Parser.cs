@@ -42,7 +42,9 @@ namespace IsoParser.Lib.Concretes
 
             this.references = new Dictionary<AtomType, int> {
 				[AtomType.DREF] = 8,
-				[AtomType.STSD] = 8
+				[AtomType.STSD] = 8,
+				[AtomType.ILST] = 8,
+				[AtomType.KEYS] = 8,
 			};
 
 			this.iso = new ();

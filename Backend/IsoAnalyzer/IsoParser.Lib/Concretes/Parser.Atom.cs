@@ -497,14 +497,37 @@ namespace IsoParser.Lib.Concretes
 		/* 14496-15 5.2.4.1.1 */
 		private List<Item> ParseAvcC (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
-				new Item { Name = "ConfigurationVersion", Type = ItemType.Byte, Value = buffer[8] },
-				new Item { Name = "AVCProfileIndication", Type = ItemType.Byte, Value = buffer[9] },
-				new Item { Name = "ProfileCompatibility", Type = ItemType.Byte, Value = buffer[10] },
-				new Item { Name = "AVCLevelIndication", Type = ItemType.Byte, Value = buffer[11] },
-				new Item { Name = "LengthSizeMinusOne", Type = ItemType.Byte, Value = buffer[12] & 3 },
-				new Item { Name = "NumOfSequenceParameterSets", Type = ItemType.Byte, Value = buffer[13] & 31 },
-			}.ToList (), atom);
+			return this.ParseAtom (buffer => {
+				List<Item> items = new ();
+
+				items.Add (new Item { Name = "ConfigurationVersion", Type = ItemType.Byte, Value = buffer[8] });
+				items.Add (new Item { Name = "AVCProfileIndication", Type = ItemType.Byte, Value = buffer[9] });
+				items.Add (new Item { Name = "ProfileCompatibility", Type = ItemType.Byte, Value = buffer[10] });
+				items.Add (new Item { Name = "AVCLevelIndication", Type = ItemType.Byte, Value = buffer[11] });
+				items.Add (new Item { Name = "LengthSizeMinusOne", Type = ItemType.Byte, Value = buffer[12] & 3 });
+
+				int offset = 13;
+
+				int seqs = buffer[offset++] & 31;
+				items.Add (new Item { Name = "NumOfSequenceParameterSets", Type = ItemType.Byte, Value = seqs });
+				for (int i = 0; i < seqs; i++)
+                {
+					int length = DataType.ByteShort (buffer, offset);
+					items.Add (new Item { Name = $"SequenceParameterSet{i + 1}Length", Type = ItemType.Short, Value = length });
+					offset += 2 + length;
+				}
+
+				int pics = buffer[offset++];
+				items.Add (new Item { Name = "NumOfPictureParameterSets", Type = ItemType.Byte, Value = pics });
+				for (int i = 0; i < pics; i++)
+				{
+					int length = DataType.ByteShort (buffer, offset);
+					items.Add (new Item { Name = $"PictureParameterSet{i + 1}Length", Type = ItemType.Short, Value = length });
+					offset += 2 + length;
+				}
+
+				return items;
+			}, atom);
 		}
 
 		private List<Item> ParseBtrt (Atom atom)

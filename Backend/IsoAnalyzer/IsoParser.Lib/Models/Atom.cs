@@ -59,7 +59,7 @@ namespace IsoParser.Lib.Models
 		CRSR = 0x63727372,  //crsr, sprite cursor behavior
 		CSLG = 0x63736c67,  //cslg, composition shift least greatest
 		CTAB = 0x63746162,  //ctab, color table
-		CTRY = 0x63747279,  //ctry
+		CTRY = 0x63747279,  //ctry, contry list
 		CTTS = 0x63747473,  //ctts, composition offset
 		DATA = 0x64617461,  //data, value atome
 		DEFI = 0x64656669,  //defi, sprite image defualt image index
@@ -76,7 +76,7 @@ namespace IsoParser.Lib.Models
 		FLOV = 0x666c6f76,  //flov, sprite floating point variable
 		FOLW = 0x666f6c77,  //folw, ref subtitle track from audio
 		FORC = 0x666f7263,  //forc, forced subtitle
-		FREE = 0x66726565,  //free
+		FREE = 0x66726565,  //free, free space
 		FTAB = 0x67746162,  //ftab, text sample
 		FTYP = 0x66747970,  //ftyp
 		GMHD = 0x676d6864,  //gmhd, base media info head
@@ -101,9 +101,9 @@ namespace IsoParser.Lib.Models
 		IMRG = 0x696d7267,  //imrg, sprite image registration
 		IMRT = 0x696d7274,  //imrt, sprite image data ref type
 		ITIF = 0x69746966,  //itif, item information
-		KEYS = 0x6b657973,  //keys
+		KEYS = 0x6b657973,  //keys, metadata item keys
 		KMAT = 0x6b6d6174,  //kmat
-		LANG = 0x6c616e67,  //lang
+		LANG = 0x6c616e67,  //lang, language list
 		LOAD = 0x6c6f6164,  //load, track load settings
 		MATT = 0x6d617474,  //matt
 		MDAT = 0x6d646174,  //mdat
@@ -169,7 +169,8 @@ namespace IsoParser.Lib.Models
 		TY = 0x20207479,  // '  ty'
 
 		#region self define
-		TOP = 0x746f7020,  // 'top ', top level of mov file
+		TOP = 0x746f7020,   // 'top ', top level of mov file
+		ITEM = 0x6974656d,  // item, metadata item correponding to key_index
 		#endregion
 
 		#region codec

@@ -16,17 +16,18 @@ namespace IsoParser.Lib.Concretes
 		{
 			Console.WriteLine ($"id {id:x}, size {size:x}, offset {offset:x}, head {head:x}");
 			Atom atom = new (id, size, offset);
+			int headPlus = 0;
 
 			if (atom.Type.HasValue && !this.isContainer ((AtomType)atom.Type))
 			{
-				atom.Items = this.Parse (atom, index);
+				(atom.Items, headPlus) = this.Parse (atom, index);
 			}
 
 			List<Atom> atoms = new ();
 			bool valid = true;
 
 			long si;
-			for (long ip = offset + head; ip < offset + size; ip += si)
+			for (long ip = offset + head + headPlus; ip < offset + size; ip += si)
 			{
 				byte[] buffer = this.file.Read (8, ip);
 
@@ -73,8 +74,6 @@ namespace IsoParser.Lib.Concretes
 
 				if (Enum.IsDefined (typeof (AtomType), atomId))
 				{
-					if (this.references.ContainsKey ((AtomType)atomId))
-						atomHead += this.references[(AtomType)atomId];
 					Atom newAtom = GetAtom (atomId, si, ip, atomHead, subIndex);
 					atoms.Add (newAtom);
 				}
@@ -86,7 +85,7 @@ namespace IsoParser.Lib.Concretes
 			return atom;
 		}
 
-		private List<Item> Parse (Atom atom, int index)
+		private (List<Item>, int) Parse (Atom atom, int index)
 		{
 			switch (atom.Type)
 			{
@@ -169,32 +168,32 @@ namespace IsoParser.Lib.Concretes
 				return this.ParseC708 (atom);
 			}
 
-			return Array.Empty<Item> ().ToList ();
+			return (Array.Empty<Item> ().ToList (), 0);
 		}
 
-		private List<Item> ParseAtom (Func<byte[], List<Item>> add, Atom atom)
+		private (List<Item>, int) ParseAtom (Func<byte[], (List<Item>, int)> add, Atom atom)
 		{
 			byte[] buffer = this.file.Read ((int)atom.Size, atom.Offset);
-			return buffer.Length >= (int)atom.Size ? add (buffer) : Array.Empty<Item> ().ToList ();
+			return buffer.Length >= (int)atom.Size ? add (buffer) : (Array.Empty<Item> ().ToList (), 0);
 		}
 
 		#region atom types
-		private List<Item> ParseFtyp (Atom atom)
+		private (List<Item>, int) ParseFtyp (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
-				return new[] {
+				return (new[] {
 					new Item { Name = "MajorBrand", Type = ItemType.String, Value = DataType.ByteString (buffer, 8) },
 					new Item { Name = "MinorBrand", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) },
 					new Item { Name = "CompatibleBrands", Type = ItemType.String, Value = DataType.ByteString(buffer, 16, (int) atom.Size - 16) }
-				}.ToList ();
+				}.ToList (), 0);
 			}, atom);
 		}
 
-		private List<Item> ParseMvhd (Atom atom)
+		private (List<Item>, int) ParseMvhd (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
 				this.timeScale = DataType.ByteInt (buffer, 20);
-				return new[] {
+				return (new[] {
 					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 					new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "CreationTime", Type = ItemType.String, Value = this.ParseTime (buffer, 12, atom.Offset) },
@@ -211,14 +210,14 @@ namespace IsoParser.Lib.Concretes
 					new Item { Name = "SelectionDuration", Type = ItemType.String, Value = this.ParseDuration (buffer, 96, this.timeScale) },
 					new Item { Name = "CurrentTime", Type = ItemType.String, Value = this.ParseTime (buffer, 100, atom.Offset) },
 					new Item { Name = "NextTrackID", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 104) },
-				}.ToList ();
+				}.ToList (), 0);
 			}, atom);
 		}
 
-		private List<Item> ParseTkhd (Atom atom)
+		private (List<Item>, int) ParseTkhd (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
-				return new[] {
+				return (new[] {
 					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 					new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "FlagDetails", Type = ItemType.String, Value = this.ParseFlags ((uint)DataType.ByteInt (buffer, 8) & 0xffffff) },
@@ -232,7 +231,7 @@ namespace IsoParser.Lib.Concretes
 					new Item { Name = "MatrixStructure", Type = ItemType.Matrix, Value = this.ParseMatrix (buffer, 48) },
 					new Item { Name = "TrackWidth", Type = ItemType.Double, Value = this.ParseDimension (buffer, 84) },
 					new Item { Name = "TrackHeight", Type = ItemType.Double, Value = this.ParseDimension (buffer, 88) }
-				}.ToList ();
+				}.ToList (), 0);
 			}, atom);
 		}
 		private string ParseFlags (uint flags)
@@ -268,11 +267,11 @@ namespace IsoParser.Lib.Concretes
 		}
 
 		//TODO: language
-		private List<Item> ParseMdhd (Atom atom)
+		private (List<Item>, int) ParseMdhd (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
 				int timeScale = DataType.ByteInt (buffer, 20);
-				return new[] {
+				return (new[] {
 					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 					new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "CreationTime", Type = ItemType.String, Value = this.ParseTime (buffer, 12, atom.Offset) },
@@ -281,39 +280,39 @@ namespace IsoParser.Lib.Concretes
 					new Item { Name = "Duration", Type = ItemType.String, Value = this.ParseDuration (buffer, 24, timeScale) },
 					new Item { Name = "Language", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 28) },
 					new Item { Name = "Quality", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 30) }
-				}.ToList ();
+				}.ToList (), 0);
 			}, atom);
 		}
 
-		private List<Item> ParseVmhd (Atom atom)
+		private (List<Item>, int) ParseVmhd (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
 				int value = DataType.ByteShort (buffer, 12);
 				string graphics = Enum.IsDefined (typeof (GraphicsMode), value) ? ((GraphicsMode)value).ToString () : "";
 
-				return new[] {
+				return (new[] {
 					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 					new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "GraphicsMode", Type = ItemType.String, Value = graphics },
 					new Item { Name = "OpcolorRed", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 14) },
 					new Item { Name = "OpcolorGreen", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 16) },
 					new Item { Name = "OpcolorBlue", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 18) }
-				}.ToList ();
+				}.ToList (), 0);
 			}, atom);
 		}
 
-		private List<Item> ParseSmhd (Atom atom)
+		private (List<Item>, int) ParseSmhd (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
-				return new[] {
+				return (new[] {
 					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 					new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "Balance", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 12) }
-				}.ToList ();
+				}.ToList (), 0);
 			}, atom);
 		}
 
-		private List<Item> ParseLoad (Atom atom)
+		private (List<Item>, int) ParseLoad (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
 				List<Item> items = new ();
@@ -342,11 +341,11 @@ namespace IsoParser.Lib.Concretes
 					items.Add (new Item {  Name = "DefaultHintsDetails", Type= ItemType.String, Value = s.ToString() });
 				}
 
-				return items;
+				return (items, 0);
 			}, atom);
 		}
 
-		private List<Item> ParseElst (Atom atom)
+		private (List<Item>, int) ParseElst (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
 				List<Item> items = new ();
@@ -368,22 +367,22 @@ namespace IsoParser.Lib.Concretes
 						});
 				}
 
-				return items;
+				return (items, 0);
 			}, atom);
 		}
 
-		private List<Item> ParseDref (Atom atom)
+		private (List<Item>, int) ParseDref (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
-				return new[] {
+				return (new[] {
 					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 					new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "Entries", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) }
-				}.ToList ();
+				}.ToList (), 8);
 			}, atom);
 		}
 
-		private List<Item> ParseHdlr (Atom atom)
+		private (List<Item>, int) ParseHdlr (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
 				int value = DataType.ByteInt (buffer, 12);
@@ -399,7 +398,7 @@ namespace IsoParser.Lib.Concretes
 				if (Enum.IsDefined (typeof (ComponentSubType), value))
 					this.track.SubType = (ComponentSubType)value;
 
-				return new[] {
+				return (new[] {
 					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 					new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
 					new Item { Name = "ComponentType", Type = ItemType.String, Value = DataType.ByteString (buffer, 12) },
@@ -408,61 +407,61 @@ namespace IsoParser.Lib.Concretes
 					new Item { Name = "ComponentFlags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 24) },
 					new Item { Name = "ComponentFlagsMask", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 28) },
 					new Item { Name = "ComponentName", Type = ItemType.String, Value = DataType.ByteString (buffer, 33, buffer[32]) },
-				}.ToList ();
+				}.ToList (), 0);
 			}, atom);
 		}
 
-		private List<Item> ParseKeys (Atom atom)
+		private (List<Item>, int) ParseKeys (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "Entries", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) }
-			}.ToList (), atom);
+			}.ToList (), 8), atom);
 		}
 
-		private List<Item> ParseMdta (Atom atom)
+		private (List<Item>, int) ParseMdta (Atom atom)
         {
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "KeyValue", Type = ItemType.String, Value = DataType.ByteString (buffer, 8, DataType.ByteInt (buffer, 0) - 8) }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 
-		private List<Item> ParseItem (Atom atom, int index)
+		private (List<Item>, int) ParseItem (Atom atom, int index)
         {
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "KeyIndex", Type = ItemType.Int, Value = index }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 
-		private List<Item> ParseData (Atom atom)
+		private (List<Item>, int) ParseData (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "Type", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) },
 				new Item { Name = "Locale", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) },
 				new Item { Name = "Value", Type = ItemType.String, Value = DataType.ByteString (buffer, 16, DataType.ByteInt(buffer, 0) - 16) }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 
-		private List<Item> ParseItif (Atom atom)
+		private (List<Item>, int) ParseItif (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "ItemID", Type = ItemType.Int, Value = Encoding.UTF8.GetString (buffer.Skip (12).Take (DataType.ByteInt (buffer, 0) - 12).ToArray ()) }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 
 
 		// TODO: compare with the 'name' atom in metadata (ilst)
-		private List<Item> ParseName (Atom atom)
+		private (List<Item>, int) ParseName (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "Name", Type = ItemType.String, Value = Encoding.UTF8.GetString (buffer.Skip (8).Take (DataType.ByteInt (buffer, 0) - 8).ToArray ()) }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 
-		private List<Item> ParseGmin (Atom atom)
+		private (List<Item>, int) ParseGmin (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "GraphicsMode", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 12) }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 
 		/*
@@ -470,9 +469,9 @@ namespace IsoParser.Lib.Concretes
 		 * p100 General Structure of a Sample Description
 		 * p156 Video Media
 		 */
-		private List<Item> ParseAvc1 (Atom atom)
+		private (List<Item>, int) ParseAvc1 (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => ( new[] {
 				new Item { Name = "FormatDescription", Type = ItemType.String, Value = "H.264 video" },
 				/* General Structure of a Sample Description */
 				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) },
@@ -491,11 +490,11 @@ namespace IsoParser.Lib.Concretes
 				new Item { Name = "CompressorName", Type = ItemType.String, Value = DataType.PascalString (buffer, 50) },
 				new Item { Name = "Depth", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 82) },
 				new Item { Name = "ColorTableID", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 84) }
-			}.ToList (), atom);
+			}.ToList (), 78), atom);
 		}
 
 		/* 14496-15 5.2.4.1.1 */
-		private List<Item> ParseAvcC (Atom atom)
+		private (List<Item>, int) ParseAvcC (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
 				List<Item> items = new ();
@@ -526,49 +525,49 @@ namespace IsoParser.Lib.Concretes
 					offset += 2 + length;
 				}
 
-				return items;
+				return (items, 0);
 			}, atom);
 		}
 
-		private List<Item> ParseBtrt (Atom atom)
+		private (List<Item>, int) ParseBtrt (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "BufferSize", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) },
 				new Item { Name = "MaxBitRate", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) },
 				new Item { Name = "AverageBitRate", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 16) }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 
-		private List<Item> ParseColr (Atom atom)
+		private (List<Item>, int) ParseColr (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "ColorParameterType", Type = ItemType.String, Value = DataType.ByteString (buffer, 8) },
 				new Item { Name = "PrimariesIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 12) },
 				new Item { Name = "TransferFunctionIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) },
 				new Item { Name = "MatrixIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 16) }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 
-		private List<Item> ParsePasp (Atom atom)
+		private (List<Item>, int) ParsePasp (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "hSpacing", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) },
 				new Item { Name = "vSpacing", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) },
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 
-		private List<Item> ParseFiel (Atom atom)
+		private (List<Item>, int) ParseFiel (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "FieldCount", Type = ItemType.Byte, Value = buffer[8] },
 				new Item { Name = "ScanType", Type = ItemType.String, Value = buffer[8] == 1 ? "progressive" : buffer[8] == 2 ? "interlaced" : "" },
 				new Item { Name = "FieldOrdering", Type = ItemType.Byte, Value = buffer[9] }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 
-		private List<Item> ParseClap (Atom atom)
+		private (List<Item>, int) ParseClap (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "ApertureWidth_N", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) },
 				new Item { Name = "ApertureWidth_D", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) },
 				new Item { Name = "ApertureHeight_N", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 16) },
@@ -577,42 +576,98 @@ namespace IsoParser.Lib.Concretes
 				new Item { Name = "HorizOff_D", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 28) },
 				new Item { Name = "VertOff_N", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 32) },
 				new Item { Name = "VertOff_D", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 36) }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
+		}
+
+		/*
+		 * qtff-2015
+		 * p100 General Structure of a Sample Description
+		 * p176 Sound Media
+		 */
+		private (List<Item>, int) ParseMp4a (Atom atom)
+		{
+			return this.ParseAtom (buffer => {
+				List<Item> items = new ();
+				int headSize = 28;
+
+				items.Add (new Item { Name = "FormatDescription", Type = ItemType.String, Value = "MPEG-4, AAC" });
+				/* General Structure of a Sample Description */
+				items.Add (new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) });
+
+				/* Sound Media */
+				int version = DataType.ByteShort (buffer, 16);
+				items.Add (new Item { Name = "Version", Type = ItemType.Short, Value = version });
+				items.Add (new Item { Name = "RevisionLevel", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 18) });
+				items.Add (new Item { Name = "Vendor", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 20) });
+
+				/* Version 0 assumes uncompressed audio in 'raw ' or 'twos' format, 1 or 2 channels, 8 or 16 bits per sample, and a compression ID of 0. */
+				items.Add (new Item { Name = "NumberOfChannels", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 24) });
+				items.Add (new Item { Name = "SampleSize", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 26) });
+				items.Add (new Item { Name = "CompressionID", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 28) });
+				items.Add (new Item { Name = "PacketSize", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 30) });
+				items.Add (new Item { Name = "SampleRate", Type = ItemType.String, Value = $"{DataType.ByteUShort (buffer, 32)}.{DataType.ByteUShort (buffer, 34)}" });
+
+				/* Version 1 (QuickTime 3) extended 4 fields, each 4 bytes long, p180 qtff 2015 */
+				if (version > 0) {
+					headSize = 44;
+
+					items.Add (new Item { Name = "SamplesPerPacket", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 36) });
+					items.Add (new Item { Name = "BytesPerPacket", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 40) });
+					items.Add (new Item { Name = "BytesPerFrame", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 44) });
+					items.Add (new Item { Name = "BytesPerSample", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 48) });
+
+					/* Verison 2 (QuickTime 7) extends QuickTime capabilities to include high resolution audio with another expansion of the sound sample description structure */
+					if (version > 1)
+					{
+						headSize = 88;
+
+						items.Add (new Item { Name = "always3", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 52) });
+						items.Add (new Item { Name = "always16", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 54) });
+						items.Add (new Item { Name = "alwaysMinus2", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 56) });
+						items.Add (new Item { Name = "always0", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 58) });
+						items.Add (new Item { Name = "always65536", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 60) });
+						items.Add (new Item { Name = "sizeOfStructOnly", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 64) });
+						items.Add (new Item { Name = "audioSampleRate", Type = ItemType.Long, Value = DataType.ByteLong (buffer, 68) });
+						items.Add (new Item { Name = "numAudioChannels", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 72) });
+						items.Add (new Item { Name = "always7F000000", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 76) });
+						items.Add (new Item { Name = "constBitsPerChannel", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 80) });
+						items.Add (new Item { Name = "formatSpecificFlags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 84) });
+						items.Add (new Item { Name = "constBytesPerAudioPacket", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 88) });
+						items.Add (new Item { Name = "constPCMFramesPerAudioPacket", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 92) });
+					}
+				}
+
+				return (items, headSize);
+			}, atom);
 		}
 
 		//TODO: details
-		private List<Item> ParseMp4a (Atom atom)
-		{
-			return this.ParseAtom (buffer => new[] {
-				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
-			}.ToList (), atom);
-		}
-		private List<Item> ParseC608 (Atom atom)
+		private (List<Item>, int) ParseC608 (Atom atom)
 		{
 			this.track.DataFormats.Add ("c608");
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
-		private List<Item> ParseC708 (Atom atom)
+		private (List<Item>, int) ParseC708 (Atom atom)
 		{
 			this.track.DataFormats.Add ("c708");
 
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 
-		private List<Item> ParseStsd (Atom atom)
+		private (List<Item>, int) ParseStsd (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 				new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
 				new Item { Name = "Entries", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) }
-			}.ToList (), atom);
+			}.ToList (), 8), atom);
 		}
 
-		private List<Item> ParseStts (Atom atom)
+		private (List<Item>, int) ParseStts (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
 				List<Item> items = new ();
@@ -628,23 +683,23 @@ namespace IsoParser.Lib.Concretes
 					items.Add (new Item { Name = "Entry", Type = ItemType.String, Value = $"{SampleCount}({SampleCount:x}h), {Duration}({Duration:x}h)" });
 				}
 
-				return items;
+				return (items, 0);
 			}, atom);
 		}
-		private List<Item> ParseStss (Atom atom)
+		private (List<Item>, int) ParseStss (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "Entries", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
-		private List<Item> ParseStsz (Atom atom)
+		private (List<Item>, int) ParseStsz (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "SampleSize", Type = ItemType.Int, Value = this.track.SampleSize = DataType.ByteInt (buffer, 12) },
 				new Item { Name = "Entries", Type = ItemType.Int, Value = this.track.SampleSizeCount = DataType.ByteInt (buffer, 16) }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
-		private List<Item> ParseStsc (Atom atom)
+		private (List<Item>, int) ParseStsc (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
 				List<Item> items = new ();
@@ -663,10 +718,10 @@ namespace IsoParser.Lib.Concretes
 					items.Add (new Item { Name = "Chunk", Type = ItemType.String, Value = $"{chunk}({chunk:x}h), {samples}({samples:x}h), {id}({id:x}h)" });
 				}
 
-				return items;
+				return (items, 0);
 			}, atom);
 		}
-		private List<Item> ParseStco (Atom atom)
+		private (List<Item>, int) ParseStco (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
 				List<Item> items = new ();
@@ -680,29 +735,29 @@ namespace IsoParser.Lib.Concretes
 					items.Add (new Item { Name = "Offset", Type = ItemType.Int, Value = offset });
 				}
 
-				return items;
+				return (items, 0);
 			}, atom);
 		}
 
 		//TODO: parse for multiple cases
-		private List<Item> ParseTmcd (Atom atom)
+		private (List<Item>, int) ParseTmcd (Atom atom)
 		{
 			switch ((int)atom.Size)
 			{
 			case 0xc:  //tref
-				return new List<Item> ();
+				return (new List<Item> (), 0);
 			case 0x22:  //STSD
-				return this.ParseAtom (buffer => new[] {
+				return this.ParseAtom (buffer => (new[] {
 					new Item { Name = "DataReferenceIndex", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) }
-				}.ToList (), atom);
+				}.ToList (), 0), atom);
 			}
 
-			return new List<Item> ();  //gmhd etc.
+			return (new List<Item> (), 0);  //gmhd etc.
 		}
 
-		private List<Item> ParseTcmi (Atom atom)
+		private (List<Item>, int) ParseTcmi (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 				new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
 				new Item { Name = "TextFont", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 12) },
@@ -716,7 +771,7 @@ namespace IsoParser.Lib.Concretes
 				new Item { Name = "BackColorGreen", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 28) },
 				new Item { Name = "BackColorBlue", Type = ItemType.UShort, Value = DataType.ByteUShort (buffer, 30) },
 				new Item { Name = "FontName", Type = ItemType.String, Value = DataType.ByteString (buffer, 33, buffer[32]) }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 		private string ParseFont (short flags)
 		{
@@ -743,28 +798,28 @@ namespace IsoParser.Lib.Concretes
 		}
 
 		//TODO
-		private List<Item> ParseAlis (Atom atom)
+		private (List<Item>, int) ParseAlis (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 				new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 		//TODO
-		private List<Item> ParseRsrc (Atom atom)
+		private (List<Item>, int) ParseRsrc (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 				new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 		//TODO
-		private List<Item> ParseUrl (Atom atom)
+		private (List<Item>, int) ParseUrl (Atom atom)
 		{
-			return this.ParseAtom (buffer => new[] {
+			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
 				new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff }
-			}.ToList (), atom);
+			}.ToList (), 0), atom);
 		}
 
 		#endregion atom utilities

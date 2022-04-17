@@ -107,8 +107,17 @@ namespace IsoParser.Lib.Concretes
 				return this.ParseHdlr (atom);
 			case AtomType.KEYS:
 				return this.ParseKeys (atom);
+			case AtomType.MDTA:
+			case AtomType.UDTA:
+				return this.ParseMdta (atom);
 			case AtomType.ILST:
 				return this.ParseIlst (atom);
+			case AtomType.DATA:
+				return this.ParseData (atom);
+			case AtomType.ITIF:
+				return this.ParseItif (atom);
+			case AtomType.NAME:
+				return this.ParseName (atom);
 			case AtomType.DREF:
 				return this.ParseDref (atom);
 			case AtomType.ALIS:
@@ -390,22 +399,16 @@ namespace IsoParser.Lib.Concretes
 
 		private List<Item> ParseKeys (Atom atom)
 		{
-			return this.ParseAtom (buffer => {
-				List<Item> items = new ();
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "Entries", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) }
+			}.ToList (), atom);
+		}
 
-				int count = DataType.ByteInt (buffer, 12), pos = 16, keySize = 0;
-				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
-
-				for (int i = 0; i < count; i++, pos += keySize)
-				{
-					keySize = DataType.ByteInt (buffer, pos);
-					items.Add (new Item { Name = "KeySize", Type = ItemType.Int, Value = keySize });
-					items.Add (new Item { Name = "KeyNamespace", Type = ItemType.String, Value = DataType.ByteString (buffer, pos + 4) });
-					items.Add (new Item { Name = "KeyValue", Type = ItemType.String, Value = DataType.ByteString (buffer, pos + 8, keySize - 8) });
-				}
-
-				return items;
-			}, atom);
+		private List<Item> ParseMdta (Atom atom)
+        {
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "KeyValue", Type = ItemType.String, Value = DataType.ByteString (buffer, 8, DataType.ByteInt (buffer, 0) - 8) }
+			}.ToList (), atom);
 		}
 
 		private List<Item> ParseIlst (Atom atom)
@@ -421,32 +424,57 @@ namespace IsoParser.Lib.Concretes
 					items.Add (new Item { Name = "ItemSize", Type = ItemType.Int, Value = itemSize });
 					items.Add (new Item { Name = "KeyIndex", Type = ItemType.Int, Value = DataType.ByteInt (buffer, i + 4) });
 
-					int cellSize = 0;
-					for (int j = 8; j < itemSize; j += cellSize)
-					{
-						cellSize = DataType.ByteInt (buffer, i + j);
-						string dataId = DataType.ByteString (buffer, i + j + 4);
-						items.Add (new Item { Name = "DataSize", Type = ItemType.Int, Value = cellSize });
-						items.Add (new Item { Name = "DataId", Type = ItemType.String, Value = dataId });
+					//int cellSize = 0;
+					//for (int j = 8; j < itemSize; j += cellSize)
+					//{
+					//	cellSize = DataType.ByteInt (buffer, i + j);
+					//	string dataId = DataType.ByteString (buffer, i + j + 4);
+					//	items.Add (new Item { Name = "DataSize", Type = ItemType.Int, Value = cellSize });
+					//	items.Add (new Item { Name = "DataId", Type = ItemType.String, Value = dataId });
 
-						switch (dataId) {
-						case "data":
-							items.Add (new Item { Name = "Type", Type = ItemType.Int, Value = DataType.ByteInt (buffer, i + j + 8) });
-							items.Add (new Item { Name = "Locale", Type = ItemType.Int, Value = DataType.ByteInt (buffer, i + j + 12) });
-							items.Add (new Item { Name = "Value", Type = ItemType.String, Value = DataType.ByteString (buffer, i + j + 16, cellSize - 16) });
-							break;
-						case "itif":
-							items.Add (new Item { Name = "ItemID", Type = ItemType.Int, Value = DataType.ByteInt (buffer, i + j + 12) });
-							break;
-						case "name":
-							items.Add (new Item { Name = "Name", Type = ItemType.String, Value = System.Text.Encoding.UTF8.GetString (buffer.Skip (i + j + 12).Take (cellSize - 12).ToArray ()) });
-							break;
-						}
-					}
+						//switch (dataId) {
+						//case "data":
+						//	items.Add (new Item { Name = "Type", Type = ItemType.Int, Value = DataType.ByteInt (buffer, i + j + 8) });
+						//	items.Add (new Item { Name = "Locale", Type = ItemType.Int, Value = DataType.ByteInt (buffer, i + j + 12) });
+						//	items.Add (new Item { Name = "Value", Type = ItemType.String, Value = DataType.ByteString (buffer, i + j + 16, cellSize - 16) });
+						//	break;
+						//case "itif":
+						//	items.Add (new Item { Name = "ItemID", Type = ItemType.Int, Value = DataType.ByteInt (buffer, i + j + 12) });
+						//	break;
+						//case "name":
+						//	items.Add (new Item { Name = "Name", Type = ItemType.String, Value = System.Text.Encoding.UTF8.GetString (buffer.Skip (i + j + 12).Take (cellSize - 12).ToArray ()) });
+						//	break;
+						//}
+					//}
                 }
 
                 return items;
 			}, atom);
+		}
+
+		private List<Item> ParseData (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "Type", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) },
+				new Item { Name = "Locale", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) },
+				new Item { Name = "Value", Type = ItemType.String, Value = DataType.ByteString (buffer, 16, DataType.ByteInt(buffer, 0) - 16) }
+			}.ToList (), atom);
+		}
+
+		private List<Item> ParseItif (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "ItemID", Type = ItemType.Int, Value = Encoding.UTF8.GetString (buffer.Skip (12).Take (DataType.ByteInt (buffer, 0) - 12).ToArray ()) }
+			}.ToList (), atom);
+		}
+
+
+		// TODO: compare with the 'name' atom in metadata (ilst)
+		private List<Item> ParseName (Atom atom)
+		{
+			return this.ParseAtom (buffer => new[] {
+				new Item { Name = "Name", Type = ItemType.String, Value = Encoding.UTF8.GetString (buffer.Skip (8).Take (DataType.ByteInt (buffer, 0) - 8).ToArray ()) }
+			}.ToList (), atom);
 		}
 
 		private List<Item> ParseGmin (Atom atom)

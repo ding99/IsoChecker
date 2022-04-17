@@ -109,6 +109,7 @@ namespace IsoParser.Lib.Models
 		MDAT = 0x6d646174,  //mdat
 		MDIA = 0x6d646961,  //mdia
 		MDHD = 0x6d646864,  //mdhd
+		MDTA = 0x6d647461,  //mdta, key namespace
 		META = 0x6d657461,  //meta
 		METR = 0x6d657472,  //metr, text sample
 		MHDR = 0x6d686472,  //mhdr
@@ -149,6 +150,7 @@ namespace IsoParser.Lib.Models
 		TCMI = 0x74636d69,  //tcmi, timecode media info
 		TKHD = 0x746b6864,  //tkhd
 		TMCD = 0x746d6364,  //tmcd, time code
+		TNAM = 0x746e616d,  //tnam, track name
 		TRAK = 0x7472616b,  //trak
 		TREF = 0x74726566,  //tref, track reference
 		TXAS = 0x74786173,  //txas

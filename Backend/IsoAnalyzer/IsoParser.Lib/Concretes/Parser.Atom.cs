@@ -359,12 +359,14 @@ namespace IsoParser.Lib.Concretes
 					items.Add (new Item { Name = "MediaTime", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 20 + 12 * i) });
 					items.Add (new Item { Name = "MediaRate", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 24 + 12 * i) });
 					if (this.timeScale.HasValue && this.timeScale != 0)
+					{
 						items.Add (new Item
 						{
 							Name = "TrackDurationSec",
 							Type = ItemType.Double,
 							Value = (double)DataType.ByteInt (buffer, 16 + 12 * i) / (double)this.timeScale
 						});
+					}
 				}
 
 				return (items, 0);

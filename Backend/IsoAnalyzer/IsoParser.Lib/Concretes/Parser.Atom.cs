@@ -647,44 +647,27 @@ namespace IsoParser.Lib.Concretes
 			}, atom);
 		}
 
-		/* An elementary stream descriptor for MPEG-4 audio, as defined in the MPEG-4 specification ISO/IEC 14496 */
+		/* 
+		MPEG-4 Elementary Stream Descriptor Atom
+		ISO/IEC 14496-1, 8.6.5 ES_Descriptor
+		1. video: ISO/IEC 14496-1, restrictions for storage in ISO/IEC 14496-14 (mp4v)
+		2. Audio: ISO/IEC 14496-3, subclause 1.6 (mp4a)
+		*/
 		private (List<Item>, int) ParseEsds (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
 				List<Item> items = new ();
 
-				items.Add (new Item { Name = "Todo", Type = ItemType.Int, Value = DataType.ByteUInt(buffer, 12)});
-
-				//items.Add (new Item { Name = "ConfigurationVersion", Type = ItemType.Byte, Value = buffer[8] });
-				//items.Add (new Item { Name = "AVCProfileIndication", Type = ItemType.Byte, Value = buffer[9] });
-				//items.Add (new Item { Name = "ProfileCompatibility", Type = ItemType.Byte, Value = buffer[10] });
-				//items.Add (new Item { Name = "AVCLevelIndication", Type = ItemType.Byte, Value = buffer[11] });
-				//items.Add (new Item { Name = "LengthSizeMinusOne", Type = ItemType.Byte, Value = buffer[12] & 3 });
-
-				//int offset = 13;
-
-				//int seqs = buffer[offset++] & 31;
-				//items.Add (new Item { Name = "NumOfSequenceParameterSets", Type = ItemType.Byte, Value = seqs });
-				//for (int i = 0; i < seqs; i++)
-				//{
-				//	int length = DataType.ByteShort (buffer, offset);
-				//	items.Add (new Item { Name = $"SequenceParameterSet{i + 1}Length", Type = ItemType.Short, Value = length });
-				//	offset += 2 + length;
-				//}
-
-				//int pics = buffer[offset++];
-				//items.Add (new Item { Name = "NumOfPictureParameterSets", Type = ItemType.Byte, Value = pics });
-				//for (int i = 0; i < pics; i++)
-				//{
-				//	int length = DataType.ByteShort (buffer, offset);
-				//	items.Add (new Item { Name = $"PictureParameterSet{i + 1}Length", Type = ItemType.Short, Value = length });
-				//	offset += 2 + length;
-				//}
+				items.Add (new Item { Name = "ESDescrTag", Type = ItemType.Byte, Value = buffer[12]});
+				items.Add (new Item { Name = "ESID", Type = ItemType.UShort, Value = DataType.ByteUShort(buffer, 13) });
+				items.Add (new Item { Name = "ESFlags", Type = ItemType.Byte, Value = (buffer[15] >> 5) });
+				items.Add (new Item { Name = "StreamPriority", Type = ItemType.Byte, Value = buffer[15] & 31 });
 
 				return (items, 0);
 			}, atom);
 		}
 
+		/* Core Audio Format Specification */
 		private (List<Item>, int) ParseChan (Atom atom)
 		{
 			return this.ParseAtom (buffer => {
@@ -692,19 +675,18 @@ namespace IsoParser.Lib.Concretes
 
 				items.Add (new Item { Name = "ChannelLayoutTag", Type = ItemType.Int, Value = DataType.ByteUInt (buffer, 12) });
 				items.Add (new Item { Name = "ChannelBitmap", Type = ItemType.Int, Value = DataType.ByteUInt (buffer, 16) });
-				uint numChanDesc = DataType.ByteUInt (buffer, 20);
-				items.Add (new Item { Name = "NumberChannelDescriptions", Type = ItemType.Int, Value = numChanDesc });
+				uint channels = DataType.ByteUInt (buffer, 20);
+				items.Add (new Item { Name = "NumberChannelDescriptions", Type = ItemType.Int, Value = channels });
 
-				if (numChanDesc != 0)
+				if (channels > 0)
 				{
-					for(int i = 0; i < numChanDesc; i++)
+					for(int i = 0; i < channels; i++)
                     {
 						uint label = DataType.ByteUInt (buffer, 24 + i * 20);
 						items.Add (new Item { Name = "ChannelLabel", Type = ItemType.Int, Value = label });
 						items.Add (new Item { Name = "ChannelLabelDesc", Type = ItemType.String, Value = (ChannelLabel)label });
 
-						uint flags = DataType.ByteUInt (buffer, 28 + i * 20);
-						items.Add (new Item { Name = "ChannelFlags", Type = ItemType.Int, Value = flags });
+						items.Add (new Item { Name = "ChannelFlags", Type = ItemType.Int, Value = DataType.ByteUInt (buffer, 28 + i * 20) });
 
 						items.Add (new Item { Name = "Coordinates", Type = ItemType.String, Value = $"{DataType.ByteUInt (buffer, 32 + i * 20)} {DataType.ByteUInt (buffer, 36 + i * 20)} {DataType.ByteUInt (buffer, 40 + i * 20)}" });
 					}

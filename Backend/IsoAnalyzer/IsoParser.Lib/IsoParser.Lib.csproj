@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\CS\CapMagic\Utils\CEA608\CEA608.csproj" />
-    <ProjectReference Include="..\..\..\..\..\CS\CapMagic\Utils\CEA708\CEA708.csproj" />
+    <PackageReference Include="DSoft_CEA608" Version="1.0.0" />
+    <PackageReference Include="DSoft_CEA708" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>

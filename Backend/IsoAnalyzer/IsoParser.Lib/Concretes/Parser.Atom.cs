@@ -107,6 +107,8 @@ namespace IsoParser.Lib.Concretes
 				return this.ParseElst (atom);
 			case AtomType.hdlr:
 				return this.ParseHdlr (atom);
+			case AtomType.mhdr:
+				return this.ParseMhdr (atom);
 			case AtomType.keys:
 				return this.ParseKeys (atom);
 			case AtomType.mdta:
@@ -120,6 +122,10 @@ namespace IsoParser.Lib.Concretes
 				return this.ParseItif (atom);
 			case AtomType.name:
 				return this.ParseName (atom);
+			case AtomType.ctry:
+				return this.ParseCtry (atom);
+			case AtomType.lang:
+				return this.ParseLang (atom);
 			case AtomType.dref:
 				return this.ParseDref (atom);
 			case AtomType.alis:
@@ -186,13 +192,11 @@ namespace IsoParser.Lib.Concretes
 		#region atom types
 		private (List<Item>, int) ParseFtyp (Atom atom)
 		{
-			return this.ParseAtom (buffer => {
-				return (new[] {
-					new Item { Name = "MajorBrand", Type = ItemType.String, Value = DataType.ByteString (buffer, 8) },
-					new Item { Name = "MinorBrand", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) },
-					new Item { Name = "CompatibleBrands", Type = ItemType.String, Value = DataType.ByteString(buffer, 16, (int) atom.Size - 16) }
-				}.ToList (), 0);
-			}, atom);
+			return this.ParseAtom (buffer => (new[] {
+				new Item { Name = "MajorBrand", Type = ItemType.String, Value = DataType.ByteString (buffer, 8) },
+				new Item { Name = "MinorBrand", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) },
+				new Item { Name = "CompatibleBrands", Type = ItemType.String, Value = DataType.ByteString(buffer, 16, (int) atom.Size - 16) }
+			}.ToList (), 0), atom);
 		}
 
 		private (List<Item>, int) ParseMvhd (Atom atom)
@@ -222,23 +226,21 @@ namespace IsoParser.Lib.Concretes
 
 		private (List<Item>, int) ParseTkhd (Atom atom)
 		{
-			return this.ParseAtom (buffer => {
-				return (new[] {
-					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
-					new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
-					new Item { Name = "FlagDetails", Type = ItemType.String, Value = this.ParseFlags ((uint)DataType.ByteInt (buffer, 8) & 0xffffff) },
-					new Item { Name = "CreationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 12, atom.Offset) },
-					new Item { Name = "ModificationTime", Type = ItemType.String, Value = this.ParseTime (buffer, 16, atom.Offset) },
-					new Item { Name = "TrackID", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 20) },
-					new Item { Name = "Duration", Type = ItemType.String, Value = this.ParseDuration (buffer, 28, this.timeScale) },
-					new Item { Name = "Layer", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 40) },
-					new Item { Name = "AlternateGroup", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 42) },
-					new Item { Name = "Volume", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 44) },
-					new Item { Name = "MatrixStructure", Type = ItemType.Matrix, Value = this.ParseMatrix (buffer, 48) },
-					new Item { Name = "TrackWidth", Type = ItemType.Double, Value = this.ParseDimension (buffer, 84) },
-					new Item { Name = "TrackHeight", Type = ItemType.Double, Value = this.ParseDimension (buffer, 88) }
-				}.ToList (), 0);
-			}, atom);
+			return this.ParseAtom (buffer => (new[] {
+				new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
+				new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
+				new Item { Name = "FlagDetails", Type = ItemType.String, Value = this.ParseFlags ((uint)DataType.ByteInt (buffer, 8) & 0xffffff) },
+				new Item { Name = "CreationTime", Type = ItemType.String, Value = this.ParseTime(buffer, 12, atom.Offset) },
+				new Item { Name = "ModificationTime", Type = ItemType.String, Value = this.ParseTime (buffer, 16, atom.Offset) },
+				new Item { Name = "TrackID", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 20) },
+				new Item { Name = "Duration", Type = ItemType.String, Value = this.ParseDuration (buffer, 28, this.timeScale) },
+				new Item { Name = "Layer", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 40) },
+				new Item { Name = "AlternateGroup", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 42) },
+				new Item { Name = "Volume", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 44) },
+				new Item { Name = "MatrixStructure", Type = ItemType.Matrix, Value = this.ParseMatrix (buffer, 48) },
+				new Item { Name = "TrackWidth", Type = ItemType.Double, Value = this.ParseDimension (buffer, 84) },
+				new Item { Name = "TrackHeight", Type = ItemType.Double, Value = this.ParseDimension (buffer, 88) }
+			}.ToList (), 0), atom);
 		}
 		private string ParseFlags (uint flags)
 		{
@@ -309,13 +311,11 @@ namespace IsoParser.Lib.Concretes
 
 		private (List<Item>, int) ParseSmhd (Atom atom)
 		{
-			return this.ParseAtom (buffer => {
-				return (new[] {
-					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
-					new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
-					new Item { Name = "Balance", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 12) }
-				}.ToList (), 0);
-			}, atom);
+			return this.ParseAtom (buffer => (new[] {
+				new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
+				new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
+				new Item { Name = "Balance", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 12) }
+			}.ToList (), 0), atom);
 		}
 
 		private (List<Item>, int) ParseLoad (Atom atom)
@@ -365,12 +365,14 @@ namespace IsoParser.Lib.Concretes
 					items.Add (new Item { Name = "MediaTime", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 20 + 12 * i) });
 					items.Add (new Item { Name = "MediaRate", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 24 + 12 * i) });
 					if (this.timeScale.HasValue && this.timeScale != 0)
+					{
 						items.Add (new Item
 						{
 							Name = "TrackDurationSec",
 							Type = ItemType.Double,
 							Value = (double)DataType.ByteInt (buffer, 16 + 12 * i) / (double)this.timeScale
 						});
+					}
 				}
 
 				return (items, 0);
@@ -379,13 +381,11 @@ namespace IsoParser.Lib.Concretes
 
 		private (List<Item>, int) ParseDref (Atom atom)
 		{
-			return this.ParseAtom (buffer => {
-				return (new[] {
-					new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
-					new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
-					new Item { Name = "Entries", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) }
-				}.ToList (), 8);
-			}, atom);
+			return this.ParseAtom (buffer => (new[] {
+				new Item { Name = "Version", Type = ItemType.Byte, Value = buffer[8] },
+				new Item { Name = "Flags", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff },
+				new Item { Name = "Entries", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) }
+			}.ToList (), 8), atom);
 		}
 
 		private (List<Item>, int) ParseHdlr (Atom atom)
@@ -417,6 +417,13 @@ namespace IsoParser.Lib.Concretes
 			}, atom);
 		}
 
+		private (List<Item>, int) ParseMhdr (Atom atom)
+		{
+			return this.ParseAtom (buffer => (new[] {
+				new Item { Name = "NextItemID", Type = ItemType.Int, Value = DataType.ByteUInt (buffer, 12) }
+			}.ToList (), 0), atom);
+		}
+
 		private (List<Item>, int) ParseKeys (Atom atom)
 		{
 			return this.ParseAtom (buffer => (new[] {
@@ -441,8 +448,11 @@ namespace IsoParser.Lib.Concretes
 		private (List<Item>, int) ParseData (Atom atom)
 		{
 			return this.ParseAtom (buffer => (new[] {
-				new Item { Name = "Type", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) },
-				new Item { Name = "Locale", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 12) },
+				new Item { Name = "TypeSet", Type = ItemType.Byte, Value = buffer[8] },
+				new Item { Name = "Type", Type = ItemType.Int, Value = DataType.ByteInt (buffer, 8) & 0xffffff},
+				new Item { Name = "TypeDesc", Type = ItemType.String, Value = $"{(WellKnownType)(DataType.ByteInt (buffer, 8) & 0xffffff)}" },
+				new Item { Name = "CountryIndicator", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 12) },
+				new Item { Name = "LanguageIndicator", Type = ItemType.Short, Value = DataType.ByteShort (buffer, 14) },
 				new Item { Name = "Value", Type = ItemType.String, Value = DataType.ByteString (buffer, 16, DataType.ByteInt(buffer, 0) - 16) }
 			}.ToList (), 0), atom);
 		}
@@ -454,13 +464,64 @@ namespace IsoParser.Lib.Concretes
 			}.ToList (), 0), atom);
 		}
 
-
 		// TODO: compare with the 'name' atom in metadata (ilst)
 		private (List<Item>, int) ParseName (Atom atom)
 		{
 			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "Name", Type = ItemType.String, Value = Encoding.UTF8.GetString (buffer.Skip (8).Take (DataType.ByteInt (buffer, 0) - 8).ToArray ()) }
 			}.ToList (), 0), atom);
+		}
+
+		private (List<Item>, int) ParseCtry (Atom atom)
+		{
+			return this.ParseAtom (buffer => {
+				List<Item> items = new ();
+
+				int count = DataType.ByteInt (buffer, 8);
+				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
+
+				int offset = 12;
+				for (int i = 0; i < count; i++)
+				{
+					short ctries = DataType.ByteShort (buffer, offset);
+					items.Add (new Item { Name = "Countries", Type = ItemType.Short, Value = ctries });
+					for (short j = 0; j < ctries; j++)
+					{
+						items.Add (new Item { Name = "Country", Type = ItemType.String, Value = DataType.ByteString (buffer, offset + 2 + j * 2, 2) });
+					}
+
+					offset += 2 + ctries * 2;
+				}
+
+				return (items, 0);
+			}, atom);
+		}
+
+		private (List<Item>, int) ParseLang (Atom atom)
+		{
+			return this.ParseAtom (buffer => {
+				List<Item> items = new ();
+
+				int count = DataType.ByteInt (buffer, 8);
+				items.Add (new Item { Name = "Entries", Type = ItemType.Int, Value = count });
+
+				int offset = 12;
+				for (int i = 0; i < count; i++)
+				{
+					short ctries = DataType.ByteShort (buffer, offset);
+					items.Add (new Item { Name = "Countries", Type = ItemType.Short, Value = ctries });
+					for (short j = 0; j < ctries; j++)
+					{
+						short ctry = DataType.ByteShort (buffer, offset + 2 + j * 2);
+						items.Add (new Item { Name = "Country", Type = ItemType.Short, Value = ctry });
+						items.Add (new Item { Name = "CountryDesc", Type = ItemType.String, Value = string.Join(string.Empty, Array.ConvertAll(new [] { (ctry >> 10) & 31, (ctry >> 5) & 31, ctry & 31 }, x => (char)(x + 0x60))) });
+					}
+
+					offset += 2 + ctries * 2;
+				}
+
+				return (items, 0);
+			}, atom);
 		}
 
 		private (List<Item>, int) ParseGmin (Atom atom)
@@ -655,16 +716,12 @@ namespace IsoParser.Lib.Concretes
 		*/
 		private (List<Item>, int) ParseEsds (Atom atom)
 		{
-			return this.ParseAtom (buffer => {
-				List<Item> items = new ();
-
-				items.Add (new Item { Name = "ESDescrTag", Type = ItemType.Byte, Value = buffer[12]});
-				items.Add (new Item { Name = "ESID", Type = ItemType.UShort, Value = DataType.ByteUShort(buffer, 13) });
-				items.Add (new Item { Name = "ESFlags", Type = ItemType.Byte, Value = (buffer[15] >> 5) });
-				items.Add (new Item { Name = "StreamPriority", Type = ItemType.Byte, Value = buffer[15] & 31 });
-
-				return (items, 0);
-			}, atom);
+			return this.ParseAtom (buffer => (new[] {
+				new Item { Name = "ESDescrTag", Type = ItemType.Byte, Value = buffer[12]},
+				new Item { Name = "ESID", Type = ItemType.UShort, Value = DataType.ByteUShort(buffer, 13) },
+				new Item { Name = "ESFlags", Type = ItemType.Byte, Value = (buffer[15] >> 5) },
+				new Item { Name = "StreamPriority", Type = ItemType.Byte, Value = buffer[15] & 31 }
+			}.ToList(), 0), atom);
 		}
 
 		/* Core Audio Format Specification */
@@ -698,12 +755,9 @@ namespace IsoParser.Lib.Concretes
 
 		private (List<Item>, int) ParseFrma (Atom atom)
 		{
-			return this.ParseAtom (buffer =>
-			{
-				return (new[] {
-					new Item { Name = "DataFormat", Type = ItemType.String, Value = DataType.ByteString(buffer, 8, (int)atom.Size - 8) }
-				}.ToList (), 0);
-			}, atom);
+			return this.ParseAtom (buffer => (new[] {
+				new Item { Name = "DataFormat", Type = ItemType.String, Value = DataType.ByteString(buffer, 8, (int)atom.Size - 8) }
+			}.ToList (), 0), atom);
 		}
 
 		//TODO: details

@@ -512,7 +512,9 @@ namespace IsoParser.Lib.Concretes
 					items.Add (new Item { Name = "Countries", Type = ItemType.Short, Value = ctries });
 					for (short j = 0; j < ctries; j++)
 					{
-						items.Add (new Item { Name = "Country", Type = ItemType.Short, Value = DataType.ByteShort (buffer, offset + 2 + j * 2) });
+						short ctry = DataType.ByteShort (buffer, offset + 2 + j * 2);
+						items.Add (new Item { Name = "Country", Type = ItemType.Short, Value = ctry });
+						items.Add (new Item { Name = "CountryDesc", Type = ItemType.String, Value = string.Join(string.Empty, Array.ConvertAll(new [] { (ctry >> 10) & 31, (ctry >> 5) & 31, ctry & 31 }, x => (char)(x + 0x60))) });
 					}
 
 					offset += 2 + ctries * 2;

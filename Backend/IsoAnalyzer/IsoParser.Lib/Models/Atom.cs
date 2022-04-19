@@ -62,7 +62,7 @@ namespace IsoParser.Lib.Models
 		crsr = 0x63727372,  //crsr, sprite cursor behavior
 		cslg = 0x63736c67,  //cslg, composition shift least greatest
 		ctab = 0x63746162,  //ctab, color table
-		ctry = 0x63747279,  //ctry, contry list
+		ctry = 0x63747279,  //ctry, metadata contry list
 		ctts = 0x63747473,  //ctts, composition offset
 		data = 0x64617461,  //data, value atome
 		defi = 0x64656669,  //defi, sprite image defualt image index
@@ -109,7 +109,7 @@ namespace IsoParser.Lib.Models
 		itif = 0x69746966,  //itif, item information
 		keys = 0x6b657973,  //keys, metadata item keys
 		kmat = 0x6b6d6174,  //kmat, compressed metta
-		lang = 0x6c616e67,  //lang, language list
+		lang = 0x6c616e67,  //lang, metadata language list
 		load = 0x6c6f6164,  //load, track load settings
 		matt = 0x6d617474,  //matt, track metta
 		mdat = 0x6d646174,  //mdat, media data

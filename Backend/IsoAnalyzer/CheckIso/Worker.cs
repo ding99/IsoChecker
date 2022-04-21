@@ -6,6 +6,8 @@ using System.Linq;
 using IsoParser.Lib.Concretes;
 using IsoParser.Lib.Models;
 
+using Utils.CEA608;
+using Utils.CEA608.Models;
 using Utils.CEA708;
 using Utils.CEA708.Models;
 
@@ -99,16 +101,20 @@ namespace CheckIso {
             if (sub.Type.Equals ("c708"))
             {
 				List<C708Line> c708lines = new ();
-
 				int number = 0;
 				foreach(var frame in sub.Frames)
 					c708lines.Add (new C708Line (number++.ToString(), frame));
 
-                Console.WriteLine ($"detail {this._detail}");
 				C708Framework framework = new C708Parser ().Decode (c708lines);
+
 				if(this._detail)
 					b.AppendLine (framework.ShowPockets (maxRepeat));
 				b.AppendLine (framework.ShowBlocks ());
+				b.AppendLine (framework.ShowFields ());
+            }
+			else if(sub.Type.Equals ("c608"))
+            {
+				C608Framework framework = new C608Parser ().Decode (Array.ConvertAll (sub.Frames.ToArray(), x => (x[0] << 8) + x[1]));
 				b.AppendLine (framework.ShowFields ());
             }
 		}

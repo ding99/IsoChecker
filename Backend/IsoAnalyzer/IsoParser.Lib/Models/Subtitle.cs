@@ -10,6 +10,8 @@ namespace IsoParser.Lib.Models
         public List<byte[]> Frames { get; set; }
         public List<string> Boxes { get; set; }
 
+        public List<Segment> Segments { get; set; }
+
         public Subtitle ()
         {
             this.Format =  string.Empty;
@@ -18,6 +20,20 @@ namespace IsoParser.Lib.Models
             this.Notes = new ();
             this.Frames = new ();
             this.Boxes = new ();
+
+            this.Segments = new ();
+        }
+    }
+
+    public class Segment
+    {
+        public string Start { get; set; }
+        public List<int> Words { get; set; }
+
+        public Segment ()
+        {
+            this.Start = string.Empty;
+            this.Words = new ();
         }
     }
 }

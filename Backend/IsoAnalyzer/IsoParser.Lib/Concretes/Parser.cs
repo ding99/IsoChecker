@@ -30,7 +30,6 @@ namespace IsoParser.Lib.Concretes
 				AtomType.imap,
 				AtomType.IN,
 				AtomType.matt,
-				AtomType.meta,
 				AtomType.mdia,
 				AtomType.minf,
 				AtomType.moov,

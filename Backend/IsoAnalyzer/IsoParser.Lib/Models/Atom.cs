@@ -49,6 +49,7 @@ namespace IsoParser.Lib.Models
 		alis = 0x616c6973,  //alis, Macintosh alias
 		beha = 0x62656861,  //beha, sprite behavior
 		btrt = 0x62747274,  //btrt, bit rate
+		bxml = 0x62786d6c,  //mp4-12, binary XML container
 		cdsc = 0x63647363,  //cdsc, reference in timed metaata track
 		chan = 0x6368616e,  //chan, audio channel layout
 		chap = 0x63686170,  //chap, chapter or scene list
@@ -57,7 +58,9 @@ namespace IsoParser.Lib.Models
 		clef = 0x636c6566,  //clef, track clean aperture dimension
 		clip = 0x636c6970,  //clip, clipping
 		cmov = 0x636d6f76,  //cmov, compressed movie
+		co64 = 0x637f3634,  //mp4-12, 64-bit chunk offset
 		colr = 0x636f6c72,  //colr, color parameters
+		cprt = 0x63707274,  //mp4-12, copyright etc.
 		crgn = 0x6372676e,  //crgn, clipping region
 		crsr = 0x63727372,  //crsr, sprite cursor behavior
 		cslg = 0x63736c67,  //cslg, composition shift least greatest
@@ -82,7 +85,7 @@ namespace IsoParser.Lib.Models
 		folw = 0x666f6c77,  //folw, ref subtitle track from audio
 		forc = 0x666f7263,  //forc, forced subtitle
 		free = 0x66726565,  //free, free space
-		frma = 0x66726d61,  //frma, format
+		frma = 0x66726d61,  //frma, format, orig format box
 		ftab = 0x67746162,  //ftab, text sample
 		ftyp = 0x66747970,  //ftyp, file type compatibility
 		gmhd = 0x676d6864,  //gmhd, base media info head
@@ -93,19 +96,26 @@ namespace IsoParser.Lib.Models
 		hinf = 0x68696e66,  //hinf, hint track info
 		hint = 0x68696e74,  //hint, ref original media
 		hlit = 0x686c6974,  //hlit, text sample
+		hmhd = 0x686d6864,  //mp4-12, hint media head, overall info
 		hnti = 0x686e7469,  //hnti, movie user data
 		htxt = 0x68747874,  //htxt, hypertext
 		idat = 0x69646174,  //idat, image data
 		idsc = 0x69647363,  //idsc, image description
+		iinf = 0x69696e66,  //mp4-12, item info
+		iloc = 0x696c6f63,  //mp4-12, item location
 		ilst = 0x696c7374,  //ilst, metadata item list
 		imda = 0x696d6461,  //imda, sprite imaged datatkhd
 		imag = 0x696d6167,  //imag, text sample, sprite image
 		imap = 0x696d6170,  //imap, track input map
 		imct = 0x696d6374,  //imct, sprite images container
 		imgr = 0x696d6772,  //imgr, sprite image group id
+		imif = 0x696d6966,  //mp4-12, IPMP info box
+		impc = 0x696d7063,  //mp4-12, IPMP control box
 		imre = 0x696d7265,  //imre, sprite image data ref
 		imrg = 0x696d7267,  //imrg, sprite image registration
 		imrt = 0x696d7274,  //imrt, sprite image data ref type
+		ipmc = 0x69706d63,  //mp4-12, IPMP control box
+		ipro = 0x6970726f,  //mp4-12, item protection
 		itif = 0x69746966,  //itif, item information
 		keys = 0x6b657973,  //keys, metadata item keys
 		kmat = 0x6b6d6174,  //kmat, compressed metta
@@ -116,16 +126,26 @@ namespace IsoParser.Lib.Models
 		mdia = 0x6d646961,  //mdia, media
 		mdhd = 0x6d646864,  //mdhd, media header
 		mdta = 0x6d647461,  //mdta, key namespace
+		mehd = 0x6d656864,  //mp4-12, movie extends head box
 		meta = 0x6d657461,  //meta, metadata
 		metr = 0x6d657472,  //metr, text sample
+		mfhd = 0x6d666864,  //mp4-12, movie fragment head
+		mfra = 0x6d667261,  //mp4-12, movie fragment random access
+		mfro = 0x6d66726f,  //mp4-12, movie fragment random access offset
 		mhdr = 0x6d686472,  //mhdr, metadata header
 		minf = 0x6d696e66,  //minf, media info
+		moof = 0x6d6f6f66,  //mp4-12, movie fragment
 		moov = 0x6d6f6f76,  //moov, movie
+		mvex = 0x6d766578,  //mp4-12, movie extends box
 		mvhd = 0x6d766864,  //mvhd, movie header
 		name = 0x6e616d65,  //name, sprite name, image name
+		nhmd = 0x6e686d64,  //mp4-12, Null media head, overall info
 
 		obid = 0x6f626964,  //obid, object id
+		padb = 0x70616462,  //mp4-12, sample padding bits
 		pasp = 0x70617370,  //pasp, pixel aspect ratio
+		pdin = 0x7064736e,  //mp4-12, progressive download info
+		pitm = 0x7069746d,  //mp4-12, primary item reference
 		pnot = 0x706e6f74,  //pnot, preview atom
 		prfl = 0x7072666c,  //prfl, profile
 		prof = 0x70726f66,  //prof, track production aperture dimensions
@@ -133,9 +153,12 @@ namespace IsoParser.Lib.Models
 		rmra = 0x726d7261,  //rmra, ref movie
 		rsrc = 0x72737363,  //rsrc, Macintosh alias
 		sbgp = 0x73626770,  //sbgp, sample-to-group
+		schi = 0x73636869,  //mp4-12, scheme info box
+		schm = 0x7363686d,  //mp4-12, scheme type box
 		scpt = 0x73637074,  //scpt, transcript (ref a text track)
 		sdtp = 0x73647470,  //sdtp, sample dependency flags
 		sgpd = 0x73677064,  //sgpd, sample group description
+		sinf = 0x73696e66,  //mp4-12, protection scheme info box
 		skip = 0x736b6970,  //skip, placeholder for unused space
 		smhd = 0x736d6864,  //smhd, sound media info header
 		sprt = 0x73707274,  //sprt, sprite
@@ -143,6 +166,7 @@ namespace IsoParser.Lib.Models
 		sstr = 0x73737472,  //sstr, sprite status string behavior
 		stbl = 0x7374626c,  //stbl, sample table
 		stco = 0x7374636f,  //stco, chunk offset
+		stdp = 0x73746470,  //mp4-12, sample degradatin priotiry
 		stps = 0x73747073,  //stps, partial sync sample
 		strv = 0x73747276,  //strv, sprite string variable
 		stsc = 0x73747363,  //stsc, sample-to-chunk
@@ -150,16 +174,20 @@ namespace IsoParser.Lib.Models
 		stsh = 0x73747368,  //stsh, shadow sync
 		stss = 0x73747373,  //stss, sync sample
 		stsz = 0x7374737a,  //stsz, sample size
+		stz2 = 0x73747a32,  //mp4-12, compact sample sizes
 		stts = 0x73747473,  //stts, time-to-sample
 		styl = 0x7374796c,  //styl, text sample
+		subs = 0x73756273,  //mp4-12, sub-sample info
 		sync = 0x73796e63,  //sync, synchronization
 		tapt = 0x74617074,  //tapt, track apeture mode dimensions
 		tcmi = 0x74636d69,  //tcmi, timecode media info
+		tfra = 0x74667261,  //mp4-12, track fragment random access
 		tkhd = 0x746b6864,  //tkhd, track header
 		tmcd = 0x746d6364,  //tmcd, time code
 		tnam = 0x746e616d,  //tnam, track name
 		trak = 0x7472616b,  //trak, track
 		tref = 0x74726566,  //tref, track reference
+		trun = 0x7472756e,  //mp4-12, track fragment run
 		txas = 0x74786173,  //txas, track exclude from autoselection
 
 		udta = 0x75647461,  //udta, user data
@@ -172,6 +200,7 @@ namespace IsoParser.Lib.Models
 
 		RTP = 0x72747020,  //'rtp ', real time protocal, hint sample data format
 		URL = 0x75726c20,  //'url ', sprite url link
+		XML = 0x786d6c20,  //'mxl ', mp4-12, XML container
 
 		IN = 0x2020696e,  // '  in'
 		TY = 0x20207479,  // '  ty'

@@ -89,95 +89,97 @@ namespace IsoParser.Lib.Concretes
 		{
 			switch (atom.Type)
 			{
-			case AtomType.ftyp:
-				return this.ParseFtyp (atom);
-			case AtomType.mvhd:
-				return this.ParseMvhd (atom);
-			case AtomType.tkhd:
-				return this.ParseTkhd (atom);
-			case AtomType.mdhd:
-				return this.ParseMdhd (atom);
-			case AtomType.vmhd:
-				return this.ParseVmhd (atom);
-			case AtomType.smhd:
-				return this.ParseSmhd (atom);
-			case AtomType.load:
-				return this.ParseLoad (atom);
-			case AtomType.elst:
-				return this.ParseElst (atom);
-			case AtomType.hdlr:
-				return this.ParseHdlr (atom);
-			case AtomType.mhdr:
-				return this.ParseMhdr (atom);
-			case AtomType.keys:
-				return this.ParseKeys (atom);
-			case AtomType.mdta:
-			case AtomType.udta:
-				return this.ParseMdta (atom);
-			case AtomType.ITEM:
-				return this.ParseItem (atom, index);
-			case AtomType.data:
-				return this.ParseData (atom);
-			case AtomType.itif:
-				return this.ParseItif (atom);
-			case AtomType.name:
-				return this.ParseName (atom);
-			case AtomType.ctry:
-				return this.ParseCtry (atom);
-			case AtomType.lang:
-				return this.ParseLang (atom);
-			case AtomType.dref:
-				return this.ParseDref (atom);
 			case AtomType.alis:
 				return this.ParseAlis (atom);
-			case AtomType.rsrc:
-				return this.ParseRsrc (atom);
-			case AtomType.URL:
-				return this.ParseUrl (atom);
-			case AtomType.gmin:
-				return this.ParseGmin (atom);
-			case AtomType.stsd:
-				return this.ParseStsd (atom);
-			case AtomType.stss:
-				return this.ParseStss (atom);
-			case AtomType.stts:
-				return this.ParseStts (atom);
-			case AtomType.stsz:
-				return this.ParseStsz (atom);
-			case AtomType.stsc:
-				return this.ParseStsc (atom);
-			case AtomType.stco:
-				return this.ParseStco (atom);
-			case AtomType.tmcd:
-				return this.ParseTmcd (atom);
-			case AtomType.tcmi:
-				return this.ParseTcmi (atom);
 			case AtomType.avc1:
 				return this.ParseAvc1 (atom);
 			case AtomType.avcC:
 				return this.ParseAvcC (atom);
 			case AtomType.btrt:
 				return this.ParseBtrt (atom);
-			case AtomType.colr:
-				return this.ParseColr (atom);
-			case AtomType.pasp:
-				return this.ParsePasp (atom);
-			case AtomType.fiel:
-				return this.ParseFiel (atom);
-			case AtomType.clap:
-				return this.ParseClap (atom);
-			case AtomType.mp4a:
-				return this.ParseMp4a (atom);
-			case AtomType.chan:
-				return this.ParseChan (atom);
-			case AtomType.frma:
-				return this.ParseFrma (atom);
-			case AtomType.esds:
-				return this.ParseEsds (atom);
 			case AtomType.c608:
 				return this.ParseC608 (atom);
 			case AtomType.c708:
 				return this.ParseC708 (atom);
+			case AtomType.chan:
+				return this.ParseChan (atom);
+			case AtomType.clap:
+				return this.ParseClap (atom);
+			case AtomType.colr:
+				return this.ParseColr (atom);
+			case AtomType.ctry:
+				return this.ParseCtry (atom);
+			case AtomType.data:
+				return this.ParseData (atom);
+			case AtomType.dref:
+				return this.ParseDref (atom);
+			case AtomType.elst:
+				return this.ParseElst (atom);
+			case AtomType.esds:
+				return this.ParseEsds (atom);
+			case AtomType.fiel:
+				return this.ParseFiel (atom);
+			case AtomType.frma:
+				return this.ParseFrma (atom);
+			case AtomType.ftyp:
+				return this.ParseFtyp (atom);
+			case AtomType.gmin:
+				return this.ParseGmin (atom);
+			case AtomType.hdlr:
+				return this.ParseHdlr (atom);
+			case AtomType.itif:
+				return this.ParseItif (atom);
+			case AtomType.keys:
+				return this.ParseKeys (atom);
+			case AtomType.lang:
+				return this.ParseLang (atom);
+			case AtomType.load:
+				return this.ParseLoad (atom);
+			case AtomType.mdhd:
+				return this.ParseMdhd (atom);
+			case AtomType.mdta:
+			case AtomType.udta:
+				return this.ParseMdta (atom);
+			case AtomType.meta:
+				return this.ParseMeta (atom);
+			case AtomType.mhdr:
+				return this.ParseMhdr (atom);
+			case AtomType.mp4a:
+				return this.ParseMp4a (atom);
+			case AtomType.mvhd:
+				return this.ParseMvhd (atom);
+			case AtomType.name:
+				return this.ParseName (atom);
+			case AtomType.pasp:
+				return this.ParsePasp (atom);
+			case AtomType.rsrc:
+				return this.ParseRsrc (atom);
+			case AtomType.smhd:
+				return this.ParseSmhd (atom);
+			case AtomType.stco:
+				return this.ParseStco (atom);
+			case AtomType.stsc:
+				return this.ParseStsc (atom);
+			case AtomType.stsd:
+				return this.ParseStsd (atom);
+			case AtomType.stss:
+				return this.ParseStss (atom);
+			case AtomType.stsz:
+				return this.ParseStsz (atom);
+			case AtomType.stts:
+				return this.ParseStts (atom);
+			case AtomType.tcmi:
+				return this.ParseTcmi (atom);
+			case AtomType.tkhd:
+				return this.ParseTkhd (atom);
+			case AtomType.tmcd:
+				return this.ParseTmcd (atom);
+			case AtomType.vmhd:
+				return this.ParseVmhd (atom);
+			case AtomType.ITEM:
+				return this.ParseItem (atom, index);
+			case AtomType.URL:
+				return this.ParseUrl (atom);
 			}
 
 			return (Array.Empty<Item> ().ToList (), 0);
@@ -436,6 +438,20 @@ namespace IsoParser.Lib.Concretes
 			return this.ParseAtom (buffer => (new[] {
 				new Item { Name = "KeyValue", Type = ItemType.String, Value = DataType.ByteString (buffer, 8, DataType.ByteInt (buffer, 0) - 8) }
 			}.ToList (), 0), atom);
+		}
+
+		private (List<Item>, int) ParseMeta (Atom atom)
+		{
+			return this.ParseAtom (buffer =>
+			{
+				int offset = 0;
+
+				if (DataType.ByteUInt (buffer, 0) > 15 && !Enum.IsDefined (typeof (AtomType), DataType.ByteInt (buffer, 12))) {
+					offset += 4;
+				}
+
+				return (new List<Item>(), offset);
+			}, atom);
 		}
 
 		private (List<Item>, int) ParseItem (Atom atom, int index)

@@ -2,7 +2,7 @@
   "profiles": {
     "CheckIso": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\Data\\Subtitle\\scra2997_embed.mp4 s m d"
+      "commandLineArgs": "D:\\Data\\Subtitle\\Embed\\scra2997_embed.mp4 s m d"
     }
   }
 }

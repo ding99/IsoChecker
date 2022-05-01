@@ -1,15 +1,15 @@
 <template>
-  <img alt="Vue logo" src="./assets/iso96.png">
-  <HelloWorld msg="Iso Viewer"/>
+  <img alt="iso viewer logo" src="./assets/iso64.png">
+  <ContainerRoot msg="Iso Viewer"/>
 </template>
 
 <script>
-import HelloWorld from './components/HelloIso.vue'
+import ContainerRoot from './components/ContainerRoot.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    ContainerRoot
   }
 }
 </script>

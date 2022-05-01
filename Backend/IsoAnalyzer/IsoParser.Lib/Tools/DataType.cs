@@ -39,6 +39,12 @@ namespace IsoParser.Lib.Tools
 				data.Skip (offset).Take (size).ToArray ().Aggregate ("", (x, y) => x + Convert.ToChar (y));
 		}
 
+		public static string PascalString (byte[] data, int offset)
+		{
+			return data.Skip (offset + 1).Take (data[offset]).All (v => v == 0) ? string.Empty :
+				data.Skip (offset + 1).Take (data[offset]).ToArray ().Aggregate ("", (x, y) => x + Convert.ToChar (y));
+		}
+
 		public static bool ValidId (int id)
 		{
 			return ValidByte (id >> 24)

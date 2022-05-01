@@ -13,7 +13,6 @@ namespace IsoParser.Lib.Concretes
 
 		private const int MaxSize = 1_048_576;
 		private readonly HashSet<AtomType> containers;
-		private readonly Dictionary<AtomType, int> references;
 
 		private readonly IsoInfo iso;
 
@@ -24,25 +23,21 @@ namespace IsoParser.Lib.Concretes
 			this.file = null;
 
 			this.containers = new HashSet<AtomType> {
-				AtomType.CLIP,
-				AtomType.DINF,
-				AtomType.EDTS,
-				AtomType.GMHD,
-				AtomType.IMAP,
+				AtomType.clip,
+				AtomType.dinf,
+				AtomType.edts,
+				AtomType.gmhd,
+				AtomType.imap,
 				AtomType.IN,
-				AtomType.MATT,
-				AtomType.META,
-				AtomType.MDIA,
-				AtomType.MINF,
-				AtomType.MOOV,
-				AtomType.STBL,
-				AtomType.TRAK,
-				AtomType.UDTA
-			};
-
-            this.references = new Dictionary<AtomType, int> {
-				[AtomType.DREF] = 8,
-				[AtomType.STSD] = 8
+				AtomType.matt,
+				AtomType.mdia,
+				AtomType.minf,
+				AtomType.moov,
+				AtomType.stbl,
+				AtomType.trak,
+				AtomType.ilst,
+				AtomType.wave,
+				AtomType.udta
 			};
 
 			this.iso = new ();

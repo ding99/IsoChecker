@@ -3,7 +3,7 @@
     <h1>{{ msg }}</h1>
     <p>
       Parse ISO file<br>
-      Video, Audio Subtitle analysis
+      Video, Audio, Subtitle Analyzer
     </p>
     <h3>ISO format</h3>
     <ul>
@@ -23,7 +23,7 @@
 
 <script>
 export default {
-  name: 'HelloIso',
+  name: 'ContainerRoot',
   props: {
     msg: String
   }

@@ -1,5 +1,5 @@
 <template>
-  <img alt="iso viewer logo" src="./assets/iso64.png">
+  <img alt="iso viewer logo" src="./assets/iso32.png">
   <ContainerRoot msg="Iso Viewer"/>
 </template>
 
